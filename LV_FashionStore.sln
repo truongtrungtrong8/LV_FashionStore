@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web_Api_Server", "Web_Api_Server\Web_Api_Server.csproj", "{D19B2A0D-F006-43FE-94A8-3824B478D3D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web_Client", "Web_Client\Web_Client.csproj", "{BC10670E-A1F6-4585-BE3A-0D61EDD7A0DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web_Client", "Web_Client\Web_Client.csproj", "{BC10670E-A1F6-4585-BE3A-0D61EDD7A0DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

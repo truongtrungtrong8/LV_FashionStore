@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.DataDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
+   
     public class Sanpham_Model
     {
         public string MaSp { get; set; } = null!;
@@ -14,7 +16,7 @@ namespace Model
         public string MaLoai { get; set; } = null!;
         public string? TenSp { get; set; }
         public string MaSize { get; set; } = null!;
-        public int? GiaSp { get; set; }
+        public int GiaSp { get; set; }
         public byte? Baohanh { get; set; }
         public string? Mota { get; set; }
 
@@ -24,5 +26,7 @@ namespace Model
         public string? Ha1 { get; set; }
         public string? Ha2 { get; set; }
         public string? Ha3 { get; set; }
+        public string? TenHsx { get; set; }
+        public string? Tenloai { get; set; }
     }
 }

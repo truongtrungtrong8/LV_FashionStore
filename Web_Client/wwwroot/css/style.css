@@ -1051,18 +1051,18 @@ div.nivo-controlNav a.active{
 }
 .slider-cap-text h2{
 	background: rgba(70, 70, 70, 0.5) none repeat scroll 0 0;
-	color: #f32509;
+	color: #fff;
 	display: inline-block;
-	font-size: 60px;
+	font-size: 48px;
 	line-height: 52px;
 	padding: 10px 20px;	
 }
 .slider-cap-text p{
-	color:#F6F6F6;
+	color:#000;
 	margin:15px 0;
 	padding-right:170px;
 	padding-bottom:5px;
-	font-size:20px;
+	font-size:13px;
 }
 .slider-cap-text a{
 	background:rgba(70, 70, 70, 0.5) none repeat scroll 0 0;

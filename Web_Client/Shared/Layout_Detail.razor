@@ -1,11 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject IJSRuntime JS
 
-<PageTitle>Web_Client</PageTitle>
-
-
-
-
 
 
 <body>
@@ -129,9 +124,9 @@
                                     <option value="66">--phone</option>
                                     <option value="27">---house</option>
                                 </select>
-                                
-                                <input type="search" class="form-control search-form" name="search" placeholder="Tìm kiếm  ... " @*value="@ViewData["Get"]"*@ autocomplete="off"/>
-                                <button class="search-button" @*value="@ViewData["Get"]"*@ name="search" type="submit">
+
+                                <input type="search" class="form-control search-form" name="search" placeholder="Tìm kiếm  ... " @*value="@ViewData[" Get"]"*@ autocomplete="off" />
+                                <button class="search-button" @*value="@ViewData[" Get"]"*@ name="search" type="submit">
                                     <i class="fa fa-search"></i>
                                 </button>
                             </div>
@@ -151,7 +146,7 @@
                 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 pull-right shopingcartarea">
                     <div class="shopping-cart-out pull-right">
                         <div class="shopping-cart">
-                           
+
 
                             <a class="shop-link" asp-area="" asp-controller="Sanphams" asp-action="ListCart">
                                 <i class="fa fa-shopping-cart cart-icon">
@@ -183,7 +178,7 @@
                                     <!-- DROPDOWN MENU END -->
                                 </li>
                                 <li>
-                                    <a href="/Sanpham/Ao">Áo</a>
+                                    <a asp-controller="Sanphams" asp-action="Ao">Áo</a>
                                     <!-- DRODOWN-MEGA-MENU START -->
                                     <div class="drodown-mega-menu">
                                         <div class="left-mega col-xs-6">
@@ -211,7 +206,7 @@
                                     <!-- DRODOWN-MEGA-MENU END -->
                                 </li>
                                 <li>
-                                    <a href="/Sanpham/Quan">Quần</a>
+                                    <a asp-controller="Sanphams" asp-action="Quan">Quần</a>
                                     <!-- DRODOWN-MEGA-MENU START -->
                                     <div class="drodown-mega-menu">
                                         <div class="left-mega col-xs-6">
@@ -227,7 +222,7 @@
                                     <!-- DRODOWN-MEGA-MENU END -->
                                 </li>
                                 <li>
-                                    <a href="/Sanpham/Giay">Giày</a>
+                                    <a href="~/shop-gird.html">Giày</a>
                                     <!-- DRODOWN-MEGA-MENU START -->
                                     <div class="drodown-mega-menu">
                                         <div class="left-mega col-xs-6">
@@ -246,7 +241,7 @@
                                     <!-- DRODOWN-MEGA-MENU END -->
                                 </li>
                                 <li>
-                                    <a href="/Sanpham/Kinh">Mắt kính</a>
+                                    <a href="~/shop-gird.html">Mắt kính</a>
                                     <!-- DRODOWN-MEGA-MENU START -->
                                     <div class="drodown-mega-menu">
                                         <div class="left-mega col-xs-4">
@@ -344,13 +339,13 @@
     </header>
     <!-- MAIN-MENU-AREA END -->
     <!-- MAIN-CONTENT-SECTION START -->
-    
-   
-        <section class="main-content-section">
-			@Body
-		</section>
-    
-    
+
+
+    <section class="main-content-section">
+        @Body
+    </section>
+
+
     <!-- COMPANY-FACALITY START -->
     <section class="company-facality">
         <div class="container">
@@ -588,23 +583,9 @@
             </div>
         </div>
     </footer>
-   
+
 </body>
 
-<!-- Nulled by http://www.baobinh.net by tieulonglanh -->
-@*</html>*@
+@code {
 
-
- @code{
-    private IJSObjectReference module;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MainLayout.razor.js");
-            StateHasChanged();
-        }
-
-    }
-    
 }

@@ -21,7 +21,7 @@ namespace Model.DataDB
         public string MaLoai { get; set; } = null!;
         public string? TenSp { get; set; }
         public string MaSize { get; set; } = null!;
-        public int? GiaSp { get; set; }
+        public int GiaSp { get; set; }
         public byte? Baohanh { get; set; }
         public string? Mota { get; set; }
 

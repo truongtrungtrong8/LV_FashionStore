@@ -11,10 +11,15 @@ builder.Services.AddServerSideBlazor();
 
 
 
-builder.Services.AddDbContext<LV_FashionStoreContext>(option =>
-                option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddDbContext<LV_FashionStoreContext>(option =>
+//                option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "LV_FashionStore",
+        builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

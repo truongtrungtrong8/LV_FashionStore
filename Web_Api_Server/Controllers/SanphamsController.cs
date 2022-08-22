@@ -23,29 +23,49 @@ namespace Web_Api_Server.Controllers
 
         // GET: api/Sanphams
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sanpham>>> GetSanphams()
+        public async Task<ActionResult<IEnumerable<Sanpham_Model>>> GetProducts()
         {
-          if (_context.Sanphams == null)
-          {
-              return NotFound();
-          }
-            return await _context.Sanphams.ToListAsync();
+            var sanpham = (from s in _context.Sanphams
+                           join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                           select new Sanpham_Model()
+                           {
+                               MaSp = s.MaSp,
+                               MaLoai = s.MaLoai,
+                               HaBia = h.HaBia,
+                               Ha1 = h.Ha1,
+                               Ha2 = h.Ha2,
+                               GiaSp = s.GiaSp,
+                               TenSp = s.TenSp
+                           });
+
+            return await sanpham.ToListAsync();
+
+            
         }
 
         // GET: api/Sanphams/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Sanpham>> GetSanpham(string id)
+        public async Task<ActionResult<Sanpham_Model>> GetSanpham(string id)
         {
-          if (_context.Sanphams == null)
-          {
-              return NotFound();
-          }
-            var sanpham = await _context.Sanphams.FindAsync(id);
-
-            if (sanpham == null)
-            {
-                return NotFound();
-            }
+            var sanpham = (from s in _context.Sanphams
+                           join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                           join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
+                           join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           where s.MaSp == id
+                           select new Sanpham_Model()
+                           {
+                               MaSp = s.MaSp,
+                               MaLoai = s.MaLoai,
+                               HaBia = h.HaBia,
+                               Ha1 = h.Ha1,
+                               Ha2 = h.Ha2,
+                               GiaSp = s.GiaSp,
+                               TenSp = s.TenSp,
+                               TenHsx = hsx.TenHsx,
+                               Tenloai = l.Tenloai,
+                               Mota = s.Mota
+                               
+                           }).SingleOrDefault();
 
             return sanpham;
         }
@@ -134,5 +154,7 @@ namespace Web_Api_Server.Controllers
         {
             return (_context.Sanphams?.Any(e => e.MaSp == id)).GetValueOrDefault();
         }
+
+     
     }
 }
