@@ -6,7 +6,7 @@ using static System.Net.WebRequestMethods;
 
 namespace Web_Client.Services
 {
-    public class SanphamService
+    public class SanphamService: ISanphamService
     {
         HttpClient Http = new HttpClient();
         string urldefault = "https://localhost:7118/api/Sanphams"; 

@@ -1,0 +1,90 @@
+﻿@page "/TaiKhoan/Login"
+@inject IJSRuntime JS
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorrage
+@using Model.DataDB
+@using Web_Client.Services
+@inject NavigationManager NavigationManager
+
+<form style="width:400px">
+    <!-- Email input -->
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example1">Tên tài khoản</label>
+        <input type="tel" @bind-value="acc.TenTk" class="form-control" />
+    </div>
+
+    <!-- Password input -->
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example2">Mật khẩu</label>
+        <input type="password" @bind-value="acc.Matkhau" class="form-control" />
+    </div>
+
+    <!-- Submit button -->
+    <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
+
+    <!-- Register buttons -->
+    <div class="text-center">
+        <div class="col">
+            <!-- Simple link -->
+            <a style="color:mediumblue;cursor:pointer" @onclick="ForgetPassword">Quên mật khẩu?</a>
+        </div>
+        <p>Bạn chưa có tài khoản? <a style="color:mediumblue;cursor:pointer" @onclick="Register">Đăng ký ngay</a></p>
+    </div>
+</form>
+
+
+@code {
+    Taikhoan acc = new Taikhoan();
+    TaiKhoanService accService = new TaiKhoanService();
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    public async void CheckLogin()
+    {
+        Taikhoan newAcc = new Taikhoan();
+
+        try
+        {
+            newAcc = await accService.GetTaiKhoan(acc.TenTk, acc.Matkhau);
+
+            if (newAcc != null)
+            {
+                var role = newAcc.Quyensd;
+                var name = newAcc.TenTk;
+                await sessionStorage.SetItemAsync("role", role);
+                if (role == "admin")
+                {
+                  
+                    await sessionStorage.SetItemAsync("admin_name", 123);
+                    NavigationManager.NavigateTo("/Sanpham/Ao");
+                }
+                else
+                {
+                    await sessionStorage.SetItemAsync("user_name", name);
+                    NavigationManager.NavigateTo("/");
+                }
+              
+                toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
+                await this.ModalInstance.CancelAsync();
+            }
+        }
+        catch (Exception Ex)
+        {
+        }
+
+    }
+    public void ForgetPassword()
+    {
+        //this.ModalInstance.CancelAsync();
+        //Thread.Sleep(500);
+        //Modal.Show<Register>("Đăng ký tài khoản mới");
+    }
+
+    public void Register()
+    {
+        //this.ModalInstance.CancelAsync();
+        //Thread.Sleep(500);
+        //this.Modal.Show<Register>("Đăng ký tài khoản mới");
+    }
+}

@@ -9,302 +9,71 @@
 
 
 
-    <div class="container">
-        <div class="row">
-            <!-- MAIN-SLIDER-AREA START -->
-            <div class="main-slider-area">
-                <!-- SLIDER-AREA START -->
-                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                    <div class="slider-area">
-                        <div id="wrapper">
-                            <div class="slider-wrapper">
-                                <div id="mainSlider" class="nivoSlider">
-                                    <img src="/img/slider/biashop1a.jpg" alt="main slider" title="#htmlcaption" />
-                                    <img src="/img/slider/biashop1b.jpg" alt="main slider" title="#htmlcaption2" />
-                                </div>
-                                <div id="htmlcaption" class="nivo-html-caption slider-caption">
-                                    <div class="slider-progress"></div>
-                                    <div class="slider-cap-text slider-text1">
-                                        <div class="d-table-cell">
-                                            <h2 class="animated bounceInDown">B store XIN CHÀO BẠN !</h2>
-                                            <p class="animated bounceInUp">Thỏa sức khám phá và mua sắm nhiều sản phầm thời trang mới lạ và độc đáo tại B store.</p>
-                                            <a class="wow zoomInDown" data-wow-duration="1s" data-wow-delay="1s" href="~/#">Read More <i class="fa fa-caret-right"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="htmlcaption2" class="nivo-html-caption slider-caption">
-                                    <div class="slider-progress"></div>
-                                    <div class="slider-cap-text slider-text2">
-                                        <div class="d-table-cell">
-                                            <h2 class="animated bounceInDown">B store XIN CHÀO BẠN !</h2>
-                                            <p class="animated bounceInUp">Thỏa sức khám phá và mua sắm nhiều sản phầm thời trang mới lạ và độc đáo tại B store.</p>
-                                            <a class="wow zoomInDown" data-wow-duration="1s" data-wow-delay="1s" href="~/#">Read More <i class="fa fa-caret-right"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
+<!-- Products Start -->
+<div class="container-fluid pt-5 pb-3">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Quần tây</span></h2>
+    <div class="row px-xl-5">
+        @foreach (var (item, index) in sanpham.Select((v, i) => (v, i)))
+        {
+            if (@item.MaLoai == "L02")
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                    <div class="product-item bg-light mb-4">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" src="img/product/sale/@item.HaBia" alt="">
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href="/Detail/@item.MaSp"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" href="">@item.TenSp</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5>@sanphamservice.FormatVND(item.GiaSp) VND</h5><h6 class="text-muted ml-2"><del>@sanphamservice.FormatVND(item.GiaSp) VND</del></h6>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small>(99)</small>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- SLIDER-AREA END -->
-                <!-- SLIDER-RIGHT START -->
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                    <div class="slider-right zoom-img m-top">
-                        <a href="~/#"><img class="img-responsive" src="/img/product/cms11.jpg" alt="sidebar left" /></a>
-                    </div>
+            }
+        }
+    </div>
+</div>
+<!-- Products End -->
+<!-- Offer Start -->
+<div class="container-fluid pt-5 pb-3">
+    <div class="row px-xl-5">
+        <div class="col-md-6">
+            <div class="product-offer mb-30" style="height: 300px;">
+                <img class="img-fluid" src="content/img/offer-1.jpg" alt="">
+                <div class="offer-text">
+                    <h6 class="text-white text-uppercase">Save 20%</h6>
+                    <h3 class="text-white mb-3">Special Offer</h3>
+                    <a href="" class="btn btn-primary">Shop Now</a>
                 </div>
-                <!-- SLIDER-RIGHT END -->
-            </div>
-            <!-- MAIN-SLIDER-AREA END -->
-        </div>
-        <!-- TOW-COLUMN-PRODUCT START -->
-        <div class="row tow-column-product">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <!-- NEW-PRODUCT-AREA START -->
-                <div class="new-product-area">
-                    <div class="left-title-area">
-                        <h2 class="left-title">New Products</h2>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="row">
-                                <!-- NEW-PRO-CAROUSEL START -->
-                                <div class="new-pro-carousel">
-                                    <!-- NEW-PRODUCT-SINGLE-ITEM START -->
-
-                                @foreach (var (item, index) in sanpham.Select((v, i) => (v, i)))
-                                {
-
-
-                                    if (@item.MaLoai == "L02")
-                                    {
-
-                                                        <div class="item">
-                                                        <div class="new-product">
-                                                            <div class="single-product-item">
-                                                                <div class="product-image">
-                                                                        <a href="/Detail/@item.MaSp"><img src="/img/product/sale/@item.HaBia" alt="product-image" /></a>
-                                                                    <a href="~/#" class="new-mark-box">new</a>
-                                                                    <div class="overlay-content">
-                                                                        <ul>
-                                                                            <li><a href="~/#" title="Quick view"><i class="fa fa-search"></i></a></li>
-                                                                            <li><a onclick="AddCart()" title="Quick view"><i class="fa fa-shopping-cart"></i></a></li>
-                                                                            <li><a href="~/#" title="Quick view"><i class="fa fa-retweet"></i></a></li>
-                                                                            <li><a href="~/#" title="Quick view"><i class="fa fa-heart-o"></i></a></li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="product-info">
-                                                                    <div class="customar-comments-box">
-                                                                        <div class="rating-box">
-                                                                            <i class="fa fa-star"></i>
-                                                                            <i class="fa fa-star"></i>
-                                                                            <i class="fa fa-star"></i>
-                                                                            <i class="fa fa-star-half-empty"></i>
-                                                                            <i class="fa fa-star-half-empty"></i>
-                                                                        </div>
-                                                                        <div class="review-box">
-                                                                            <span>1 Lượt xem (s)</span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <a href="~/single-product.html">@item.TenSp</a>
-                                                                    <div class="price-box">
-                                                                        <span class="price">@sanphamservice.FormatVND(item.GiaSp) VND</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                    }
-                                }
-
-
-
-                                </div>
-                                <!-- NEW-PRO-CAROUSEL END -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- NEW-PRODUCT-AREA END -->
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <!-- SALE-PRODUCTS START -->
-                <div class="Sale-Products">
-                    <div class="left-title-area">
-                        <h2 class="left-title">Sale Products</h2>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="row">
-                                <!-- SALE-CAROUSEL START -->
-                                <div class="sale-carousel">
-                                    <!-- SALE-PRODUCTS-SINGLE-ITEM START -->
-                                @foreach (var (item, index) in sanpham.Select((v, i) => (v, i)))
-                                {
-
-                                    if (item.MaLoai == "L02")
-                                    {
-                                                            <div class="item">
-                                                                <div class="new-product">
-                                                                    <div class="single-product-item">
-                                                                        <div class="product-image">
-                                                                        <a href="/Detail/@item.MaSp"><img src="/img/product/sale/@item.HaBia" alt="product-image" /></a>
-                                                                            <a href="~/#" class="new-mark-box">new</a>
-                                                                            <div class="overlay-content">
-                                                                                <ul>
-                                                                                    <li><a href="~/#" title="Quick view"><i class="fa fa-search"></i></a></li>
-                                                                                    <li><a onclick="AddCart()" title="Quick view"><i class="fa fa-shopping-cart"></i></a></li>
-                                                                                    <li><a href="~/#" title="Quick view"><i class="fa fa-retweet"></i></a></li>
-                                                                                    <li><a href="~/#" title="Quick view"><i class="fa fa-heart-o"></i></a></li>
-                                                                                </ul>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="product-info">
-                                                                            <div class="customar-comments-box">
-                                                                                <div class="rating-box">
-                                                                                    <i class="fa fa-star"></i>
-                                                                                    <i class="fa fa-star"></i>
-                                                                                    <i class="fa fa-star"></i>
-                                                                                    <i class="fa fa-star-half-empty"></i>
-                                                                                    <i class="fa fa-star-half-empty"></i>
-                                                                                </div>
-                                                                                <div class="review-box">
-                                                                                    <span>1 Lượt xem (s)</span>
-                                                                                </div>
-                                                                            </div>
-                                                                            <a href="~/single-product.html">@item.TenSp</a>
-                                                                            <div class="price-box">
-                                                                                <span class="price">@sanphamservice.FormatVND(item.GiaSp) VND</span>
-
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                    }
-
-                                }
-
-
-                                    <!-- SALE-PRODUCTS-SINGLE-ITEM END -->
-                                    <!-- SALE-PRODUCTS-SINGLE-ITEM START -->
-
-                                </div>
-                                <!-- SALE-CAROUSEL END -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- SALE-PRODUCTS END -->
             </div>
         </div>
-        <!-- TOW-COLUMN-PRODUCT END -->
-        <div class="row">
-            <!-- ADD-TWO-BY-ONE-COLUMN START -->
-            <div class="add-two-by-one-column">
-                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                    <div class="tow-column-add zoom-img">
-                        <a href="~/#"><img src="/img/product/shope-add1.jpg" alt="shope-add" /></a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                    <div class="one-column-add zoom-img">
-                        <a href="~/#"><img src="/img/product/shope-add2.jpg" alt="shope-add" /></a>
-                    </div>
+        <div class="col-md-6">
+            <div class="product-offer mb-30" style="height: 300px;">
+                <img class="img-fluid" src="content/img/offer-2.jpg" alt="">
+                <div class="offer-text">
+                    <h6 class="text-white text-uppercase">Save 20%</h6>
+                    <h3 class="text-white mb-3">Special Offer</h3>
+                    <a href="" class="btn btn-primary">Shop Now</a>
                 </div>
             </div>
-            <!-- ADD-TWO-BY-ONE-COLUMN END -->
-        </div>
-        <div class="row">
-            <!-- FEATURED-PRODUCTS-AREA START -->
-            <div class="featured-products-area">
-                <div class="center-title-area">
-                    <h2 class="center-title">Danh mục sản phẩm áo</h2>
-                </div>
-                <div class="col-xs-12">
-                    <div class="row">
-                        <!-- FEARTURED-CAROUSEL START -->
-                        <div class="feartured-carousel">
-                            <!-- SINGLE-PRODUCT-ITEM START -->
-
-                        @foreach (var (item, index) in sanpham.Select((v, i) => (v, i)))
-                        {
-
-                            if (item.MaLoai == "L02")
-                            {
-                                                    <div class="item">
-                                                        <div class="single-product-item">
-                                                            <div class="product-image">
-                                                            <a href="/Detail/@item.MaSp"><img src="/img/product/sale/@item.HaBia" alt="product-image" /></a>
-                                                                <a href="~/#" class="new-mark-box">new</a>
-                                                                <div class="overlay-content">
-                                                                    <ul>
-
-
-                                                                        <li><a href="~/#" title="Quick view"><i class="fa fa-search"></i></a></li>
-                                                                        <li><a onclick="AddCart()" title="Quick view"><i class="fa fa-shopping-cart"></i></a></li>
-                                                                        <li><a href="~/#" title="Quick view"><i class="fa fa-retweet"></i></a></li>
-                                                                        <li><a href="~/#" title="Quick view"><i class="fa fa-heart-o"></i></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                            <div class="product-info">
-                                                                <div class="customar-comments-box">
-                                                                    <div class="rating-box">
-                                                                        <i class="fa fa-star"></i>
-                                                                        <i class="fa fa-star"></i>
-                                                                        <i class="fa fa-star"></i>
-                                                                        <i class="fa fa-star"></i>
-                                                                        <i class="fa fa-star-half-empty"></i>
-                                                                    </div>
-                                                                    <div class="review-box">
-                                                                        <span>1 Lượt xem (s)</span>
-                                                                    </div>
-                                                                </div>
-                                                                <a href="~/single-product.html">@item.TenSp</a>
-                                                                <div class="price-box">
-                                                                    <span class="price">@sanphamservice.FormatVND(item.GiaSp) VND</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                            }
-
-                        }
-                        </div>
-                        </div>
-                        </div>
-                        </div>
-                        </div>
-                        
-
-
-
-
-        <div class="row">
-            <!-- IMAGE-ADD-AREA START -->
-            <div class="image-add-area">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <!-- ONEHALF-ADD START -->
-                    <div class="onehalf-add-shope zoom-img">
-                        <a href="~/#"><img src="/img/product/one-helf1.jpg" alt="shope-add" /></a>
-                    </div>
-                    <!-- ONEHALF-ADD END -->
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <!-- ONEHALF-ADD START -->
-                    <div class="onehalf-add-shope zoom-img">
-                        <a href="~/#"><img src="/img/product/one-helf2.jpg" alt="shope-add" /></a>
-                    </div>
-                    <!-- ONEHALF-ADD END -->
-                </div>
-            </div>
-            <!-- IMAGE-ADD-AREA END -->
         </div>
     </div>
-
-
+</div>
 
 
 @code {
@@ -321,7 +90,7 @@
         }
         catch (Exception ex)
         {
-
+            Console.WriteLine(ex.ToString());
         }
 
     }

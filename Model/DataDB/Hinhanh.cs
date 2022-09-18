@@ -5,7 +5,7 @@ namespace Model.DataDB
 {
     public partial class Hinhanh
     {
-        public string MaHa { get; set; } = null!;
+        public int MaHa { get; set; }
         public string MaSp { get; set; } = null!;
         public string? HaBia { get; set; }
         public string? Ha1 { get; set; }

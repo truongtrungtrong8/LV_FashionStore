@@ -6,36 +6,44 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Home</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <base href="~/" />
-   @* <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-   <link href="css/site.css" rel="stylesheet" />
-    <link href="Web_Client.styles.css" rel="stylesheet" />*@
+    <title>MultiShop - Online Shop Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
 
-    <link rel="stylesheet" href="css/animate.css">
-    <link rel="stylesheet" href="css/jquery.fancybox.css">
-    <link rel="stylesheet" href="css/jquery.bxslider.css">
-    <link rel="stylesheet" href="css/meanmenu.min.css">
-    <link rel="stylesheet" href="css/jquery-ui-slider.css">
-    <link rel="stylesheet" href="css/nivo-slider.css">
-    <link rel="stylesheet" href="css/owl.carousel.css">
-    <link rel="stylesheet" href="css/owl.theme.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/ie.css">
-    <link href='http://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Bitter:400,700,400italic&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <!-- Favicon -->
+    <link href="favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="content/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="content/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="content/css/style.css" rel="stylesheet">
+
+
+
+
+    <base href="~/" />
+    @*<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />*@
+    <link href="site.css" rel="stylesheet" />
+    <link href="Web_Client.styles.css" rel="stylesheet" />
+
+    <link href="_content/Blazored.Modal/blazored-modal.css" rel="stylesheet" />
+    <script src="_content/Blazored.Modal/blazored.modal.js"></script>
+
+    @*Add Blazor Toast*@
+    <link href="_content/Blazored.Toast/blazored-toast.css" rel="stylesheet" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head> 
-
+<body>
     @RenderBody()
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -46,21 +54,19 @@
         </environment>
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+        <script src="content/lib/easing/easing.min.js"></script>
+        <script src="content/lib/owlcarousel/owl.carousel.min.js"></script>
+
+        <!-- Contact Javascript File -->
+        <script src="content/mail/jqBootstrapValidation.min.js"></script>
+        <script src="content/mail/contact.js"></script>
+
+        <!-- Template Javascript -->
+        <script src="content/js/main.js"></script>
+        <script src="_framework/blazor.server.js"></script>
     </div>
-    <script src="js/vendor/modernizr-2.6.2.min.js"></script>
-    <script src="js/vendor/jquery-1.11.3.min.js"></script>
-    <script src="js/jquery.fancybox.js"></script>
-    <script src="js/jquery.bxslider.min.js"></script>
-    <script src="js/jquery.meanmenu.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.nivo.slider.js"></script>
-    <script src="js/jqueryui.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/wow.js"></script>
-    <script>
-        new WOW().init();
-    </script>
-    <script src="js/main.js"></script>
-    <script src="_framework/blazor.server.js"></script>
+    
 </body>
 </html>

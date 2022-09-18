@@ -154,7 +154,6 @@ namespace Web_Api_Server.Controllers
         {
             return (_context.Sanphams?.Any(e => e.MaSp == id)).GetValueOrDefault();
         }
-
-     
+        
     }
 }
