@@ -1,0 +1,117 @@
+﻿@page "/Sanpham/Index"
+@model Web_Admin_Client.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Bordered table</h4>
+            <p class="card-description">
+                Add class <code>.table-bordered</code>
+            </p>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                       
+                        <th> Tên sản phẩm </th>
+                        <th> Giá sản phẩm </th>
+                        <th> Loại sản phẩm </th>
+                        <th> Hãng sản xuất </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Sanpham)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TenSp)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.GiaSp)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MaHsxNavigation.TenHsx)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MaLoaiNavigation.Tenloai)
+                            </td>
+                            <td>
+                                <a asp-page="./Edit" asp-route-id="@item.MaSp">Edit</a> |
+                                <a asp-page="./Details" asp-route-id="@item.MaSp">Details</a> |
+                                <a asp-page="./Delete" asp-route-id="@item.MaSp">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                   
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@*<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Sanpham[0].TenSp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sanpham[0].GiaSp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sanpham[0].Baohanh)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sanpham[0].Mota)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sanpham[0].MaHsxNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sanpham[0].MaLoaiNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Sanpham) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TenSp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GiaSp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Baohanh)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mota)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaHsxNavigation.MaHsx)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaLoaiNavigation.MaLoai)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.MaSp">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.MaSp">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.MaSp">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>*@
+

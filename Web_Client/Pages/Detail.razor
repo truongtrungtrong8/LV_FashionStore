@@ -8,6 +8,8 @@
 @inject Blazored.LocalStorage.ILocalStorageService localstorage
 @inject ICartService CartService
 @inject ISanphamService sanphamService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
 
 
 <!-- Shop Detail Start -->
@@ -51,11 +53,9 @@
                 </div>
                 <h3 class="font-weight-semi-bold mb-4">@sanphamService.FormatVND(sanpham.GiaSp) VND</h3>
                 <p class="mb-4">
-                    Volup erat ipsum diam elitr rebum et dolor. Est nonumy elitr erat diam stet sit
-                    clita ea. Sanc ipsum et, labore clita lorem magna duo dolor no sea
-                    Nonumy
+                    Sản phẩm áo thun chất lượng tốt, phù hợp với nhiều lứa tuổi
                 </p>
-                <div class="d-flex mb-3">
+@*                <div class="d-flex mb-3">
                     <strong class="text-dark mr-3">Sizes:</strong>
                     <form>
                         <div class="custom-control custom-radio custom-control-inline">
@@ -104,7 +104,7 @@
                             <label class="custom-control-label" for="color-5">Green</label>
                         </div>
                     </form>
-                </div>
+                </div>*@
                 <div class="d-flex align-items-center mb-4 pt-2">
                     <div class="input-group quantity mr-3" style="width: 130px;">
                         <div class="input-group-btn">
@@ -269,6 +269,7 @@
     Sanpham_Model sanpham = new Sanpham_Model();
     private CartItems cartItem = new CartItems { Sl = 1 };
     private int currentEditionId = 1;
+    private string name { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -291,10 +292,26 @@
 
     private async Task AddToCart()
     {
+        try
+        {
+                name = await sessionStorage.GetItemAsync<string>("user_name");
+                if(name == null) 
+                {
+                    toastService.ShowSuccess("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
+                }
+                else 
+                {
+                    cartItem.TenSp = sanpham.TenSp;
+                    cartItem.MaGh = HardCode.CartId;
+                    cartItem.GiaSp = sanpham.GiaSp;
+                    await CartService.AddToCart(cartItem);
+                }
+                
+        }
+        catch(Exception ex)
+        {
 
-        cartItem.TenSp = sanpham.TenSp;
-        cartItem.MaGh = HardCode.CartId;
-        cartItem.GiaSp = sanpham.GiaSp;
-        await CartService.AddToCart(cartItem);
+        }
+        
     }
 }

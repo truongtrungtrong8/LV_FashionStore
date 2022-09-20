@@ -56,8 +56,8 @@
                 if (role == "admin")
                 {
                   
-                    await sessionStorage.SetItemAsync("admin_name", 123);
-                    NavigationManager.NavigateTo("/Sanpham/Ao");
+                    await sessionStorage.SetItemAsync("admin_name", name);
+                    NavigationManager.NavigateTo("https://localhost:7268");
                 }
                 else
                 {

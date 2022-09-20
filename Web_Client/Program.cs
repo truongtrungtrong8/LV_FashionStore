@@ -24,6 +24,7 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ISanphamService, SanphamService>();
 builder.Services.AddScoped<ITaikhoanService, TaiKhoanService>();
 
+
 //builder.Services.AddDbContext<LV_FashionStoreContext>(option =>
 //                option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7118/") });

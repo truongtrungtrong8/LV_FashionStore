@@ -1,0 +1,64 @@
+﻿@page
+@model Web_Admin_Client.Pages.DetailsModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+<body>
+
+<div>
+    <h4>Sanpham</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Sanpham.TenSp)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sanpham.TenSp)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Sanpham.GiaSp)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sanpham.GiaSp)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Sanpham.Baohanh)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sanpham.Baohanh)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Sanpham.Mota)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sanpham.Mota)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Sanpham.MaHsxNavigation)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sanpham.MaHsxNavigation.MaHsx)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Sanpham.MaLoaiNavigation)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sanpham.MaLoaiNavigation.MaLoai)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Sanpham?.MaSp">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>
+</body>
+</html>

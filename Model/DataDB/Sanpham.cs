@@ -22,9 +22,9 @@ namespace Model.DataDB
         public string MaSp { get; set; } = null!;
         public string MaHsx { get; set; } = null!;
         public string MaLoai { get; set; } = null!;
-        public string TenSp { get; set; }
+        public string? TenSp { get; set; }
         public int GiaSp { get; set; }
-        public int? Baohanh { get; set; }
+        public int Baohanh { get; set; }
         public string? Mota { get; set; }
 
         public virtual Hx MaHsxNavigation { get; set; } = null!;
