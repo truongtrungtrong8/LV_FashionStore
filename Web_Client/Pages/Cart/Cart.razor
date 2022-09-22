@@ -92,6 +92,7 @@
                             </div>
                             <button class="btn btn-block btn-primary font-weight-bold my-3 py-3" @onclick="@(() => Payment())">Thanh toán trước</button>
                             <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Thanh toán khi nhận hàng</button>
+                           
                         </div>
                     </div>
                     </div>
@@ -103,17 +104,27 @@
 }
 
 @code {
-    [Parameter]
-    public UserIP userIP { get; set; }
+        [Parameter]
+        public UserIP userIP { get; set; }
     public List<CartItems> cartItems = new List<CartItems>();
     bool orderPlaced = false;
+
     private int total;
+
+    GioHangDto gioHangDto = new GioHangDto();
+    CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
+    GioHangService gioHangService = new GioHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
+
+    int temp;
 
     protected override async Task OnInitializedAsync()
     {
         try 
         {
             cartItems = await CartService.GetCartItems();
+
         }
         catch (Exception ex) {
 
@@ -121,7 +132,6 @@
 
     }
 
-    
 
     private async Task DeleteItem(CartItems item)
     {

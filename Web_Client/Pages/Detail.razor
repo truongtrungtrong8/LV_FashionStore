@@ -268,8 +268,14 @@
     public string Id { get; set; }
     Sanpham_Model sanpham = new Sanpham_Model();
     private CartItems cartItem = new CartItems { Sl = 1 };
+    public List<CartItems> cartItems_List = new List<CartItems>();
     private int currentEditionId = 1;
     private string name { get; set; }
+    GioHangDto gioHangDto = new GioHangDto();
+    CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
+    GioHangService gioHangService = new GioHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
 
 
     protected override async Task OnInitializedAsync()
@@ -308,6 +314,24 @@
                     cartItem.HaBia = sanpham.HaBia;
                     await CartService.AddToCart(cartItem);
                 }
+                cartItems_List = await CartService.GetCartItems();
+                //temp = cartItem.Count;
+
+                gioHangDto.MaGh = "test913";
+                DateTime now = DateTime.Now;
+                gioHangDto.Ngaydat = now;
+
+                await gioHangService.Create(gioHangDto);
+
+
+            foreach (var item in cartItems_List)
+                {
+                    cTGioHangDto.MaGh = gioHangDto.MaGh;
+                    cTGioHangDto.MaSp = item.MaSp;
+                    cTGioHangDto.Sl = item.Sl;
+                await cTGioHangService.Create(cTGioHangDto);
+                }
+                
                 
         }
         catch(Exception ex)
