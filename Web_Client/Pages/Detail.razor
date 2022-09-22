@@ -301,9 +301,11 @@
                 }
                 else 
                 {
+                    cartItem.MaSp = sanpham.MaSp;
                     cartItem.TenSp = sanpham.TenSp;
                     cartItem.MaGh = HardCode.CartId;
                     cartItem.GiaSp = sanpham.GiaSp;
+                    cartItem.HaBia = sanpham.HaBia;
                     await CartService.AddToCart(cartItem);
                 }
                 

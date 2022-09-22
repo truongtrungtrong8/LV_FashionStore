@@ -33,9 +33,9 @@ namespace Web_Client.Services
             {
                 cart = new List<CartItems>();
             }
-
-            var sameItem = cart
-                .Find(x => x.MaSp == item.MaSp && x.MaGh == item.MaGh);
+            try
+            {
+            var sameItem = cart.Find(x => x.MaSp == item.MaSp && x.TenSp == item.TenSp);
             if (sameItem == null)
             {
                 cart.Add(item);
@@ -44,8 +44,7 @@ namespace Web_Client.Services
             {
                 sameItem.Sl += item.Sl;
             }
-            try
-            {
+           
                 await _localStorage.SetItemAsync("cart", cart);
                 _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Sản phẩm đã cho vào giỏ hàng");
                 OnChange.Invoke();
