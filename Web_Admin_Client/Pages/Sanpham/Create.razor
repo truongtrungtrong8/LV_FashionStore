@@ -1,0 +1,120 @@
+﻿@page "/Sanpham/Create"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Admin_Client.Service
+@using Web_Admin_Client.Services
+@inject NavigationManager NavigationManager;
+
+
+
+
+
+  <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <h3 class="page-title"> Form elements </h3>
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#">Forms</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Form elements</li>
+                </ol>
+              </nav>
+            </div>
+            <div class="row">
+              <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Default form</h4>
+                    <p class="card-description"> Basic form layout </p>
+                        <EditForm Model="sanphamdto">
+                            <form class="forms-sample">
+                                <div class="form-group">
+                                    <label for="exampleInputUsername1">Mã sản phẩm</label>
+                                    <InputText class="form-control" placeholder="" @bind-Value="sanphamdto.MaSp" @ref=masanpham></InputText>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">Tên sản phẩm</label>
+                                    <InputText class="form-control" placeholder="" @bind-Value="sanphamdto.TenSp" @ref=tensanpham></InputText>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputPassword1">Giá sản phẩm</label>
+                                    <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.GiaSp" @ref=giasanpham></InputNumber>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputConfirmPassword1">Bảo hàng</label>
+                                    <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Baohanh" @ref=baohanh></InputNumber>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputConfirmPassword1">Loại sản phẩm</label>
+                                    <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaLoai" @ref=loaisanpham>
+                                        @foreach (var item in loaisp)
+                                        {
+                                            <option value="@item.MaLoai">@item.Tenloai</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputConfirmPassword1">Hãng sản xuất</label>
+                                    <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaHsx" @ref=hangsx>
+                                        @foreach (var item in hsx)
+                                        {
+                                            <option value="@item.MaHsx">@item.TenHsx</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+
+
+                                <button class="btn btn-light">Cancel</button>
+                            </form>
+                            <button type="button" class="btn btn-gradient-primary me-2" @onclick="Create_Sanpham">Lưu</button>
+                        </EditForm>
+                  </div>
+                </div>
+              </div>
+             
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:../../partials/_footer.html -->
+          
+          <!-- partial -->
+        </div>
+
+@code {
+
+    private SanphamEdit sanphamdto = new SanphamEdit();
+    SanphamService sanphamService = new SanphamService();
+    List<LoaiSp> loaisp = new List<LoaiSp>();
+    LoaiSpService loaiSpService = new LoaiSpService();
+    List<Hx> hsx = new List<Hx>();
+    HsxService hsxService = new HsxService();
+    private InputText masanpham;
+    private InputText tensanpham;
+    private InputNumber<int> giasanpham;
+    private InputNumber<int> baohanh;
+    private InputSelect<string> loaisanpham;
+    private InputSelect<string> hangsx;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        loaisp = await loaiSpService.GetListLoaiSp();
+        hsx = await hsxService.GetListHsx();
+    }
+
+    private async void Create_Sanpham()
+    {
+        
+            sanphamdto.MaSp = masanpham.Value;
+            sanphamdto.TenSp = tensanpham.Value;
+            sanphamdto.GiaSp = giasanpham.Value;
+            sanphamdto.Baohanh = baohanh.Value;
+            sanphamdto.MaLoai = loaisanpham.Value;
+            sanphamdto.MaHsx = hangsx.Value;
+            await sanphamService.CreateSanpham(sanphamdto);
+            NavigationManager.NavigateTo("/Sanpham/Index");
+  
+    }
+}

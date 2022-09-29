@@ -27,16 +27,26 @@ namespace Web_Api_Server.Controllers
 
         // GET: api/CtGhs/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CtGh>> GetCtGh(string id)
+        public async Task<ActionResult<IEnumerable<CartItems>>> GetCtGh(string id)
         {
-            var ctGh = await _context.CtGhs.FindAsync(id);
 
-            if (ctGh == null)
-            {
-                return NotFound();
-            }
+            var cartuser = (from s in _context.CtGhs
+                           join h in _context.Giohangs on s.MaGh equals h.MaGh
+                           join x in _context.Sanphams on s.MaSp equals x.MaSp
+                           join l in _context.Hinhanhs on x.MaSp equals l.MaSp
+                           where h.MaGh == id
+                           select new CartItems()
+                           {
+                               MaSp = l.MaSp,
+                               MaGh = h.MaGh,
+                               MaKh = h.MaKh,
+                               TenSp = x.TenSp,
+                               HaBia = l.HaBia,
+                               GiaSp = x.GiaSp,
+                               Sl = s.Sl,
+                           });
 
-            return ctGh;
+            return await cartuser.ToListAsync();
         }
 
         // PUT: api/CtGhs/5

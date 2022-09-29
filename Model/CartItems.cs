@@ -14,6 +14,7 @@ namespace Model
 
         public string MaGh { get; set; }
         public string MaSp { get; set; }
+        public string MaKh { get; set; } = null!;
         public int Sl { get; set; }
         public string TenSp { get; set; }
         public int GiaSp { get; set; }

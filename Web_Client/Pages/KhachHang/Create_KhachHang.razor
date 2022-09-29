@@ -1,0 +1,89 @@
+﻿@page "/KhachHang/Create_KhachHang"
+@inject IJSRuntime JS
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@using System.Text.RegularExpressions
+@using Model.DataDB
+@using Web_Client.Services
+
+
+<EditForm Model="khachhang" style="width:400px">
+    <!-- Email input -->
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example1">Họ và tên</label>
+        <InputText type="email" @bind-Value="khachhang.TenKh" @ref=tenkhachhang class="form-control" />
+    </div>
+
+    <!-- Password input -->
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example2">Số điện thoại</label>
+        <InputText type="email" @bind-Value="khachhang.SdtKh" @ref=sdt class="form-control" />
+    </div>
+
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example2">Địa chỉ</label>
+        <InputText type="email" @bind-Value="khachhang.DiachiKh" @ref=diachi class="form-control" />
+    </div>
+
+
+    
+
+    <!-- Submit button -->
+    <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="Create_KH">Hoàn tất thông tin</button>
+
+</EditForm>
+
+@code {
+
+    Khachhang khachhang = new Khachhang();
+    KhachHangService khachHangService = new KhachHangService();
+    private InputText tenkhachhang;
+    private InputText sdt;
+    private InputText diachi;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            var ten_tk1 = await sessionStorage.GetItemAsync<string>("ten_tk_dk");
+            if(ten_tk1 != null) 
+            {
+                khachhang.MaKh = await sessionStorage.GetItemAsync<string>("ten_tk_dk");
+                khachhang.TenTk = await sessionStorage.GetItemAsync<string>("ten_tk_dk");
+            }
+            else 
+            {
+                khachhang.MaKh = await sessionStorage.GetItemAsync<string>("ten_tk_kh");
+                khachhang.TenTk = await sessionStorage.GetItemAsync<string>("ten_tk_kh");
+            }
+        }
+        catch(Exception ex) 
+        {
+
+        }
+        
+
+
+    }
+    public async void Create_KH()
+    {
+        try
+        {
+            khachhang.TenKh = tenkhachhang.Value;
+            khachhang.SdtKh = sdt.Value;
+            khachhang.DiachiKh = diachi.Value;
+            await khachHangService.AddAKhachHang(khachhang);
+            await sessionStorage.SetItemAsync("ten_kh1", khachhang.TenKh);
+            await sessionStorage.SetItemAsync("ma_khachhangCreate", khachhang.MaKh);
+            NavigationManager.NavigateTo("/");
+            toastService.ShowSuccess("Chỉnh sửa thành công !", "Chúc mừng!");
+        }
+
+           
+        catch(Exception ex) 
+        {
+
+        }
+    }
+}

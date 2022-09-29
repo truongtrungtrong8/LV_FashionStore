@@ -267,8 +267,12 @@
 
     public string Id { get; set; }
     Sanpham_Model sanpham = new Sanpham_Model();
+    //private CartInUser cartItem = new CartInUser { Sl = 1 };
+    //public List<CartInUser> cartItems_List = new List<CartInUser>();
+
     private CartItems cartItem = new CartItems { Sl = 1 };
     public List<CartItems> cartItems_List = new List<CartItems>();
+
     private int currentEditionId = 1;
     private string name { get; set; }
     GioHangDto gioHangDto = new GioHangDto();
@@ -276,6 +280,9 @@
 
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
+
+    Khachhang khachhang = new Khachhang();
+    KhachHangService khachHangService = new KhachHangService();
 
 
     protected override async Task OnInitializedAsync()
@@ -288,6 +295,7 @@
             {
                 currentEditionId = sanpham.Variants[0].EditID;
             }
+
         }
         //cartitem = await GetCollection();
         catch (Exception ex)
@@ -300,36 +308,78 @@
     {
         try
         {
-                name = await sessionStorage.GetItemAsync<string>("user_name");
-                if(name == null) 
-                {
-                    toastService.ShowSuccess("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
-                }
-                else 
-                {
-                    cartItem.MaSp = sanpham.MaSp;
-                    cartItem.TenSp = sanpham.TenSp;
-                    cartItem.MaGh = HardCode.CartId;
-                    cartItem.GiaSp = sanpham.GiaSp;
-                    cartItem.HaBia = sanpham.HaBia;
-                    await CartService.AddToCart(cartItem);
-                }
-                cartItems_List = await CartService.GetCartItems();
-                //temp = cartItem.Count;
+            var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
 
-                gioHangDto.MaGh = "test913";
-                DateTime now = DateTime.Now;
-                gioHangDto.Ngaydat = now;
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            try 
+            {
+                if (name_khLogin != null)
+                {
+                    {
+                        cartItem.MaSp = sanpham.MaSp;
+                        cartItem.TenSp = sanpham.TenSp;
+                        cartItem.MaGh = ma_khLogin;
+                        cartItem.GiaSp = sanpham.GiaSp;
+                        cartItem.HaBia = sanpham.HaBia;
+                        await CartService.AddToCart(cartItem);
+                    }
+                    cartItems_List = await CartService.GetCartItems();
+                    gioHangDto.MaGh = ma_khLogin;
+                    DateTime now = DateTime.Now;
+                    gioHangDto.Ngaydat = now;
+                    gioHangDto.MaKh = ma_khLogin;
+                    await gioHangService.Create(gioHangDto);
 
-                await gioHangService.Create(gioHangDto);
-            foreach (var item in cartItems_List)
+                    foreach (var item in cartItems_List)
                 {
                     cTGioHangDto.MaGh = gioHangDto.MaGh;
                     cTGioHangDto.MaSp = item.MaSp;
                     cTGioHangDto.Sl = item.Sl;
-                await cTGioHangService.Create(cTGioHangDto);
+                    await cTGioHangService.Create(cTGioHangDto);
+                }
+                }
+                }
+                catch(Exception ex) 
+                {
+                    toastService.ShowSuccess("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
+                }
+                try 
+                {
+                if (name_khCreate != null)
+                {
+                    {
+                        cartItem.MaSp = sanpham.MaSp;
+                        cartItem.MaGh = name_khCreate;
+                        cartItem.TenSp = sanpham.TenSp;
+                        cartItem.GiaSp = sanpham.GiaSp;
+                        cartItem.HaBia = sanpham.HaBia;
+                        await CartService.AddToCart(cartItem);
+                    }
+                    cartItems_List = await CartService.GetCartItemInUser(ma_khCreate);
+                    gioHangDto.MaGh = ma_khCreate;
+                    DateTime now = DateTime.Now;
+                    gioHangDto.Ngaydat = now;
+                    gioHangDto.MaKh = ma_khCreate;
+                    await gioHangService.Create(gioHangDto);
+                    foreach (var item in cartItems_List)
+                    {
+                        cTGioHangDto.MaGh = gioHangDto.MaGh;
+                        cTGioHangDto.MaSp = item.MaSp;
+                        cTGioHangDto.Sl = item.Sl;
+                        await cTGioHangService.Create(cTGioHangDto);
+                    }
+                }
+                }
+
+                catch(Exception ex) 
+                {
+                    toastService.ShowSuccess("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
                 }
                 
+                
+
                 
         }
         catch(Exception ex)

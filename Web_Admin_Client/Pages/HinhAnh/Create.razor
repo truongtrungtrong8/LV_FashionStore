@@ -1,0 +1,127 @@
+﻿@page "/HinhAnh/Create"
+@using Model
+@using Model.DataDB
+@using Tewr.Blazor.FileReader
+@using Web_Admin_Client.Service
+@using Web_Admin_Client.Services
+@inject IFileReaderService fileReader
+@inject HttpClient client
+
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <h3 class="page-title"> Form elements </h3>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Forms</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Form elements</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="row">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Basic form elements</h4>
+                        <p class="card-description"> Basic form elements </p>
+                        <EditForm Model="hinhAnh">
+                            <form class="forms-sample">
+                                <div class="form-group">
+                                    <label for="exampleInputName1">Tên sản phẩm</label>
+                                    <InputSelect class="form-select" placeholder="" @bind-Value="hinhAnh.MaSp">
+                                        @foreach (var item in sanpham)
+                                        {
+                                            <option value="@item.MaSp">@item.TenSp</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>File upload @fileName</label>
+                                    <input type="file" @ref=elementReference @onchange="async () => await OpenFileAsync()" multiple />
+                                    <div class="input-group col-xs-12">
+                                       
+                                        
+                                        <span class="input-group-append">
+                                            <button class="file-upload-browse btn btn-gradient-primary" type="button" @onclick="async () => await OpenFileAsync()" @ref=elementReference>Upload</button>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                
+                                <button type="submit" class="btn btn-gradient-primary me-2" @onclick="async () => await UploadFileAsync()">Submit</button>
+                                <button class="btn btn-light">Cancel</button>
+                            </form>
+                        </EditForm>
+                        
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- content-wrapper ends -->
+    <!-- partial:../../partials/_footer.html -->
+    <!-- partial -->
+</div>
+
+@code {
+    ElementReference elementReference;
+    Hinhanh hinhAnh = new Hinhanh();
+    HinhanhService hinhanhService  = new HinhanhService();
+    //IFormFile myfile ;
+    //List<IFormFile> myfiles = new List<IFormFile>();
+    SanphamService sanphamService = new SanphamService();
+    List<Sanpham_Model> sanpham = new List<Sanpham_Model>();
+    private InputFile myfile;
+    private InputFile myfiles;
+    private InputSelect<string> tensp;
+
+    Stream fileStream = null;
+    string fileName = "";
+    protected async override Task OnInitializedAsync()
+    {
+        sanpham = await sanphamService.GetAllProduct();
+
+    }
+    async Task OpenFileAsync()
+    {
+
+    }
+
+    async Task UploadFileAsync()
+    {
+        var files = (await fileReader.CreateReference(elementReference).EnumerateFilesAsync()).ToList();
+        if (files == null)
+            return;
+
+        foreach (var file in files)
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+            fileName = fileInfo.Name;
+            //size = $"{fileInfo.Size}b";
+            //type = fileInfo.Type;
+
+            using (var memoryStream = await file.CreateMemoryStreamAsync((int)fileInfo.Size))
+            {
+                fileStream = new MemoryStream(memoryStream.ToArray());
+            }
+            try
+            {
+                string url = "https://localhost:7118/api/Hinhanhs";
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+
+                content.Add(new StreamContent(fileStream, (int)fileStream.Length), "image", fileName);
+                var respone = await client.PostAsync($"{url}", content);
+                //message = "Upload Success";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+    }
+}
+

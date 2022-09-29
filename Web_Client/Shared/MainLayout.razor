@@ -1,4 +1,5 @@
-﻿
+﻿@using Blazored.Toast.Configuration
+
 
 @inherits LayoutComponentBase
 
@@ -128,7 +129,15 @@
     </div>
 </div>
 <!-- Footer End -->
-<BlazoredToasts />
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-thumbs-up"
+                WarningIcon="fa fa-exclamation-triangle"
+                WarningClass="warning-toast-override"
+                ErrorIcon="fa fa-bug" />
+
 
  @code{
     

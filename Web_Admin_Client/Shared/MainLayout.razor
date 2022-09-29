@@ -2,6 +2,9 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IJSRuntime JS
 @using System.Globalization
+@using Model
+@inject SessionTemp sessionLogin
+
 
     <div class="container-scroller">
 @*      <div class="row p-0 m-0 proBanner" id="proBanner">
@@ -50,7 +53,7 @@
                   <span class="availability-status online"></span>
                 </div>
                 <div class="nav-profile-text">
-                  <p class="mb-1 text-black">@name</p>
+                  <p class="mb-1 text-black">@sessionLogin.Ten</p>
                 </div>
               </a>
               <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
@@ -202,6 +205,12 @@
                 <i class="mdi mdi-contacts menu-icon"></i>
               </a>
             </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/HinhAnh/Create">
+                        <span class="menu-title">Hình ảnh</span>
+                        <i class="mdi mdi-contacts menu-icon"></i>
+                    </a>
+                </li>
            @* <li class="nav-item">
               <a class="nav-link" href="pages/forms/basic_elements.html">
                 <span class="menu-title">Forms</span>
@@ -262,13 +271,14 @@
       <!-- page-body-wrapper ends -->
     </div>
    
-    @code{
+@code{
     private string name { get; set; }
     protected override async Task OnInitializedAsync()
     {
         try
         {
             name = await sessionStorage.GetItemAsync<string>("admin_name");
+            
         }
         catch (Exception ex) 
         {

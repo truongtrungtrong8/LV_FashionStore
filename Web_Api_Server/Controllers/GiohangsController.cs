@@ -39,34 +39,34 @@ namespace Web_Api_Server.Controllers
 
         // PUT: api/Giohangs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGiohang(string id, Giohang giohang)
-        {
-            if (id != giohang.MaGh)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutGiohang(string id, Giohang giohang)
+        //{
+        //    if (id != giohang.MaGh)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(giohang).State = EntityState.Modified;
+        //    _context.Entry(giohang).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GiohangExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!GiohangExists(id.ToString()))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/Giohangs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -81,6 +81,7 @@ namespace Web_Api_Server.Controllers
                 MaGh = request.MaGh,
                 Tongtien = request.Tongtien,
                 Ngaydat = request.Ngaydat,
+                MaKh = request.MaKh,   
                 
             };
 

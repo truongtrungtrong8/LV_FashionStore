@@ -45,7 +45,7 @@ namespace Model.DataDB
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=ASUS;Database=LV_FashionStore;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=DESKTOP-NE1IVP2;Database=LV_FashionStore;Trusted_Connection=True;");
             }
         }
 
@@ -342,11 +342,22 @@ namespace Model.DataDB
                     .IsUnicode(false)
                     .HasColumnName("MA_GH");
 
+                entity.Property(e => e.MaKh)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("MA_KH");
+
                 entity.Property(e => e.Ngaydat)
                     .HasColumnType("datetime")
                     .HasColumnName("NGAYDAT");
 
                 entity.Property(e => e.Tongtien).HasColumnName("TONGTIEN");
+
+                entity.HasOne(d => d.MaKhNavigation)
+                    .WithMany(p => p.Giohangs)
+                    .HasForeignKey(d => d.MaKh)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_GIOHANG_RELATIONS_KHACHHAN");
             });
 
             modelBuilder.Entity<Hinhanh>(entity =>

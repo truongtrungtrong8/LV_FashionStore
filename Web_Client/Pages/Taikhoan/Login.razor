@@ -3,9 +3,13 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IToastService toastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorrage
+@using Model
 @using Model.DataDB
+@using Web_Client.Pages.KhachHang
 @using Web_Client.Services
 @inject NavigationManager NavigationManager
+@inject SessionTemp tempsessionLogin
+
 
 <form style="width:400px">
     <!-- Email input -->
@@ -21,7 +25,7 @@
     </div>
 
     <!-- Submit button -->
-    <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
+    <button style="width:50%;margin-inline: auto;color:deepskyblue" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
 
     <!-- Register buttons -->
     <div class="text-center">
@@ -36,25 +40,66 @@
 
 @code {
     Taikhoan acc = new Taikhoan();
+
     TaiKhoanService accService = new TaiKhoanService();
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
     [CascadingParameter] public IModalService Modal { get; set; }
 
+
+    KhachHangService khachHangService = new KhachHangService();
+    List<Khachhang> list_kh = new List<Khachhang>();
+    Khachhang khachhang = new Khachhang();
+
+
+
     public async void CheckLogin()
     {
+
         Taikhoan newAcc = new Taikhoan();
 
+        await sessionStorage.SetItemAsync("ten_tk_kh", acc.TenTk);
         try
         {
             newAcc = await accService.GetTaiKhoan(acc.TenTk, acc.Matkhau);
+            if ((await CheckKhachhang(acc.TenTk)) == false)
+            {
+                if (newAcc != null)
+                {
+                    var role = newAcc.Quyensd;
+                    var name = newAcc.TenTk;
+                    await sessionStorage.SetItemAsync("role", role);
 
+                    if (role == "admin")
+                    {
+
+
+                        NavigationManager.NavigateTo("https://localhost:7268");
+                    }
+                    else
+                    {
+                        await sessionStorage.SetItemAsync("user_name", name);
+                        NavigationManager.NavigateTo("/");
+                    }
+
+                    toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
+                    await this.ModalInstance.CancelAsync();
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
             if (newAcc != null)
             {
                 var role = newAcc.Quyensd;
                 var name = newAcc.TenTk;
                 await sessionStorage.SetItemAsync("role", role);
+
                 if (role == "admin")
                 {
+
                     await sessionStorage.SetItemAsync("admin_name", name);
                     NavigationManager.NavigateTo("https://localhost:7268");
                 }
@@ -63,13 +108,10 @@
                     await sessionStorage.SetItemAsync("user_name", name);
                     NavigationManager.NavigateTo("/");
                 }
-              
                 toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
                 await this.ModalInstance.CancelAsync();
+                Modal.Show<Create_KhachHang>("Chỉnh sửa thông tin");
             }
-        }
-        catch (Exception Ex)
-        {
         }
 
     }
@@ -86,4 +128,23 @@
         //Thread.Sleep(500);
         //this.Modal.Show<Register>("Đăng ký tài khoản mới");
     }
+
+    public async Task<bool> CheckKhachhang(string phone)
+    {
+        khachhang = await khachHangService.GetKhachHang(phone);
+        var name_tenkh = khachhang.TenKh;
+        var makhachhang = khachhang.MaKh;
+        tempsessionLogin.Ten = khachhang.TenKh;
+        Console.WriteLine(tempsessionLogin);
+        if (khachhang == null)
+            return true;
+        else
+        await sessionStorage.SetItemAsync("ma_khachhang", makhachhang);
+        await sessionStorage.SetItemAsync("ten_kh", name_tenkh);
+       
+        Console.WriteLine();
+        return false; 
+    }
 }
+
+

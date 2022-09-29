@@ -1,8 +1,11 @@
+using Blazored.Modal;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using Model.DataDB;
+using Tewr.Blazor.FileReader;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<LV_FashionStoreContext>(option =>
 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<SessionTemp>();
+builder.Services.AddBlazoredModal();
+builder.Services.AddFileReaderService();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<HttpClient>();
 
 var app = builder.Build();
 

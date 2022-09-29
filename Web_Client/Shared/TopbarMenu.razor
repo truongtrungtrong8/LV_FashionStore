@@ -1,9 +1,13 @@
 ﻿@using Web_Client.Pages
+@using Web_Client.Pages.Cart
 @using Web_Client.Pages.Sanpham
 @using Web_Client.Pages.Taikhoan
 @using Blazored.Toast
 @using Blazored.Toast.Configuration;
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService localstorage
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
 
 <div class="container-fluid">
     <div class="row bg-secondary py-1 px-xl-5">
@@ -21,8 +25,9 @@
                     <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Cá nhân</button>
                     <div class="dropdown-menu dropdown-menu-right">
                         <button class="dropdown-item" type="button" @onclick="Login">Đăng nhập</button>
-                        <button class="dropdown-item" type="button">Đăng ký</button>
-                        @*   <a class="dropdown-item" href="/Cart/Cart">...</a>*@
+                        <button class="dropdown-item" type="button" @onclick="Register">Đăng ký</button>
+                        <button class="dropdown-item" type="button" @onclick="Logout">Đăng xuất</button>
+                        <button class="dropdown-item" type="button" @onclick="Xoa">Xóa</button>
                     </div>
                 </div>
                 <div class="btn-group mx-2">
@@ -47,10 +52,10 @@
                     <i class="fas fa-heart text-dark"></i>
                     <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom: 2px;">0</span>
                 </a>
-                <a href="" class="btn px-0 ml-2">
-                    <i class="fas fa-shopping-cart text-dark"></i>
+                <button type="button" class="btn px-0 ml-2">
+                    <i class="fas fa-shopping-cart text-dark" @onclick="CartShow"></i>
                     <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom: 2px;">0</span>
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -73,23 +78,35 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-4 col-6 text-right">
-            <p class="m-0">Chào bạn !</p>
-            <h5 class="m-0">@name</h5>
-        </div>
+        @if(name != null) {
+            <div class="col-lg-4 col-6 text-right">
+                <p class="m-0">Chào bạn !</p>
+                <h5 class="m-0">@name</h5>
+            </div>
+        }
+        else 
+        {
+            <div class="col-lg-4 col-6 text-right">
+                <p class="m-0">Chào bạn !</p>
+                <h5 class="m-0">@name1</h5>
+            </div>
+        }
+      
     </div>
 </div>
 
 @code {
     private Modal modal { get; set; }
     private string name { get; set; }
+    private string name1 { get; set; }
     [CascadingParameter] public IModalService Modal { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            name = await sessionStorage.GetItemAsync<string>("user_name");
+            name = await sessionStorage.GetItemAsync<string>("ten_kh");
+            name1 = await sessionStorage.GetItemAsync<string>("ten_kh1");
         }
         catch (Exception ex)
         {
@@ -104,6 +121,36 @@
     }
     public void Register()
     {
-        //Modal.Show<Register>("Đăng ký");
+        Modal.Show<Register>("Đăng ký");
+    }
+    public void Logout() 
+    {
+        sessionStorage.ClearAsync();
+        localstorage.ClearAsync();
+        toastService.ShowWarning("Đăng xuất thành công !", "Hẹn gặp lại bạn !");
+        StateHasChanged();
+
+    }
+
+    public void Xoa()
+    {
+        localstorage.ClearAsync();
+        StateHasChanged();
+
+    }
+    public async void CartShow()
+    {
+        name = await sessionStorage.GetItemAsync<string>("ten_kh");
+        name1 = await sessionStorage.GetItemAsync<string>("ten_kh1");
+
+        if(name == null || name1 == null)
+        {
+            toastService.ShowWarning("Bạn không có giỏ hàng cá nhân !", "Mời bạn đăng nhập");
+            Modal.Show<Login>("Đăng nhập");
+        }
+        else 
+        {
+            NavigationManager.NavigateTo("/Cart/Cart");
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Security.Principal;
 
 namespace Web_Client.Services
 {
-    public class TaiKhoanService: ITaikhoanService
+    public class TaiKhoanService
     {
         HttpClient Http = new HttpClient();
         string urldefault = "https://localhost:7118/api/TaiKhoans";

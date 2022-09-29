@@ -1,7 +1,7 @@
 ﻿using Model.DataDB;
 using System.Security.Principal;
 
-namespace Web_Client.Services
+namespace Web_Admin_Client.Services
 {
     public class TaiKhoanService
     {

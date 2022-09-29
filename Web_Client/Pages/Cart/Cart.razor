@@ -1,5 +1,6 @@
 ﻿@page "/Cart/Cart"
 @using Model
+@using Model.DataDB
 @using Model.Pay
 @using Web_Client.Services
 @inject ICartService CartService
@@ -7,12 +8,15 @@
 @layout LayoutCart
 @inject IJSRuntime JS
 @inject IJSRuntime JSRuntime
+@using System.Net.Mail
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
 
 @if (!orderPlaced)
 {
     @if (cartItems == null || cartItems.Count <= 0)
     {
-        <h>No item</h>
+        <h>Bạn chưa có sản phẩm nào trong giỏ hàng của bạn !</h>
     }
     else
     {
@@ -65,14 +69,14 @@
                     </table>
                 </div>
                    <div class="col-lg-4">
-                    <form class="mb-30" action="">
+@*                    <form class="mb-30" action="">
                         <div class="input-group">
                             <input type="text" class="form-control border-0 p-4" placeholder="Coupon Code">
                         <div class="input-group-append">
                         <button class="btn btn-primary">Apply Coupon</button>
                         </div>
                         </div>
-                    </form>
+                    </form>*@
                     <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Thông tin thanh toán</span></h5>
                     <div class="bg-light p-30 mb-5">
                         <div class="border-bottom pb-2">
@@ -90,26 +94,45 @@
                                 <h5>Tổng tiền</h5>
                                 <h5>(@cartItems.Count): @sanpham.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)-(item.GiaSp * item.Sl)*0.05).ToString())) VND</h5>
                             </div>
-                            <button class="btn btn-block btn-primary font-weight-bold my-3 py-3" @onclick="@(() => Payment())">Thanh toán trước</button>
-                            <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Thanh toán khi nhận hàng</button>
-                           
+
+                           @* <button class="btn btn-block btn-primary font-weight-bold my-3 py-3" @onclick="@(() => Payment())">Thanh toán trước</button>
+                            <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Thanh toán khi nhận hàng</button>*@
+                              <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#pay" style="height: 65px; padding: 0 30px;">
+                            <h6 class="text-dark m-0" style="font-size:16px"><i class="fa-brands fa-cc-amazon-pay"></i> Chọn hình thức thanh toán</h6>
+                            <i class="fa fa-angle-down text-dark"></i>
+                            </a>
+                            <div class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="pay" style="width: calc(100% - 92px); z-index: 999; ">
+
+                                    <a href="" class="nav-item nav-link" @onclick="@(() => Payment())">Thanh toán trước</a>
+                                    <a href="" class="nav-item nav-link" @onclick="@(() => SendMail())">Thanh toán khi nhận hàng</a>
+                                
+                            </div>
+
                         </div>
                     </div>
                     </div>
              </div>
-</div>
+    </div>
         <!-- Cart End -->
     }
 
 }
 
 @code {
-        [Parameter]
-        public UserIP userIP { get; set; }
+    [Parameter]
+    public UserIP userIP { get; set; }
+    //public List<CartInUser> cartItems = new List<CartInUser>();
     public List<CartItems> cartItems = new List<CartItems>();
+
+    public List<Khachhang> khachhangs = new List<Khachhang>();
+    Khachhang khachhang = new Khachhang();
+    KhachHangService khachHangService = new KhachHangService();
+
     bool orderPlaced = false;
 
     private int total;
+
+
 
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
@@ -117,13 +140,25 @@
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
 
+
     int temp;
+    private string Message { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
         try 
         {
-            cartItems = await CartService.GetCartItems();
+
+            var name_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if(name_khCreate != null) 
+            {
+                cartItems = await CartService.GetCartItemInUser(name_khCreate);
+            }
+            else
+            {
+                cartItems = await CartService.GetCartItemInUser(name_khLogin);
+            }
 
         }
         catch (Exception ex) {
@@ -136,7 +171,16 @@
     private async Task DeleteItem(CartItems item)
     {
         await CartService.DeleteItem(item);
-        cartItems = await CartService.GetCartItems();
+        var name_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (name_khCreate != null)
+        {
+            cartItems = await CartService.GetCartItemInUser(name_khCreate);
+        }
+        else
+        {
+            cartItems = await CartService.GetCartItemInUser(name_khLogin);
+        }
     }
 
     private async Task PlaceOrder()
@@ -187,5 +231,90 @@
     {
         userIP = new UserIP();
         return userIP.IPAddress;
+    }
+
+    /// Gui mail xac nhan
+
+    private async void SendMail()
+    {
+        var name_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (name_khCreate != null)
+        {
+            var result = await gioHangService.GetDetail(name_khCreate);
+            khachhang = await khachHangService.GetKhachHang(name_khCreate);
+            try
+            {
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                    mail.To.Add("truongtrungtrong@gmail.com");
+                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
+                    mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
+                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
+                    mail.Body += "<p>Thời gian: " + result.Ngaydat/*.ToString("MM/dd/yyyy")*/;
+                    mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
+                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
+                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                    mail.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    {
+                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                        Message = "Mail Sent";
+                        
+                    }
+                }
+                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng !", "Đặt hàng thành công !");
+            }
+            catch (Exception ex)
+            {
+                throw;
+                Message = ex.Message;
+            }
+        }
+        else
+        {
+            var result = await gioHangService.GetDetail(name_khLogin);
+            khachhang = await khachHangService.GetKhachHang(name_khLogin);
+            try
+            {
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                    mail.To.Add("truongtrungtrong@gmail.com");
+                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
+                    mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
+                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
+                    mail.Body += "<p>Thời gian: " + result.Ngaydat/*.ToString("MM/dd/yyyy")*/;
+                    mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
+                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
+                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                    mail.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    {
+                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                        Message = "Mail Sent";
+                        
+                    }
+                }
+                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng !", "Đặt hàng thành công !");
+            }
+            catch (Exception ex)
+            {
+                throw;
+                Message = ex.Message;
+            }
+        }
+
+        
+
+        
+
     }
 }

@@ -8,7 +8,7 @@ namespace Model
 {
     public class CartItemUpdate
     {
-        public string MaGh { get; set; }
+        public int MaGh { get; set; }
         public int Sl { get; set; }
     }
 }

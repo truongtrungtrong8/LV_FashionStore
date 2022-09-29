@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
+using Model.Dto;
 
 namespace Web_Api_Server.Controllers
 {
@@ -27,6 +31,8 @@ namespace Web_Api_Server.Controllers
         {
             var sanpham = (from s in _context.Sanphams
                            join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                           join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
+                           join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -35,7 +41,9 @@ namespace Web_Api_Server.Controllers
                                Ha1 = h.Ha1,
                                Ha2 = h.Ha2,
                                GiaSp = s.GiaSp,
-                               TenSp = s.TenSp
+                               TenSp = s.TenSp,
+                               TenHsx = hsx.TenHsx
+                               
                            });
 
             return await sanpham.ToListAsync();
@@ -63,7 +71,9 @@ namespace Web_Api_Server.Controllers
                                TenSp = s.TenSp,
                                TenHsx = hsx.TenHsx,
                                Tenloai = l.Tenloai,
-                               Mota = s.Mota
+                               Mota = s.Mota,
+                               MaHsx = hsx.MaHsx,
+                               Baohanh = s.Baohanh
                                
                            }).SingleOrDefault();
 
@@ -73,65 +83,55 @@ namespace Web_Api_Server.Controllers
         // PUT: api/Sanphams/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSanpham(string id, Sanpham sanpham)
+        public async Task<IActionResult> PutSanpham(string id,[FromBody] SanphamEdit sanpham)
         {
             if (id != sanpham.MaSp)
             {
                 return BadRequest();
             }
 
-            _context.Entry(sanpham).State = EntityState.Modified;
+            var temp = await _context.Sanphams.FindAsync(id);
+            if (temp == null)
+                return NotFound($"{id} is not found");
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SanphamExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            temp.MaSp = sanpham.MaSp;
+            temp.TenSp = sanpham.TenSp;
+            temp.Mota = sanpham.Mota;
+            temp.GiaSp = sanpham.GiaSp;
+            temp.MaHsx = sanpham.MaHsx;
+            temp.MaLoai = sanpham.MaLoai;
+            temp.Baohanh = sanpham.Baohanh;
 
-            return NoContent();
+            _context.Sanphams.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/Sanphams
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Sanpham>> PostSanpham(Sanpham sanpham)
+        public async Task<ActionResult<Sanpham>> PostSanpham([FromBody] SanphamEdit sanpham)
         {
-          if (_context.Sanphams == null)
-          {
-              return Problem("Entity set 'LV_FashionStoreContext.Sanphams'  is null.");
-          }
-            _context.Sanphams.Add(sanpham);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (SanphamExists(sanpham.MaSp))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return CreatedAtAction("GetSanpham", new { id = sanpham.MaSp }, sanpham);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var temp = new Sanpham()
+            {
+                MaSp = sanpham.MaSp,
+                TenSp = sanpham.TenSp,
+                Mota = sanpham.Mota,
+                GiaSp = sanpham.GiaSp,
+                MaHsx = sanpham.MaHsx,
+                MaLoai = sanpham.MaLoai,
+                Baohanh = sanpham.Baohanh,
+        };
+            await _context.Sanphams.AddAsync(temp);
+            await _context.SaveChangesAsync();
+        return CreatedAtAction("GetSanpham", new { id = sanpham.MaSp}, sanpham);
         }
 
-        // DELETE: api/Sanphams/5
-        [HttpDelete("{id}")]
+// DELETE: api/Sanphams/5
+[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSanpham(string id)
         {
             if (_context.Sanphams == null)
