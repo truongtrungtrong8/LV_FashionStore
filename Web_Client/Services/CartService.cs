@@ -55,7 +55,6 @@ namespace Web_Client.Services
             }
            
         }
-
         public async Task<List<CartItems>> GetCartItems()
         {
             var cart = await _localStorage.GetItemAsync<List<CartItems>>("cart");

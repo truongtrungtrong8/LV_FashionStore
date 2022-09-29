@@ -55,7 +55,6 @@
                 await sessionStorage.SetItemAsync("role", role);
                 if (role == "admin")
                 {
-                  
                     await sessionStorage.SetItemAsync("admin_name", name);
                     NavigationManager.NavigateTo("https://localhost:7268");
                 }
