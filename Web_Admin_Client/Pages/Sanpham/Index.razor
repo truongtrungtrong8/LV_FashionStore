@@ -2,6 +2,8 @@
 @using Blazored.Modal.Services
 @using Model
 @using Model.DataDB
+@using Models.Page
+@using Web_Admin_Client.Pages.Modal
 @using Web_Admin_Client.Services
 @inject IJSRuntime JS
 @layout MainLayout
@@ -14,12 +16,11 @@
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="page-header">
-              <h3 class="page-title"> Quản lý </h3>
-              <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <button @onclick="Create_SP" class="btn btn-block btn-lg btn-gradient-primary mt-4 mdi mdi-playlist-plus"> Thêm sản phẩm mới</button>
-                </ol>
-              </nav>
+              <h3 class="page-title"> Quản lý sản phẩm</h3>
+                    <SearchForm OnSearchChanged="SearchChanged" />
+                    <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => modal.Open()">Thêm sản phẩm mới !</button>
+            <Web_Admin_Client.Pages.Sanpham.Create @ref="modal"></Web_Admin_Client.Pages.Sanpham.Create>
+                    @*<button @onclick="Create_SP" class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" style="position:"> Thêm sản phẩm mới</button>*@
             </div>
             <div class="row">
 
@@ -27,8 +28,6 @@
                 <div class="card">
                   <div class="card-body">
                     <h4 class="card-title"></h4>
-                    <p class="card-description"> Add class <code>.table-bordered</code>
-                    </p>
                     <table class="table table-bordered">
                             <thead>
                                 <tr>
@@ -46,7 +45,7 @@
                                             <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                             </a>
                                             <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
-                                                <a class="dropdown-item" href="/Sanpham/Edit/@item.MaSp">
+                                                <a class="dropdown-item" @onclick="() => Edit_SP(item.MaSp,ModalSize.Custom,ModalPosition.Custom)">
                                                     <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Chỉnh sửa
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -70,6 +69,7 @@
                             </tbody>
                     </table>
                   </div>
+                   <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
                 </div>
               </div>
 
@@ -77,25 +77,32 @@
           </div>
           </div>
 
+          <style>
 
-
-
-
+          </style>
 
 
 
 
 @code {
+    private Web_Admin_Client.Pages.Sanpham.Create modal { get; set; }
+    private Web_Admin_Client.Pages.Sanpham.Edit modalEdit { get; set; }
+
+
     List<Sanpham_Model> sanpham = new List<Sanpham_Model>();
-
-
     SanphamService sanphamservice = new SanphamService();
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters paging = new PagingParameters();
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+    private string? result { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            sanpham = await sanphamservice.GetAllProduct();
+
+            await GetProducts();
+
         }
         catch (Exception ex)
         {
@@ -103,22 +110,35 @@
         }
 
     }
-    public void Create_SP()
+    public async void Edit_SP(string id, ModalSize size, ModalPosition position)
     {
-        NavigationManager.NavigateTo("/Sanpham/Create");
+
+        await sessionStorage.SetItemAsync("sp_id", id);
+        var options = new ModalOptions { Size = size, Position = position };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<Edit>("Chỉnh sửa thông tin", options);
+
     }
-    //[CascadingParameter] public IModalService Modal { get; set; }
 
-    //public async Task Edit(string id)
-    //{
-    //    try
-    //    {
-    //        Modal.Show<Edit>("Chỉnh sửa thông tin");
-
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex);
-    //    }
-    //}
+    private async Task SelectedPage(int page)
+    {
+        paging.PageNumber = page;
+        await GetProducts();
+    }
+    private async Task GetProducts()
+    {
+        var pagingResponse = await sanphamservice.GetListPageSp(paging);
+        sanpham = pagingResponse.Items;
+        MetaData = pagingResponse.MetaData;
+    }
+    private async Task SearchChanged(string searchTerm)
+    {
+        Console.WriteLine(searchTerm);
+        paging.PageNumber = 1;
+        paging.SearchTerm = searchTerm;
+        await GetProducts();
+    }
 }

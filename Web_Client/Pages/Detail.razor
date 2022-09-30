@@ -277,6 +277,7 @@
     private string name { get; set; }
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
+    List<Giohang> giohangList = new List<Giohang>();
 
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
@@ -317,19 +318,25 @@
             {
                 if (name_khLogin != null)
                 {
+                    await sessionStorage.SetItemAsync("magiohang", name_khLogin);
+                    string temp = "GH" + cartItems_List.Count + 1 + DateTime.Now.Millisecond.ToString().Substring(0, 3) + DateTime.Now.Second.ToString().Substring(0, 2);
+                    Console.WriteLine(temp);
                     {
                         cartItem.MaSp = sanpham.MaSp;
                         cartItem.TenSp = sanpham.TenSp;
-                        cartItem.MaGh = ma_khLogin;
+                        cartItem.MaGh = temp;
                         cartItem.GiaSp = sanpham.GiaSp;
                         cartItem.HaBia = sanpham.HaBia;
+                        cartItem.MaKh = ma_khLogin;
+                        
                         await CartService.AddToCart(cartItem);
                     }
                     cartItems_List = await CartService.GetCartItems();
-                    gioHangDto.MaGh = ma_khLogin;
+                    gioHangDto.MaGh = temp;
                     DateTime now = DateTime.Now;
                     gioHangDto.Ngaydat = now;
                     gioHangDto.MaKh = ma_khLogin;
+                    
                     await gioHangService.Create(gioHangDto);
 
                     foreach (var item in cartItems_List)

@@ -1,11 +1,14 @@
 ﻿
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.WebUtilities;
 using Model;
 using Model.DataDB;
 using Model.Dto;
-using Model.Search;
 using Models.Page;
 using System.Globalization;
+using System.Net;
+using System.Text.Json;
+using Web_Admin_Client.Data;
 using static System.Net.WebRequestMethods;
 
 
@@ -13,6 +16,7 @@ namespace Web_Admin_Client.Services
 {
     public class SanphamService
     {
+        JsonSerializerOptions _options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
         HttpClient Http = new HttpClient();
         string urldefault = "https://localhost:7118/api/Sanphams"; 
 
@@ -21,9 +25,9 @@ namespace Web_Admin_Client.Services
         {
             return await Http.GetFromJsonAsync<Sanpham_Model>(urldefault + "/" + id);
         }
-        public async Task<List<Sanpham_Model>> GetAllProduct()
+        public async Task<Sanpham_Model> GetAllProduct()
         {
-            return await Http.GetFromJsonAsync<List<Sanpham_Model>>(urldefault);
+            return await Http.GetFromJsonAsync<Sanpham_Model>(urldefault);
         }
 
         public string FormatVND(int price)
@@ -43,20 +47,26 @@ namespace Web_Admin_Client.Services
             return result.IsSuccessStatusCode;
         }
 
-        public async Task<PagedList<Sanpham_Model>> GetListPageSp(SanphamSearch spSearch)
+        public async Task<PagingResponse<Sanpham_Model>> GetListPageSp(PagingParameters paging)
         {
             var queryStringParam = new Dictionary<string, string>
             {
-                ["pageNumber"] = spSearch.PageNumber.ToString()
+                ["pageNumber"] = paging.PageNumber.ToString(),
+                ["searchTerm"] = paging.SearchTerm == null ? "" : paging.SearchTerm
             };
-
-            if (!string.IsNullOrEmpty(spSearch.MaSp))
-                queryStringParam.Add("maMa", spSearch.MaSp);
-            
-
-            string url = QueryHelpers.AddQueryString(urldefault, queryStringParam);
-            var request = await Http.GetFromJsonAsync<PagedList<Sanpham_Model>>(url);
-            return request;
+            var response = await Http.GetAsync(QueryHelpers.AddQueryString(urldefault + "/page", queryStringParam));
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApplicationException(content);
+            }
+            var pagingResponse = new PagingResponse<Sanpham_Model>
+            {
+                Items = JsonSerializer.Deserialize<List<Sanpham_Model>>(content, _options),
+                MetaData = JsonSerializer.Deserialize<MetaData>(response.Headers.GetValues("X-Pagination").First(), _options)
+            };
+            return pagingResponse;
+           
         }
 
         public async Task<bool> CreateSanpham(SanphamEdit request)

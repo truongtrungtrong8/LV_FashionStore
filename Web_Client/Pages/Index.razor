@@ -10,6 +10,9 @@
 <PageTitle>Index</PageTitle>
 
 <!-- Categories Start -->
+<Web_Client.Pages.Modal @ref="modal"></Web_Client.Pages.Modal>
+<button class="btn btn-primary" @onclick="() => modal.Open()">Modal!</button>
+
     <div class="container-fluid pt-5">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Sản phẩm</span></h2>
         <div class="row px-xl-5 pb-3">
@@ -289,6 +292,7 @@
     <!-- Products End -->
 
 @code{
+    private Web_Client.Pages.Modal modal { get; set; }
     List<Sanpham_Model> sanpham = new List<Sanpham_Model>();
 
 

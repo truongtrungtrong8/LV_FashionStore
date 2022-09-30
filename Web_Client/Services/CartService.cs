@@ -64,37 +64,7 @@ namespace Web_Client.Services
 
         }
 
-        //public async Task AddToCart(CartItems item)
-        //{
-        //    var name_khLogin = await _sessionStorage.GetItemAsync<string>("ma_khachhang");
-        //    var cartItems = await GetCartItemInUser(name_khLogin);
-
-        //    if (cartItems == null)
-        //    {
-        //        cartItems = new List<CartItems>();
-        //    }
-        //    try
-        //    {
-        //        var sameItem = cartItems.Find(x => x.MaSp == item.MaSp && x.TenSp == item.TenSp);
-        //        if (sameItem == null)
-        //        {
-        //            cartItems.Add(item);
-        //        }
-        //        else
-        //        {
-        //            sameItem.Sl += item.Sl;
-        //        }
-
-        //        await _localStorage.SetItemAsync("cart", cartItems);
-        //        _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Sản phẩm đã cho vào giỏ hàng");
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //    }
-
-        //}
+        
         public async Task<List<CartItems>> GetCartItems()
         {
             var cart = await _localStorage.GetItemAsync<List<CartItems>>("cart");
@@ -106,13 +76,24 @@ namespace Web_Client.Services
         }
         public async Task<List<CartItems>> GetCartItems(string item)
         {
+            var magiohang = await _sessionStorage.GetItemAsync<string>("magiohang");
             var cart = await _localStorage.GetItemAsync<List<CartItems>>("cart");
+            var gh = ( from s in cart where s.MaKh == item 
+                       select new CartItems()
+                       {
+                           HaBia = s.HaBia,
+                           TenSp = s.TenSp,
+                           GiaSp = s.GiaSp,
+                           Sl = s.Sl,
+                           MaSp = s.MaSp,
+                           MaKh = s.MaKh,
+                           MaGh = s.MaGh
+                       }).ToList();
             try
             {
-                var sameItem = cart.Find(x => x.MaKh == item);
-                if (sameItem != null)
+                if (gh != null)
                 {
-                    return cart;
+                    return gh;
                 }
                 
             }

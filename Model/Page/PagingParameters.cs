@@ -22,5 +22,6 @@ namespace Models.Page
                 _pageSize = (value > maxPageSize) ? maxPageSize : value;
             }
         }
+        public string? SearchTerm { get; set; } = null;
     }
 }

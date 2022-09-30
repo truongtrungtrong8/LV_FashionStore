@@ -159,6 +159,8 @@
             {
                 cartItems = await CartService.GetCartItemInUser(name_khLogin);
             }
+            //var magiohang = await sessionStorage.GetItemAsync<string>("magiohang");
+            //cartItems = await CartService.GetCartItems(magiohang);
 
         }
         catch (Exception ex) {
@@ -171,16 +173,8 @@
     private async Task DeleteItem(CartItems item)
     {
         await CartService.DeleteItem(item);
-        var name_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
         var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if (name_khCreate != null)
-        {
-            cartItems = await CartService.GetCartItemInUser(name_khCreate);
-        }
-        else
-        {
-            cartItems = await CartService.GetCartItemInUser(name_khLogin);
-        }
+        cartItems = await CartService.GetCartItemInUser(name_khLogin);
     }
 
     private async Task PlaceOrder()

@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
 using Model.Dto;
+using Models.Page;
+using Newtonsoft.Json;
+using Web_Api_Server.Repositoreies;
 
 namespace Web_Api_Server.Controllers
 {
@@ -45,12 +48,38 @@ namespace Web_Api_Server.Controllers
                                TenHsx = hsx.TenHsx
                                
                            });
-
             return await sanpham.ToListAsync();
+           
 
-            
+
         }
+        [HttpGet("page")]
+        public async Task<ActionResult<PagedList<Sanpham_Model>>> GetProductPages([FromQuery] PagingParameters paging)
+        {
+            var sanpham = (from s in _context.Sanphams
+                           join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                           join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
+                           join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           select new Sanpham_Model()
+                           {
+                               MaSp = s.MaSp,
+                               MaLoai = s.MaLoai,
+                               HaBia = h.HaBia,
+                               Ha1 = h.Ha1,
+                               Ha2 = h.Ha2,
+                               GiaSp = s.GiaSp,
+                               TenSp = s.TenSp,
+                               TenHsx = hsx.TenHsx
+                           }).Search(paging.SearchTerm).AsQueryable();
+            
+           
+            var result = PagedList<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
 
+
+        }
+        
         // GET: api/Sanphams/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Sanpham_Model>> GetSanpham(string id)

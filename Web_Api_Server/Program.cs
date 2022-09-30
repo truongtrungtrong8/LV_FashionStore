@@ -16,6 +16,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddServerSideBlazor();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "LV_FashionStore",
+        builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("X-Pagination"));
+});
+
 builder.Services.AddDbContext<LV_FashionStoreContext>(option =>
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
