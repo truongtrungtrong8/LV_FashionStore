@@ -38,7 +38,7 @@ namespace Web_Api_Server.Controllers
                            select new CartItems()
                            {
                                MaSp = l.MaSp,
-                               MaGh = h.MaGh,
+                               MaGh = s.MaGh,
                                MaKh = h.MaKh,
                                TenSp = x.TenSp,
                                HaBia = l.HaBia,
@@ -103,16 +103,20 @@ namespace Web_Api_Server.Controllers
 
         // DELETE: api/CtGhs/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCtGh(string id)
+        public async Task<IActionResult> DeleteCtGh(string id,string id1)
         {
-            var ctGh = await _context.CtGhs.FindAsync(id);
+
+            var ctGh = await _context.CtGhs.FindAsync(id,id1);
+            //var giohang = await _context.Giohangs.FindAsync(id1);
             if (ctGh == null)
             {
                 return NotFound();
             }
 
             _context.CtGhs.Remove(ctGh);
+            //_context.Giohangs.Remove(giohang);
             await _context.SaveChangesAsync();
+
 
             return NoContent();
         }

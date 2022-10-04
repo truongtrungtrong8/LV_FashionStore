@@ -49,22 +49,6 @@ namespace Web_Api_Server.Controllers
             return taikhoan;
         }
 
-        [HttpGet("{id}/{pass}")]
-        public async Task<ActionResult<Taikhoan>> GetTaikhoan(string id, string pass)
-        {
-            if (_context.Taikhoans == null)
-            {
-                return NotFound();
-            }
-            var taikhoan = await _context.Taikhoans.Where(a => a.TenTk == id && a.Matkhau == pass).SingleOrDefaultAsync();
-
-            if (taikhoan == null)
-            {
-                return NotFound();
-            }
-
-            return taikhoan;
-        }
 
         // PUT: api/Taikhoans/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -149,6 +133,24 @@ namespace Web_Api_Server.Controllers
         private bool TaikhoanExists(string id)
         {
             return (_context.Taikhoans?.Any(e => e.TenTk == id)).GetValueOrDefault();
+        }
+
+
+        [HttpGet("GetLogin")]
+        public async Task<ActionResult<Taikhoan>> GetLogin(string id, string pwd)
+        {
+            if (_context.Taikhoans == null)
+            {
+                return NotFound();
+            }
+            var account = await _context.Taikhoans.Where(acc => acc.TenTk == id && acc.Matkhau == pwd).SingleOrDefaultAsync();
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return account;
         }
     }
 }

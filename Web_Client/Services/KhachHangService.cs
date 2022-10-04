@@ -16,7 +16,9 @@ namespace Web_Client.Services
         public async Task<Khachhang> GetKhachHang(string id)
         {
             
-            return await Http.GetFromJsonAsync<Khachhang>(urldefault + "/" + id);
+            var result = await Http.GetFromJsonAsync<Khachhang>(urldefault + "/" + id);
+            
+            return result;
         }
         public async Task<Khachhang> GetDetail(string id)
         {

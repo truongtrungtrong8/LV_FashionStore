@@ -11,6 +11,9 @@
 @using System.Net.Mail
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IToastService toastService
+@inject NavigationManager NavigationManager
+
+
 
 @if (!orderPlaced)
 {
@@ -69,14 +72,7 @@
                     </table>
                 </div>
                    <div class="col-lg-4">
-@*                    <form class="mb-30" action="">
-                        <div class="input-group">
-                            <input type="text" class="form-control border-0 p-4" placeholder="Coupon Code">
-                        <div class="input-group-append">
-                        <button class="btn btn-primary">Apply Coupon</button>
-                        </div>
-                        </div>
-                    </form>*@
+
                     <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Thông tin thanh toán</span></h5>
                     <div class="bg-light p-30 mb-5">
                         <div class="border-bottom pb-2">
@@ -105,6 +101,7 @@
 
                                     <a href="" class="nav-item nav-link" @onclick="@(() => Payment())">Thanh toán trước</a>
                                     <a href="" class="nav-item nav-link" @onclick="@(() => SendMail())">Thanh toán khi nhận hàng</a>
+                                  
                                 
                             </div>
 
@@ -149,18 +146,8 @@
         try 
         {
 
-            var name_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-            var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            if(name_khCreate != null) 
-            {
-                cartItems = await CartService.GetCartItemInUser(name_khCreate);
-            }
-            else
-            {
-                cartItems = await CartService.GetCartItemInUser(name_khLogin);
-            }
-            //var magiohang = await sessionStorage.GetItemAsync<string>("magiohang");
-            //cartItems = await CartService.GetCartItems(magiohang);
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            cartItems = await CartService.GetCartItems(makhachhang);
 
         }
         catch (Exception ex) {
@@ -170,17 +157,16 @@
     }
 
 
-    private async Task DeleteItem(CartItems item)
+    private async Task DeleteItem(CartItems items)
     {
-        await CartService.DeleteItem(item);
+        await CartService.DeleteItem(items);
         var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        cartItems = await CartService.GetCartItemInUser(name_khLogin);
+        cartItems = await CartService.GetCartItems(name_khLogin);
     }
 
     private async Task PlaceOrder()
     {
-        orderPlaced = true;
-        await CartService.EmptyCart();
+
     }
 
     ////// Pay
@@ -231,12 +217,14 @@
 
     private async void SendMail()
     {
-        var name_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-        var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if (name_khCreate != null)
+        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (name_khLogin != null)
         {
-            var result = await gioHangService.GetDetail(name_khCreate);
-            khachhang = await khachHangService.GetKhachHang(name_khCreate);
+            //var result = await gioHangService.GetDetail(ma_khLogin);
+            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
             try
             {
                 using (MailMessage mail = new MailMessage())
@@ -246,22 +234,22 @@
                     mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
                     mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
                     mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                    mail.Body += "<p>Thời gian: " + result.Ngaydat/*.ToString("MM/dd/yyyy")*/;
+                    mail.Body += "<p>Thời gian: " + DateTime.Now;
                     mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
                     mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
                     mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
                     mail.IsBodyHtml = true;
-
                     using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
                     {
                         smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
                         smtp.EnableSsl = true;
                         smtp.Send(mail);
                         Message = "Mail Sent";
-                        
+
                     }
                 }
-                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng !", "Đặt hàng thành công !");
+                NavigationManager.NavigateTo("/");
+                toastService.ShowSuccess("Mời bạn kiểm tra email !", "Đặt hàng thành công !");
             }
             catch (Exception ex)
             {
@@ -271,8 +259,8 @@
         }
         else
         {
-            var result = await gioHangService.GetDetail(name_khLogin);
-            khachhang = await khachHangService.GetKhachHang(name_khLogin);
+            //var result = await gioHangService.GetDetail(ma_khCreate);
+            khachhang = await khachHangService.GetKhachHang(ma_khCreate);
             try
             {
                 using (MailMessage mail = new MailMessage())
@@ -282,7 +270,7 @@
                     mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
                     mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
                     mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                    mail.Body += "<p>Thời gian: " + result.Ngaydat/*.ToString("MM/dd/yyyy")*/;
+                    mail.Body += "<p>Thời gian: " + DateTime.Now;
                     mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
                     mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
                     mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
@@ -294,10 +282,11 @@
                         smtp.EnableSsl = true;
                         smtp.Send(mail);
                         Message = "Mail Sent";
-                        
+
                     }
                 }
-                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng !", "Đặt hàng thành công !");
+                NavigationManager.NavigateTo("/");
+                toastService.ShowSuccess("Mời bạn kiểm tra email !", "Đặt hàng thành công !");
             }
             catch (Exception ex)
             {
@@ -306,9 +295,5 @@
             }
         }
 
-        
-
-        
-
-    }
+}
 }

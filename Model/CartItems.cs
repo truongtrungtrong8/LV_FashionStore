@@ -12,7 +12,7 @@ namespace Model
     {
         [JsonIgnore]
 
-        public string MaGh { get; set; }
+        public string MaGh { get; set; } = null!;
         public string MaSp { get; set; }
         public string MaKh { get; set; } = null!;
         public int Sl { get; set; }

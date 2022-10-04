@@ -43,7 +43,7 @@ namespace Web_Client.Services
             }
             try
             {
-                var sameItem = cart.Find(x => x.MaSp == item.MaSp && x.TenSp == item.TenSp);
+                var sameItem = cart.Find(x => x.MaSp == item.MaSp);
                 if (sameItem == null)
                 {
                     cart.Add(item);
@@ -54,7 +54,7 @@ namespace Web_Client.Services
                 }
 
                 await _localStorage.SetItemAsync("cart", cart);
-                _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Sản phẩm đã cho vào giỏ hàng");
+                _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
                 OnChange.Invoke();
             }
             catch (Exception ex)
@@ -64,7 +64,6 @@ namespace Web_Client.Services
 
         }
 
-        
         public async Task<List<CartItems>> GetCartItems()
         {
             var cart = await _localStorage.GetItemAsync<List<CartItems>>("cart");
@@ -76,32 +75,15 @@ namespace Web_Client.Services
         }
         public async Task<List<CartItems>> GetCartItems(string item)
         {
-            var magiohang = await _sessionStorage.GetItemAsync<string>("magiohang");
             var cart = await _localStorage.GetItemAsync<List<CartItems>>("cart");
-            var gh = ( from s in cart where s.MaKh == item 
-                       select new CartItems()
-                       {
-                           HaBia = s.HaBia,
-                           TenSp = s.TenSp,
-                           GiaSp = s.GiaSp,
-                           Sl = s.Sl,
-                           MaSp = s.MaSp,
-                           MaKh = s.MaKh,
-                           MaGh = s.MaGh
-                       }).ToList();
-            try
-            {
-                if (gh != null)
-                {
-                    return gh;
-                }
-                
-            }
-            catch (Exception ex)
+            var gh = cart.Where(g => g.MaKh == item).ToList();
+            if (gh != null)
             {
 
+                return gh;
             }
             return new List<CartItems>();
+
         }
 
         public async Task<List<CartItems>> GetCartItemInUser(string id)
@@ -123,7 +105,7 @@ namespace Web_Client.Services
             try
             {
                 cart.Remove(cartItem);
-                _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Bạn đã xóa sản phẩm khỏi giỏ hàng" );
+                _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Xóa thành công !" );
                 await _localStorage.SetItemAsync("cart", cart);
                 OnChange.Invoke();
             }
@@ -132,6 +114,13 @@ namespace Web_Client.Services
 
             }
             
+        }
+
+        public async Task<bool> DeleteCart(string id, string id1)
+        {
+            var result = await Http.DeleteAsync(urldefault + "/" + id + "?=" + id1);
+            return result.IsSuccessStatusCode;
+
         }
         public async Task EmptyCart()
         {

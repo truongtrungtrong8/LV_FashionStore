@@ -19,7 +19,9 @@ namespace Web_Admin_Client.Services
 
         public async Task<Taikhoan> CheckTaiKhoan(string id)
         {
+
             return await Http.GetFromJsonAsync<Taikhoan>(urldefault + "/" + id);
+            
         }
         public async Task<Taikhoan> AddATaiKhoan(Taikhoan acc)
         {

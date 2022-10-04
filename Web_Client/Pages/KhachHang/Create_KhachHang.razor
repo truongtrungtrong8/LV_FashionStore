@@ -76,7 +76,7 @@
             await khachHangService.AddAKhachHang(khachhang);
             await sessionStorage.SetItemAsync("ten_kh1", khachhang.TenKh);
             await sessionStorage.SetItemAsync("ma_khachhangCreate", khachhang.MaKh);
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/",forceLoad:true);
             toastService.ShowSuccess("Chỉnh sửa thành công !", "Chúc mừng!");
         }
 

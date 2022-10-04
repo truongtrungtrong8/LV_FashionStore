@@ -47,6 +47,7 @@
     </form>
     
     <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Đóng</button>
 </EditForm>
 
 
@@ -58,7 +59,7 @@
  
 
     [Parameter]
-    public string id { get; set; } = "SP01";
+    public string id { get; set; } 
     private SanphamEdit sanphamdto = new SanphamEdit();
     SanphamService sanphamService = new SanphamService();
     List<LoaiSp> loaisp = new List<LoaiSp>();
@@ -67,6 +68,8 @@
     HsxService hsxService = new HsxService();
     IFormFile myfile ;
     List<IFormFile> myfiles = new List<IFormFile>();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -91,5 +94,9 @@
         await sanphamService.EditSanpham(sp_id, sanphamdto);
         NavigationManager.NavigateTo("/Sanpham/Index");
         
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
     }
 }

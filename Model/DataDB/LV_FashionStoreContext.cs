@@ -781,7 +781,7 @@ namespace Model.DataDB
                     .HasColumnName("TEN_TK");
 
                 entity.Property(e => e.Matkhau)
-                    .HasMaxLength(40)
+                    .HasMaxLength(1000)
                     .IsUnicode(false)
                     .HasColumnName("MATKHAU");
 

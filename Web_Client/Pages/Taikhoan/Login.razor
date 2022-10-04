@@ -5,27 +5,29 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorrage
 @using Model
 @using Model.DataDB
+@using System.Security.Cryptography
+@using System.Text
 @using Web_Client.Pages.KhachHang
 @using Web_Client.Services
 @inject NavigationManager NavigationManager
 @inject SessionTemp tempsessionLogin
 
 
-<form style="width:400px">
+<EditForm Model="acc" style="width:400px">
     <!-- Email input -->
     <div class="form-outline mb-4">
-        <label class="form-label" for="form2Example1">Tên tài khoản</label>
-        <input type="tel" @bind-value="acc.TenTk" class="form-control" />
+        <label class="form-label" for="form2Example1">Số điện thoại</label>
+        <InputText type="tel" @bind-Value="acc.TenTk" @ref=phone class="form-control" />
     </div>
 
     <!-- Password input -->
     <div class="form-outline mb-4">
         <label class="form-label" for="form2Example2">Mật khẩu</label>
-        <input type="password" @bind-value="acc.Matkhau" class="form-control" />
+        <InputText type="password" @bind-Value="acc.Matkhau" @ref=password class="form-control" />
     </div>
 
     <!-- Submit button -->
-    <button style="width:50%;margin-inline: auto;color:deepskyblue" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
+    <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
 
     <!-- Register buttons -->
     <div class="text-center">
@@ -35,7 +37,8 @@
         </div>
         <p>Bạn chưa có tài khoản? <a style="color:mediumblue;cursor:pointer" @onclick="Register">Đăng ký ngay</a></p>
     </div>
-</form>
+</EditForm>
+
 
 
 @code {
@@ -50,71 +53,104 @@
     List<Khachhang> list_kh = new List<Khachhang>();
     Khachhang khachhang = new Khachhang();
 
-
+    private InputText phone;
+    private InputText password;
 
     public async void CheckLogin()
     {
 
         Taikhoan newAcc = new Taikhoan();
 
+
         await sessionStorage.SetItemAsync("ten_tk_kh", acc.TenTk);
-        try
+        try 
         {
-            newAcc = await accService.GetTaiKhoan(acc.TenTk, acc.Matkhau);
-            if ((await CheckKhachhang(acc.TenTk)) == false)
+
+
+            if (phone.Value == null)
             {
-                if (newAcc != null)
+                toastService.ShowError("Vui lòng nhập số điện thoại", "Lỗi");
+                phone.Element.Value.FocusAsync();
+            }
+            else if (password.Value == null)
+            {
+                toastService.ShowError("Vui lòng nhập mật khẩu", "Lỗi");
+                password.Element.Value.FocusAsync();
+            }
+            else
+            {
+
+                try
                 {
-                    var role = newAcc.Quyensd;
-                    var name = newAcc.TenTk;
-                    await sessionStorage.SetItemAsync("role", role);
 
-                    if (role == "admin")
+                    if ((await CheckKhachhang(acc.TenTk)) == false)
                     {
+                        try 
+                        {
+                            var checkMD5 = GetMD5(acc.Matkhau);
+                            newAcc = await accService.GetTaiKhoan(acc.TenTk, checkMD5);
+                            if (newAcc != null)
+                            {
+                                var role = newAcc.Quyensd;
+                                if (role == "admin")
+                                {
+                                    NavigationManager.NavigateTo("https://localhost:7268");
+                                }
+                                else
+                                {
+                                    await this.ModalInstance.CancelAsync();
+                                    toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
+                                    NavigationManager.NavigateTo("/", forceLoad: true);
+                                }
 
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
+                        }
 
-                        NavigationManager.NavigateTo("https://localhost:7268");
                     }
-                    else
+                }
+                catch (Exception ex)
+                {
+                    try
                     {
-                        await sessionStorage.SetItemAsync("user_name", name);
-                        NavigationManager.NavigateTo("/");
+                        var checkMD5 = GetMD5(acc.Matkhau);
+                        newAcc = await accService.GetTaiKhoan(acc.TenTk, checkMD5);
+                        if (newAcc != null)
+                        {
+                            var role = newAcc.Quyensd;
+                            if (role == "admin")
+                            {
+                                NavigationManager.NavigateTo("https://localhost:7268");
+                            }
+                            else
+                            {
+                                //await this.ModalInstance.CancelAsync();
+                                toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
+                                Modal.Show<Create_KhachHang>("Chỉnh sửa thông tin");
+                                //NavigationManager.NavigateTo("/");
+                            }
+                            
+                        }
                     }
-
-                    toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
-                    await this.ModalInstance.CancelAsync();
+                    catch(Exception ex1)
+                    {
+                        toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
+                    }
                 }
             }
-
-
-
         }
-        catch (Exception ex)
+
+        catch(Exception ex) 
         {
-            if (newAcc != null)
-            {
-                var role = newAcc.Quyensd;
-                var name = newAcc.TenTk;
-                await sessionStorage.SetItemAsync("role", role);
-
-                if (role == "admin")
-                {
-
-                    await sessionStorage.SetItemAsync("admin_name", name);
-                    NavigationManager.NavigateTo("https://localhost:7268");
-                }
-                else
-                {
-                    await sessionStorage.SetItemAsync("user_name", name);
-                    NavigationManager.NavigateTo("/");
-                }
-                toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
-                await this.ModalInstance.CancelAsync();
-                Modal.Show<Create_KhachHang>("Chỉnh sửa thông tin");
-            }
+            toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
         }
 
     }
+
+
     public void ForgetPassword()
     {
         //this.ModalInstance.CancelAsync();
@@ -141,9 +177,23 @@
         else
         await sessionStorage.SetItemAsync("ma_khachhang", makhachhang);
         await sessionStorage.SetItemAsync("ten_kh", name_tenkh);
-       
         Console.WriteLine();
         return false; 
+    }
+
+    public string GetMD5(string str)
+    {
+        MD5 md5 = new MD5CryptoServiceProvider();
+        byte[] fromData = Encoding.UTF8.GetBytes(str);
+        byte[] targetData = md5.ComputeHash(fromData);
+        string byte2String = null;
+
+        for (int i = 0; i < targetData.Length; i++)
+        {
+            byte2String += targetData[i].ToString("x2");
+
+        }
+        return byte2String;
     }
 }
 

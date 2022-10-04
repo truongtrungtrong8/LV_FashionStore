@@ -31,6 +31,7 @@ namespace Web_Api_Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Khachhang>> GetKhachhang(string id)
         {
+
             if (_context.Khachhangs == null)
             {
                 return NotFound();

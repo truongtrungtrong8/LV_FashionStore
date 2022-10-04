@@ -55,56 +55,7 @@
                 <p class="mb-4">
                     Sản phẩm áo thun chất lượng tốt, phù hợp với nhiều lứa tuổi
                 </p>
-@*                <div class="d-flex mb-3">
-                    <strong class="text-dark mr-3">Sizes:</strong>
-                    <form>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-1" name="size">
-                            <label class="custom-control-label" for="size-1">XS</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-2" name="size">
-                            <label class="custom-control-label" for="size-2">S</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-3" name="size">
-                            <label class="custom-control-label" for="size-3">M</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-4" name="size">
-                            <label class="custom-control-label" for="size-4">L</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-5" name="size">
-                            <label class="custom-control-label" for="size-5">XL</label>
-                        </div>
-                    </form>
-                </div>
-                <div class="d-flex mb-4">
-                    <strong class="text-dark mr-3">Colors:</strong>
-                    <form>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-1" name="color">
-                            <label class="custom-control-label" for="color-1">Black</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-2" name="color">
-                            <label class="custom-control-label" for="color-2">White</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-3" name="color">
-                            <label class="custom-control-label" for="color-3">Red</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-4" name="color">
-                            <label class="custom-control-label" for="color-4">Blue</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-5" name="color">
-                            <label class="custom-control-label" for="color-5">Green</label>
-                        </div>
-                    </form>
-                </div>*@
+
                 <div class="d-flex align-items-center mb-4 pt-2">
                     <div class="input-group quantity mr-3" style="width: 130px;">
                         <div class="input-group-btn">
@@ -120,8 +71,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-primary px-3" @onclick="AddToCart">
-                        <i class="fa fa-shopping-cart mr-1"></i> Add To
-                        Cart
+                        <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
                     </button>
                 </div>
                 <div class="d-flex pt-2">
@@ -144,7 +94,7 @@
             </div>
         </div>
     </div>
-    <div class="row px-xl-5">
+    @*<div class="row px-xl-5">
         <div class="col">
             <div class="bg-light p-30">
                 <div class="nav nav-tabs mb-4">
@@ -251,7 +201,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 <!-- Shop Detail End -->
 
@@ -277,6 +227,7 @@
     private string name { get; set; }
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
+    List<CtGh> list_ctgiohang = new List<CtGh>();
     List<Giohang> giohangList = new List<Giohang>();
 
     GioHangService gioHangService = new GioHangService();
@@ -290,6 +241,7 @@
     {
         try
         {
+           
 
             sanpham = await sanphamService.GetProduct(Id);
             if (sanpham.Variants.Count > 0)
@@ -307,8 +259,7 @@
 
     private async Task AddToCart()
     {
-        try
-        {
+
             var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
             var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
 
@@ -318,7 +269,7 @@
             {
                 if (name_khLogin != null)
                 {
-                    await sessionStorage.SetItemAsync("magiohang", name_khLogin);
+                    
                     string temp = "GH" + cartItems_List.Count + 1 + DateTime.Now.Millisecond.ToString().Substring(0, 3) + DateTime.Now.Second.ToString().Substring(0, 2);
                     Console.WriteLine(temp);
                     {
@@ -328,71 +279,65 @@
                         cartItem.GiaSp = sanpham.GiaSp;
                         cartItem.HaBia = sanpham.HaBia;
                         cartItem.MaKh = ma_khLogin;
-                        
+
                         await CartService.AddToCart(cartItem);
                     }
-                    cartItems_List = await CartService.GetCartItems();
+                    cartItems_List = await CartService.GetCartItems(ma_khLogin);
                     gioHangDto.MaGh = temp;
                     DateTime now = DateTime.Now;
                     gioHangDto.Ngaydat = now;
                     gioHangDto.MaKh = ma_khLogin;
+                    await gioHangService.Create(gioHangDto);
                     
-                    await gioHangService.Create(gioHangDto);
+                    
+                        foreach (var item in cartItems_List)
+                        {
 
-                    foreach (var item in cartItems_List)
-                {
-                    cTGioHangDto.MaGh = gioHangDto.MaGh;
-                    cTGioHangDto.MaSp = item.MaSp;
-                    cTGioHangDto.Sl = item.Sl;
-                    await cTGioHangService.Create(cTGioHangDto);
+                            cTGioHangDto.MaGh = gioHangDto.MaGh;
+                            cTGioHangDto.MaSp = item.MaSp;
+                            cTGioHangDto.Sl = item.Sl;
+                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                            await cTGioHangService.Create(cTGioHangDto);
+                        }
                 }
-                }
-                }
-                catch(Exception ex) 
+
+                else if (name_khCreate != null)
                 {
-                    toastService.ShowSuccess("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
-                }
-                try 
-                {
-                if (name_khCreate != null)
-                {
-                    {
-                        cartItem.MaSp = sanpham.MaSp;
-                        cartItem.MaGh = name_khCreate;
-                        cartItem.TenSp = sanpham.TenSp;
-                        cartItem.GiaSp = sanpham.GiaSp;
-                        cartItem.HaBia = sanpham.HaBia;
-                        await CartService.AddToCart(cartItem);
-                    }
-                    cartItems_List = await CartService.GetCartItemInUser(ma_khCreate);
-                    gioHangDto.MaGh = ma_khCreate;
-                    DateTime now = DateTime.Now;
-                    gioHangDto.Ngaydat = now;
-                    gioHangDto.MaKh = ma_khCreate;
-                    await gioHangService.Create(gioHangDto);
+                string temp = "GH" + cartItems_List.Count + 1 + DateTime.Now.Millisecond.ToString().Substring(0, 3) + DateTime.Now.Second.ToString().Substring(0, 2);
+                cartItem.MaSp = sanpham.MaSp;
+                cartItem.TenSp = sanpham.TenSp;
+                cartItem.MaGh = temp;
+                cartItem.GiaSp = sanpham.GiaSp;
+                cartItem.HaBia = sanpham.HaBia;
+                cartItem.MaKh = ma_khCreate;
+
+               
+                cartItems_List = await CartService.GetCartItems(ma_khCreate);
+                gioHangDto.MaGh = temp;
+                DateTime now = DateTime.Now;
+                gioHangDto.Ngaydat = now;
+                gioHangDto.MaKh = ma_khCreate;
+                await gioHangService.Create(gioHangDto);
+
+                cartItems_List = await CartService.GetCartItems(ma_khCreate);
                     foreach (var item in cartItems_List)
                     {
                         cTGioHangDto.MaGh = gioHangDto.MaGh;
                         cTGioHangDto.MaSp = item.MaSp;
                         cTGioHangDto.Sl = item.Sl;
+                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
                         await cTGioHangService.Create(cTGioHangDto);
                     }
                 }
-                }
-
-                catch(Exception ex) 
+                else
                 {
-                    toastService.ShowSuccess("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
+                    toastService.ShowWarning("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
                 }
-                
-                
-
-                
-        }
-        catch(Exception ex)
-        {
-
-        }
-        
+            }
+            catch(Exception ex) 
+            {
+                toastService.ShowWarning("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");
+            }
+ 
     }
 }
