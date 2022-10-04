@@ -10,8 +10,6 @@
 <PageTitle>Index</PageTitle>
 
 <!-- Categories Start -->
-<Web_Client.Pages.Modal @ref="modal"></Web_Client.Pages.Modal>
-<button class="btn btn-primary" @onclick="() => modal.Open()">Modal!</button>
 
     <div class="container-fluid pt-5">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Sản phẩm</span></h2>
@@ -308,11 +306,5 @@
             Console.WriteLine(ex.ToString());
         }
         
-    }
-    [CascadingParameter] public IModalService Modal { get; set; }
-
-    public void Login()
-    {
-        Modal.Show<Login>("Đăng nhập");
     }
 }
