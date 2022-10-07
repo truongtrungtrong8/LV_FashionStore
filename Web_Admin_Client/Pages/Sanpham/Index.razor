@@ -136,7 +136,6 @@
     }
     private async Task SearchChanged(string searchTerm)
     {
-        Console.WriteLine(searchTerm);
         paging.PageNumber = 1;
         paging.SearchTerm = searchTerm;
         await GetProducts();

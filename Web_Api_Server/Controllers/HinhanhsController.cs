@@ -101,13 +101,7 @@ namespace Web_Api_Server.Controllers
                     hinhanh.Ha1 = fileName[1];
                     hinhanh.Ha2 = fileName[2];
                 }
-                else
-                    hinhanh.HaBia = fileName[0];
-
             }
-
-            _context.Hinhanhs.Add(hinhanh);
-            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetHinhanh", new { id = hinhanh.MaHa }, hinhanh);
         }
