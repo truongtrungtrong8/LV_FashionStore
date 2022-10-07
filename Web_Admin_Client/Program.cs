@@ -3,6 +3,7 @@ using Blazored.SessionStorage;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
@@ -10,7 +11,6 @@ using Tewr.Blazor.FileReader;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredSessionStorage();
@@ -28,8 +28,13 @@ option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection
 builder.Services.AddScoped<SessionTemp>();
 builder.Services.AddBlazoredModal();
 builder.Services.AddFileReaderService();
+
+
 builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<HttpClient>();
+builder.Services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
 
 var app = builder.Build();
 
@@ -48,6 +53,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
+app.UseMvcWithDefaultRoute();
 app.MapFallbackToPage("/_Host");
 
 app.Run();

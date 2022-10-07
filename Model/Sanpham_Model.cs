@@ -19,10 +19,10 @@ namespace Model
         public string MaSize { get; set; } = null!;
         public int GiaSp { get; set; }
         public int Baohanh { get; set; }
-        public string? Mota { get; set; }
+        public string? Mota { get; set; } = null!;
 
-        public string MaHa { get; set; } = null!;
-      
+        public int? MaHa { get; set; } = null!;
+
         public string? HaBia { get; set; }
         public string? Ha1 { get; set; }
         public string? Ha2 { get; set; }

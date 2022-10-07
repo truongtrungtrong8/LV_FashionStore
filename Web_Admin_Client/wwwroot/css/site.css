@@ -69,4 +69,17 @@ a, .btn-link {
     position: absolute;
     top: 49px;
     left: 350px;
+
+
+}
+
+
+.my-custom-size-image {
+    width: 600px;
+}
+
+.my-custom-position-image .blazored-modal {
+    position: absolute;
+    top: 100px;
+    left: 500px;
 }

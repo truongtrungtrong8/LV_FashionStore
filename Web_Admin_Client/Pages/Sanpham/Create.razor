@@ -4,109 +4,101 @@
 @using Model.DataDB
 @using Model.Dto
 @using Web_Admin_Client.Service
-@using Web_Admin_Client.Services
-@inject NavigationManager NavigationManager;
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
 
 
-                <EditForm Model="sanphamdto">
-                    <form class="forms-sample">
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Tên sản phẩm</label>
-                            <InputText class="form-control" placeholder="" @bind-Value="sanphamdto.TenSp" @ref=tensanpham></InputText>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputPassword1">Giá sản phẩm</label>
-                            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.GiaSp" @ref=giasanpham></InputNumber>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputConfirmPassword1">Bảo hàng</label>
-                            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Baohanh" @ref=baohanh></InputNumber>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputConfirmPassword1">Loại sản phẩm</label>
-                            <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaLoai" @ref=loaisanpham>
-                                @foreach (var item in loaisp)
-                                {
-                                    <option value="@item.MaLoai">@item.Tenloai</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputConfirmPassword1">Hãng sản xuất</label>
-                            <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaHsx" @ref=hangsx>
-                                @foreach (var item in hsx)
-                                {
-                                    <option value="@item.MaHsx">@item.TenHsx</option>
-                                }
-                            </InputSelect>
-                        </div>
-                    </form>
-                    <button type="button" class="btn btn-gradient-primary" @onclick="Create_Sanpham" style="margin-left:19%">Lưu</button>
-                    <button type="button" class="btn btn-gradient-primary" data-dismiss="modal" @onclick="Close" style="margin-left:19%">Hủy</button>
-                </EditForm>
-            </div>
+<EditForm Model="sanphamdto">
+    <form class="forms-sample">
+
+        <div class="form-group">
+            <label for="exampleInputEmail1">Tên sản phẩm</label>
+            <InputText class="form-control" placeholder="" @bind-Value="sanphamdto.TenSp" @ref=tensanpham></InputText>
         </div>
-    </div>
-</div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Giá sản phẩm</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.GiaSp" @ref=giasanpham></InputNumber>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Bảo hành</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Baohanh" @ref=baohanh></InputNumber>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Mô tả sản phẩm</label>
+            <InputText class="form-control" placeholder="" @bind-Value="sanphamdto.Mota" @ref=mota></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Loại sản phẩm</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaLoai" @ref=loaisanpham>
+                @foreach (var item in loaisp)
+                {
+                    <option value="@item.MaLoai">@item.Tenloai</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Hãng sản xuất</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaHsx" @ref=hangsx>
+                @foreach (var item in hsx)
+                {
+                    <option value="@item.MaHsx">@item.TenHsx</option>
+                }
+            </InputSelect>
+        </div>
+    </form>
+    <button type="button" class="btn btn-gradient-primary" @onclick="Create_Sanpham" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary" data-dismiss="modal" @onclick="Close" style="margin-left:19%">Hủy</button>
+</EditForm>
 
-@if (showBackdrop)
-{
-        <div class="modal-backdrop fade show"></div>
-}
-   
+
 @code {
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
-
-    private string modalDisplay = "none;";
-    private string modalClass = "";
-    private bool showBackdrop = false;
-
-    public void Open()
+    private async void Close()
     {
-        modalDisplay = "block;";
-        modalClass = "show";
-        showBackdrop = true;
-        StateHasChanged();
-    }
-
-    public void Close()
-    {
-        modalDisplay = "none";
-        modalClass = "";
-        showBackdrop = false;
+        await this.ModalInstance.CancelAsync();
     }
 
     private SanphamEdit sanphamdto = new SanphamEdit();
     SanphamService sanphamService = new SanphamService();
+    private List<Sanpham> sanphams = new List<Sanpham>();
     List<LoaiSp> loaisp = new List<LoaiSp>();
     LoaiSpService loaiSpService = new LoaiSpService();
     List<Hx> hsx = new List<Hx>();
     HsxService hsxService = new HsxService();
-    private InputText masanpham;
+    private InputText mota;
     private InputText tensanpham;
     private InputNumber<int> giasanpham;
     private InputNumber<int> baohanh;
     private InputSelect<string> loaisanpham;
     private InputSelect<string> hangsx;
+    private int Quantily_Pro { get; set; }
+    private int Ma_Pro { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
+
+        sanphams = await sanphamService.GetAllProductQuantily();
+        Quantily_Pro = sanphams.Count;
+        Ma_Pro = Quantily_Pro + 1;
         loaisp = await loaiSpService.GetListLoaiSp();
         hsx = await hsxService.GetListHsx();
     }
 
     private async void Create_Sanpham()
     {
-        
-            sanphamdto.MaSp = masanpham.Value;
-            sanphamdto.TenSp = tensanpham.Value;
-            sanphamdto.GiaSp = giasanpham.Value;
-            sanphamdto.Baohanh = baohanh.Value;
-            sanphamdto.MaLoai = loaisanpham.Value;
-            sanphamdto.MaHsx = hangsx.Value;
-            await sanphamService.CreateSanpham(sanphamdto);
-            NavigationManager.NavigateTo("/Sanpham/Index");
-  
+
+        sanphamdto.MaSp = ("SP" + Ma_Pro).ToString();
+        sanphamdto.TenSp = tensanpham.Value;
+        sanphamdto.GiaSp = giasanpham.Value;
+        sanphamdto.Baohanh = baohanh.Value;
+        sanphamdto.MaLoai = loaisanpham.Value;
+        sanphamdto.MaHsx = hangsx.Value;
+        await sanphamService.CreateSanpham(sanphamdto);
+        NavigationManager.NavigateTo("/Sanpham/Index");
+        toastService.ShowSuccess("Thêm sản phẩm thành công", "Thành công !");
+
     }
 }

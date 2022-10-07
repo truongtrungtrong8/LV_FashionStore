@@ -12,7 +12,7 @@ using Web_Admin_Client.Data;
 using static System.Net.WebRequestMethods;
 
 
-namespace Web_Admin_Client.Services
+namespace Web_Admin_Client.Service
 {
     public class SanphamService
     {
@@ -25,9 +25,9 @@ namespace Web_Admin_Client.Services
         {
             return await Http.GetFromJsonAsync<Sanpham_Model>(urldefault + "/" + id);
         }
-        public async Task<Sanpham_Model> GetAllProduct()
+        public async Task<List<Sanpham_Model>> GetAllProducts()
         {
-            return await Http.GetFromJsonAsync<Sanpham_Model>(urldefault);
+            return await Http.GetFromJsonAsync<List<Sanpham_Model>>(urldefault);
         }
 
         public string FormatVND(int price)
@@ -73,6 +73,11 @@ namespace Web_Admin_Client.Services
         {
             var result = await Http.PostAsJsonAsync(urldefault, request);
             return result.IsSuccessStatusCode;
+        }
+
+        public async Task<List<Sanpham>> GetAllProductQuantily()
+        {
+            return await Http.GetFromJsonAsync<List<Sanpham>>(urldefault + "/products");
         }
     }
 }

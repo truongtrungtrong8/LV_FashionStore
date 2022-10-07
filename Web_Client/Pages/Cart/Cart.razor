@@ -41,7 +41,7 @@
                         {
                             <tbody class="align-middle">
                                 <tr>
-                                    <td class="align-middle"><img src="img/product/sale/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
+                                    <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
                                     <td class="align-middle">@sanpham.FormatVND(item.GiaSp) VND</td>
                                     <td class="align-middle">
                                         <div class="input-group quantity mx-auto" style="width: 100px;">
@@ -116,6 +116,8 @@
 }
 
 @code {
+    
+    string urlimage = "https://localhost:7268";
     [Parameter]
     public UserIP userIP { get; set; }
     //public List<CartInUser> cartItems = new List<CartInUser>();

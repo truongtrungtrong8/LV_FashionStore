@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using Model.DataDB;
+using Models.Page;
+using Newtonsoft.Json;
+using Web_Api_Server.Repositoreies;
 
 namespace Web_Api_Server.Controllers
 {
@@ -25,9 +30,20 @@ namespace Web_Api_Server.Controllers
 
         // GET: api/Hinhanhs
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Hinhanh>>> GetHinhanhs()
+        public async Task<ActionResult<IEnumerable<Images_Model>>> GetHinhanhs()
         {
-            return await _context.Hinhanhs.ToListAsync();
+            var image = (from h in _context.Hinhanhs
+                         join s in _context.Sanphams on h.MaSp equals s.MaSp
+                         select new Images_Model()
+                         {
+                             MaHa = h.MaHa,
+                             TenSp = s.TenSp,
+                             MaSp = h.MaSp,
+                             HaBia = h.HaBia,
+                             Ha1 = h.Ha1,
+                             Ha2 = h.Ha2
+                         });
+            return await image.ToListAsync();
         }
 
         // GET: api/Hinhanhs/5
@@ -43,6 +59,26 @@ namespace Web_Api_Server.Controllers
 
             return hinhanh;
         }
+
+        [HttpGet("pageImage")]
+        public async Task<ActionResult<PagedList<Images_Model>>> GetProductPages([FromQuery] PagingParameters paging)
+        {
+            var image = (from h in _context.Hinhanhs
+                         join s in _context.Sanphams on h.MaSp equals s.MaSp
+                         select new Images_Model()
+                         {
+                             MaHa = h.MaHa,
+                             TenSp = s.TenSp,
+                             MaSp = h.MaSp,
+                             HaBia = h.HaBia,
+                             Ha1 = h.Ha1,
+                             Ha2 = h.Ha2
+                         }).AsQueryable();
+            var result = PagedList<Images_Model>.ToPagedList(image, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
+        }
+
 
         // PUT: api/Hinhanhs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -78,32 +114,26 @@ namespace Web_Api_Server.Controllers
         // POST: api/Hinhanhs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Hinhanh>> PostHinhanh(Hinhanh hinhanh, List<IFormFile> myfiles)
+        public async Task<ActionResult<Hinhanh>> PostHinhanh(ImageDto hinhanh)
         {
-         
-             if (myfiles.Count > 0)
-            {
-                int i = 0;
-                string[] fileName = new string[myfiles.Count];
-                foreach (IFormFile f in myfiles)
-                {
-                    string fullPath = Path.Combine("https://localhost:7268", "wwwroot", "images", f.FileName);
-                    using (var file = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
-                    {
-                        f.CopyToAsync(file);
-                    }
-                    fileName[i] = f.FileName;
-                    i++;
-                }
-                if (myfiles.Count == 3)
-                {
-                    hinhanh.HaBia = fileName[0];
-                    hinhanh.Ha1 = fileName[1];
-                    hinhanh.Ha2 = fileName[2];
-                }
-            }
 
-            return CreatedAtAction("GetHinhanh", new { id = hinhanh.MaHa }, hinhanh);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var image = new Hinhanh()
+            { 
+                
+                MaSp = hinhanh.MaSp,
+                HaBia = hinhanh.HaBia,
+                Ha1 = hinhanh.Ha1,
+                Ha2 = hinhanh.Ha2,
+                Ha3 = hinhanh.Ha3,
+            };
+
+            await _context.Hinhanhs.AddAsync(image);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetImage", new { id = image.MaHa }, image);
         }
 
         // DELETE: api/Hinhanhs/5
@@ -122,7 +152,7 @@ namespace Web_Api_Server.Controllers
             return NoContent();
         }
 
-        private bool HinhanhExists(int id)
+        private bool HinhanhExists(int? id)
         {
             return _context.Hinhanhs.Any(e => e.MaHa == id);
         }

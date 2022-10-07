@@ -43,15 +43,19 @@ namespace Web_Api_Server.Controllers
                                HaBia = h.HaBia,
                                Ha1 = h.Ha1,
                                Ha2 = h.Ha2,
+                               MaHa = h.MaHa,
                                GiaSp = s.GiaSp,
                                TenSp = s.TenSp,
                                TenHsx = hsx.TenHsx
                                
                            });
             return await sanpham.ToListAsync();
-           
+        }
 
-
+        [HttpGet("products")]
+        public async Task<ActionResult<IEnumerable<Sanpham>>> GetProductImage()
+        {
+            return await _context.Sanphams.ToListAsync();
         }
         [HttpGet("page")]
         public async Task<ActionResult<PagedList<Sanpham_Model>>> GetProductPages([FromQuery] PagingParameters paging)
@@ -71,13 +75,9 @@ namespace Web_Api_Server.Controllers
                                TenSp = s.TenSp,
                                TenHsx = hsx.TenHsx
                            }).Search(paging.SearchTerm).AsQueryable();
-            
-           
             var result = PagedList<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;
-
-
         }
         
         // GET: api/Sanphams/5

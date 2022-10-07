@@ -4,6 +4,7 @@
 @using System.Globalization
 @using Model
 @inject SessionTemp sessionLogin
+@using Blazored.Toast.Configuration
 
 
     <div class="container-scroller">
@@ -206,7 +207,7 @@
               </a>
             </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/HinhAnh/Create">
+                    <a class="nav-link" href="/HinhAnh/Index">
                         <span class="menu-title">Hình ảnh</span>
                         <i class="mdi mdi-contacts menu-icon"></i>
                     </a>
@@ -270,6 +271,16 @@
       </div>
       <!-- page-body-wrapper ends -->
     </div>
+
+    <BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="3"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-thumbs-up"
+                WarningIcon="fa fa-exclamation-triangle"
+                WarningClass="warning-toast-override"
+                ErrorIcon="fa fa-bug" />
+
    
 @code{
     private string name { get; set; }

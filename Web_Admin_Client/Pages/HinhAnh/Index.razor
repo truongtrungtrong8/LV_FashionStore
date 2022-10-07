@@ -1,25 +1,28 @@
-﻿@page "/Sanpham/Index"
+﻿@page "/Hinhanh/Index"
 @using Blazored.Modal.Services
 @using Model
 @using Model.DataDB
 @using Models.Page
 @using Web_Admin_Client.Pages.Modal
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
 @inject IJSRuntime JS
 @layout MainLayout
 @using System.Globalization
-@using Web_Admin_Client.Service
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager;
 
 
 
-        <div class="main-panel">
+
+
+  <div class="main-panel">
           <div class="content-wrapper">
             <div class="page-header">
-              <h3 class="page-title"> Quản lý sản phẩm</h3>
-                    <SearchForm OnSearchChanged="SearchChanged" />
-                    <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => Submit(ModalSize.Custom,ModalPosition.Custom)">Thêm sản phẩm mới !</button>     
+              <h3 class="page-title"> Quản lý hình ảnh</h3>
+            <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => Open(ModalSize.Custom,ModalPosition.Custom) ">Thêm hình ảnh mới !</button>
             </div>
+
             <div class="row">
 
               <div class="col-lg-12 grid-margin stretch-card">
@@ -30,20 +33,22 @@
                             <thead>
                                 <tr>
                                     <th>Chỉnh sửa</th>
-                                    <th>Ảnh mô tả</th>
                                     <th>Tên sản phẩm</th>
-                                    <th>Giá</th>
+                                    <th>Hình ảnh chính</th>
+                                    <th>Ảnh phụ 1</th>
+                                    <th>Ảnh phụ 2</th>
                                 </tr>
                              </thead>
                             <tbody>
-                                    @foreach (var item in sanpham)
+                                    @foreach (var item in hinhAnhs)
                                     {
+                                   
                                     <tr>
                                         <td>
                                             <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                             </a>
                                             <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
-                                                <a class="dropdown-item" @onclick="() => Edit_SP(item.MaSp,ModalSize.Custom,ModalPosition.Custom)">
+                                                <a class="dropdown-item" >
                                                     <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Chỉnh sửa
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -52,20 +57,22 @@
                                                 </a>
                                             </div>
                                         </td>
+                                        <td> @item.TenSp </td>
                                         <td class="py-1">
                                             <img src="@urlImage/images/@item.HaBia" alt="image" />
                                         </td>
-                                        <td> @item.TenSp </td>
-                                        <td>
-                                                @sanphamservice.FormatVND(item.GiaSp) VND
+                                        <td class="py-1">
+                                            <img src="@urlImage/images/@item.Ha1" alt="image" />
                                         </td>
-
+                                        <td class="py-1">
+                                            <img src="@urlImage/images/@item.Ha2" alt="image" />
+                                        </td>
                                     </tr>
                                     }
                             </tbody>
                     </table>
                   </div>
-                   <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                 <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
                 </div>
               </div>
 
@@ -73,29 +80,22 @@
           </div>
           </div>
 
-
-
-
-
 @code {
     string urlImage = "https://localhost:7268";
-    private Web_Admin_Client.Pages.Sanpham.Create modal { get; set; }
-    private Web_Admin_Client.Pages.Sanpham.Edit modalEdit { get; set; }
+    private List<Images_Model> hinhAnhs = new List<Images_Model>();
+    private HinhanhService hinhanhService = new HinhanhService();
+    private List<Sanpham_Model> sanphams = new List<Sanpham_Model>();
+    private SanphamService sanphamService = new SanphamService();
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
 
-
-    List<Sanpham_Model> sanpham = new List<Sanpham_Model>();
-    SanphamService sanphamservice = new SanphamService();
     public MetaData MetaData { get; set; } = new MetaData();
     private PagingParameters paging = new PagingParameters();
-    [CascadingParameter] public IModalService Modal { get; set; } = default!;
-    private string? result { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-
-            await GetProducts();
+            await GetImage();
 
         }
         catch (Exception ex)
@@ -104,42 +104,27 @@
         }
 
     }
-    public async void Edit_SP(string id, ModalSize size, ModalPosition position)
-    {
-
-        await sessionStorage.SetItemAsync("sp_id", id);
-        var options = new ModalOptions { Size = size, Position = position };
-        if (size == ModalSize.Custom)
-            options.SizeCustomClass = "my-custom-size";
-        if (position == ModalPosition.Custom)
-            options.PositionCustomClass = "my-custom-position";
-        Modal.Show<Edit>("Chỉnh sửa thông tin", options);
-
-    }
-    public async void Submit(ModalSize size, ModalPosition position)
+    private void Open(ModalSize size,ModalPosition position)
     {
         var options = new ModalOptions { Size = size, Position = position };
         if (size == ModalSize.Custom)
-            options.SizeCustomClass = "my-custom-size";
+            options.SizeCustomClass = "my-custom-size-image";
         if (position == ModalPosition.Custom)
-            options.PositionCustomClass = "my-custom-position";
-        Modal.Show<Create>("Thêm sản phẩm",options);
+            options.PositionCustomClass = "my-custom-position-image";
+        Modal.Show<Create>("Thêm hình ảnh mới ",options);
     }
+
     private async Task SelectedPage(int page)
     {
         paging.PageNumber = page;
-        await GetProducts();
+        await GetImage();
     }
-    private async Task GetProducts()
+    private async Task GetImage()
     {
-        var pagingResponse = await sanphamservice.GetListPageSp(paging);
-        sanpham = pagingResponse.Items;
+        var pagingResponse = await hinhanhService.GetListPageImage(paging);
+        hinhAnhs = pagingResponse.Items;
         MetaData = pagingResponse.MetaData;
     }
-    private async Task SearchChanged(string search)
-    {
-        paging.PageNumber = 1;
-        paging.SearchTerm = search;
-        await GetProducts();
-    }
+    
+
 }

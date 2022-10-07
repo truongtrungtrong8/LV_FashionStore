@@ -184,12 +184,13 @@
         <div class="row px-xl-5">
             @foreach (var item in sanpham) 
                 {
-                 if (@item.MaLoai == "L01" || @item.MaLoai == "L02")
+            
+            if (@item.MaLoai == "L01" || @item.MaLoai == "L02")
                     {
                         <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                             <div class="product-item bg-light mb-4">
                                 <div class="product-img position-relative overflow-hidden">
-                                    <img class="img-fluid w-100" src="img/product/sale/@item.HaBia" alt="">
+                                    <img class="img-fluid w-100" src="@urlimage/images/@item.HaBia" alt="">
                                     <div class="product-action">
                                         <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
                                         <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
@@ -259,7 +260,7 @@
                         <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                             <div class="product-item bg-light mb-4">
                                 <div class="product-img position-relative overflow-hidden">
-                                    <img class="img-fluid w-100" src="img/product/sale/@item.HaBia" alt="">
+                            <img class="img-fluid w-100" src="@urlimage/images/@item.HaBia" alt="">
                                     <div class="product-action">
                                         <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
                                         <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
@@ -290,6 +291,7 @@
     <!-- Products End -->
 
 @code{
+    string urlimage = "https://localhost:7268";
     private Web_Client.Pages.Modal modal { get; set; }
     List<Sanpham_Model> sanpham = new List<Sanpham_Model>();
 
