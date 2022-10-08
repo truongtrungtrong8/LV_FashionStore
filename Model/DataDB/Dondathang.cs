@@ -11,7 +11,7 @@ namespace Model.DataDB
         }
 
         public string MaDdh { get; set; } = null!;
-        public int? TongDdh { get; set; }
+        public int TongDdh { get; set; }
         public string? Diachi { get; set; }
 
         public virtual ICollection<CtDdh> CtDdhs { get; set; }

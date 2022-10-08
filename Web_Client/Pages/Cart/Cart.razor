@@ -1,6 +1,7 @@
 ﻿@page "/Cart/Cart"
 @using Model
 @using Model.DataDB
+@using Model.Dto
 @using Model.Pay
 @using Web_Client.Services
 @inject ICartService CartService
@@ -116,21 +117,23 @@
 }
 
 @code {
-    
+
     string urlimage = "https://localhost:7268";
+    bool orderPlaced = false;
     [Parameter]
     public UserIP userIP { get; set; }
-    //public List<CartInUser> cartItems = new List<CartInUser>();
     public List<CartItems> cartItems = new List<CartItems>();
 
     public List<Khachhang> khachhangs = new List<Khachhang>();
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
 
-    bool orderPlaced = false;
 
-    private int total;
-
+    DonDatDto dondatDto = new DonDatDto();
+    List<DonDatDto> listDonDat = new List<DonDatDto>();
+    DonDatService donDatService = new DonDatService();
+    CtDonDatDto ctDonDatDto = new CtDonDatDto();
+    CtDonDatService CtDonDatService = new CtDonDatService();
 
 
     GioHangDto gioHangDto = new GioHangDto();
@@ -142,11 +145,15 @@
 
     int temp;
     private string Message { get; set; } = "";
-
+    private int CountDonDat { get; set; }
+    private int MaDonDat { get; set; }
     protected override async Task OnInitializedAsync()
     {
         try 
         {
+            listDonDat = await donDatService.GetCountDonDat();
+            CountDonDat = listDonDat.Count;
+            MaDonDat = CountDonDat + 1;
 
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             cartItems = await CartService.GetCartItems(makhachhang);
@@ -162,12 +169,36 @@
     private async Task DeleteItem(CartItems items)
     {
         await CartService.DeleteItem(items);
-        var name_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        cartItems = await CartService.GetCartItems(name_khLogin);
+        var ma_khachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        cartItems = await CartService.GetCartItems(ma_khachhang);
     }
 
     private async Task PlaceOrder()
     {
+
+    }
+
+    private async Task AddDonDat()
+    {
+        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+
+        khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+
+        dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+        dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
+        dondatDto.Diachi = khachhang.DiachiKh;
+        await donDatService.CreateDonDat(dondatDto);
+        foreach(var item in cartItems)
+        {
+            ctDonDatDto.MaDdh = dondatDto.MaDdh;
+            ctDonDatDto.MaSp = item.MaSp;
+            ctDonDatDto.Sl = item.Sl;
+            ctDonDatDto.Dg = item.Sl * item.GiaSp;
+            await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+        }
 
     }
 
@@ -199,8 +230,8 @@
 
         if (paying == false)
         {
+            await AddDonDat();
             await JSRuntime.InvokeVoidAsync("open", paymentUrl, "_blank");
-
             paying = true;
         }
         else
