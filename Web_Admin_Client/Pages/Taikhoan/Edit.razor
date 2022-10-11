@@ -1,0 +1,84 @@
+﻿@page "/Taikhoan/Edit/{id}"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using System.Security.Cryptography
+@using System.Text
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<EditForm Model="taikhoan">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="exampleInputUsername1">Tên tài khoản</label>
+            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.TenTk"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Mật khẩu</label>
+            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.Matkhau" @ref=matkhau></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Quyền sử dụng</label>
+            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.Quyensd"></InputText>
+        </div>
+        
+    </form>
+    
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Đóng</button>
+</EditForm>
+
+
+
+
+       
+@code {
+
+
+
+    [Parameter]
+    public string id { get; set; }
+    private TaikhoanDto taikhoan = new TaikhoanDto();
+    TaiKhoanService taiKhoanService = new TaiKhoanService();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private InputText matkhau;
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        var tk_id = await sessionStorage.GetItemAsync<string>("tk_id");
+        var result = await taiKhoanService.GetTaikhoan(tk_id);
+        taikhoan.TenTk = result.TenTk;
+        taikhoan.Quyensd = result.Quyensd;
+
+    }
+    private async void Submit()
+    {
+        var tk_id = await sessionStorage.GetItemAsync<string>("tk_id");
+        taikhoan.Matkhau = GetMD5(matkhau.Value);
+        await taiKhoanService.EditTaikhoan(tk_id, taikhoan);
+        NavigationManager.NavigateTo("/Taikhoan/Index",forceLoad:true);
+        
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+    public string GetMD5(string str)
+    {
+        MD5 md5 = new MD5CryptoServiceProvider();
+        byte[] fromData = Encoding.UTF8.GetBytes(str);
+        byte[] targetData = md5.ComputeHash(fromData);
+        string byte2String = null;
+
+        for (int i = 0; i < targetData.Length; i++)
+        {
+            byte2String += targetData[i].ToString("x2");
+
+        }
+        return byte2String;
+    }
+}

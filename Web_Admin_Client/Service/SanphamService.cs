@@ -79,5 +79,10 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<List<Sanpham>>(urldefault + "/products");
         }
+        public async Task<bool> DeleteSanpham(string id)
+        {
+            var result = await Http.DeleteAsync(urldefault + "/" + id);
+            return result.IsSuccessStatusCode;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/Detail/{id}"
 @using Model
 @using Model.DataDB
+@using Web_Client.Pages.Cart
 @using Web_Client.Services
 @inject IJSRuntime JS
 @layout MainLayout
@@ -73,6 +74,7 @@
                     <button type="button" class="btn btn-primary px-3" @onclick="AddToCart">
                         <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
                     </button>
+                    
                 </div>
                 <div class="d-flex pt-2">
                     <strong class="text-dark mr-2">Share on:</strong>
@@ -236,12 +238,14 @@
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
 
+    [CascadingParameter] public IModalService Modal { get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-           
+
 
             sanpham = await sanphamService.GetProduct(Id);
             if (sanpham.Variants.Count > 0)
@@ -256,6 +260,7 @@
 
         }
     }
+   
 
     private async Task AddToCart()
     {

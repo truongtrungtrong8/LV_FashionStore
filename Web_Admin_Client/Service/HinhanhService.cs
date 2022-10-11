@@ -49,5 +49,11 @@ namespace Web_Admin_Client.Service
             return pagingResponse;
 
         }
+
+        public async Task<bool> DeleteHinhanh(string id)
+        {
+            var result = await Http.DeleteAsync(urldefault + "/" + id);
+            return result.IsSuccessStatusCode;
+        }
     }
 }

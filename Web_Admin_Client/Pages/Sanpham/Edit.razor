@@ -91,7 +91,7 @@
     {
         var sp_id = await sessionStorage.GetItemAsync<string>("sp_id");
         await sanphamService.EditSanpham(sp_id, sanphamdto);
-        NavigationManager.NavigateTo("/Sanpham/Index");
+        NavigationManager.NavigateTo("/Sanpham/Index",forceLoad:true);
         
     }
     private async void Close()

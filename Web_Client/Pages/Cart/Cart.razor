@@ -3,6 +3,7 @@
 @using Model.DataDB
 @using Model.Dto
 @using Model.Pay
+@using Web_Client.Pages.Taikhoan
 @using Web_Client.Services
 @inject ICartService CartService
 @inject ISanphamService sanpham
@@ -83,13 +84,13 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <h6 class="font-weight-medium">Phí VAT</h6>
-                                <h6 class="font-weight-medium">5%</h6>
+                                <h6 class="font-weight-medium">2%</h6>
                             </div>
                         </div>
                         <div class="pt-2">
                             <div class="d-flex justify-content-between mt-2">
                                 <h5>Tổng tiền</h5>
-                                <h5>(@cartItems.Count): @sanpham.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)-(item.GiaSp * item.Sl)*0.05).ToString())) VND</h5>
+                                <h5>(@cartItems.Count): @sanpham.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)+(item.GiaSp * item.Sl)*0.02).ToString())) VND</h5>
                             </div>
 
                            @* <button class="btn btn-block btn-primary font-weight-bold my-3 py-3" @onclick="@(() => Payment())">Thanh toán trước</button>
@@ -99,10 +100,10 @@
                             <i class="fa fa-angle-down text-dark"></i>
                             </a>
                             <div class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="pay" style="width: calc(100% - 92px); z-index: 999; ">
-
-                                    <a href="" class="nav-item nav-link" @onclick="@(() => Payment())">Thanh toán trước</a>
-                                    <a href="" class="nav-item nav-link" @onclick="@(() => SendMail())">Thanh toán khi nhận hàng</a>
-                                  
+                             
+                                <button type="button" style="display: @display" class="nav-item nav-link" @onclick="@(() =>Submit(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán trước</button>
+                                <button type="button" style="display: @display1" class="nav-item nav-link" @onclick="@(() =>SendMail())">Thanh toán khi nhận hàng</button>
+                                <button type="button" style="display: @display2" class="nav-item nav-link" @onclick="@(() =>Ivoice(ModalSize.ExtraLarge,ModalPosition.TopCenter))">Xem hóa đơn</button>
                                 
                             </div>
 
@@ -142,21 +143,38 @@
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
 
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
     int temp;
+    private string display = "block;";
+    private string display1 = "block;";
+    private string display2 = "none;";
     private string Message { get; set; } = "";
+    bool flag = false;
+    bool flagIvoice = false;
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
     protected override async Task OnInitializedAsync()
+
     {
         try 
         {
-            listDonDat = await donDatService.GetCountDonDat();
-            CountDonDat = listDonDat.Count;
-            MaDonDat = CountDonDat + 1;
-
+            var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
+            if(checkdisplay != null)
+                {
+                    display = checkdisplay;
+                    display1 = checkdisplay;
+                }
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             cartItems = await CartService.GetCartItems(makhachhang);
+            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
+            if (getvnpcheck == "00")
+            {
+                toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
+                display2 = "block;";
+                await AddDonDat();
+            }
 
         }
         catch (Exception ex) {
@@ -164,7 +182,6 @@
         }
 
     }
-
 
     private async Task DeleteItem(CartItems items)
     {
@@ -177,7 +194,18 @@
     {
 
     }
-
+    public async void Ivoice(ModalSize size, ModalPosition position)
+    {
+        display = "none;";
+        display1 = "none;";
+        display2 = "none;";
+        var options = new ModalOptions { Size = size, Position = position };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<Ivoice>("Hóa đơn của bạn ",options);
+    }
     private async Task AddDonDat()
     {
         var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
@@ -191,7 +219,7 @@
         dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
         dondatDto.Diachi = khachhang.DiachiKh;
         await donDatService.CreateDonDat(dondatDto);
-        foreach(var item in cartItems)
+        foreach (var item in cartItems)
         {
             ctDonDatDto.MaDdh = dondatDto.MaDdh;
             ctDonDatDto.MaSp = item.MaSp;
@@ -201,49 +229,17 @@
         }
 
     }
-
-    ////// Pay
-    bool paying = false;
-    public async void Payment()
+    public async void Submit(ModalSize size, ModalPosition position)
     {
-        string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        string returnUrl = "https://localhost:7155/PayComfirm";
-        string tmnCode = "M4SI0GQK";
-        string hashSecret = "TEPHMKQSDCNVKDFCAMUICRAJVMMXNQFF";
-        PayLib pay = new PayLib();
-
-        pay.AddRequestData("vnp_Version", "2.0.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.0.0
-        pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
-        pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
-        pay.AddRequestData("vnp_Amount", (cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05)*100).ToString()); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
-        pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
-        pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
-        pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
-        pay.AddRequestData("vnp_IpAddr", GetIp()); //Địa chỉ IP của khách hàng thực hiện giao dịch
-        pay.AddRequestData("vnp_Locale", "vn"); //Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
-        pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang"); //Thông tin mô tả nội dung thanh toán
-        pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
-        pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
-        pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
-
-        string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
-
-        if (paying == false)
-        {
-            await AddDonDat();
-            await JSRuntime.InvokeVoidAsync("open", paymentUrl, "_blank");
-            paying = true;
-        }
-        else
-        {
-            await JSRuntime.InvokeVoidAsync("alert", "Bạn đang thanh toán! ");
-        }
-
-    }
-    public string GetIp()
-    {
-        userIP = new UserIP();
-        return userIP.IPAddress;
+        display = "none;";
+        display1 = "none;";
+        var options = new ModalOptions { Size = size, Position = position };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<CheckInforPay>("Kiểm tra và chỉnh sửa thông tin", options);
+       
     }
 
     /// Gui mail xac nhan

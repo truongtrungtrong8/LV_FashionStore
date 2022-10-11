@@ -1,5 +1,6 @@
 ﻿using Model;
 using Model.DataDB;
+using Model.Dto;
 
 namespace Web_Client.Services
 {
@@ -29,6 +30,11 @@ namespace Web_Client.Services
             var kh = await Http.GetFromJsonAsync<List<Khachhang>>(urldefault + "/" + id);
             return kh;
 
+        }
+        public async Task<bool> EditKhachhang(string id, KhachHangDto request)
+        {
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id, request);
+            return result.IsSuccessStatusCode;
         }
     }
 }

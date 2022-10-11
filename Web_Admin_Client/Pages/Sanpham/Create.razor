@@ -97,7 +97,7 @@
         sanphamdto.MaLoai = loaisanpham.Value;
         sanphamdto.MaHsx = hangsx.Value;
         await sanphamService.CreateSanpham(sanphamdto);
-        NavigationManager.NavigateTo("/Sanpham/Index");
+        NavigationManager.NavigateTo("/Sanpham/Index",forceLoad:true);
         toastService.ShowSuccess("Thêm sản phẩm thành công", "Thành công !");
 
     }

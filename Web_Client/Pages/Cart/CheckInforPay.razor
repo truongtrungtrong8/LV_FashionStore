@@ -1,0 +1,150 @@
+﻿@page "/Cart/CheckInforPay"
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Model.Pay
+@using Web_Client.Services
+@inject IJSRuntime JS
+@inject IJSRuntime JSRuntime
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorrage
+@inject NavigationManager NavigationManager
+@inject ICartService CartService
+@inject ISanphamService sanpham
+@using System.Security.Cryptography
+
+
+<EditForm Model="newkhachang" style="width:400px">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="exampleInputUsername1">Họ và tên</label>
+            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.TenKh"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Số điện thoại</label>
+            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.SdtKh"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Địa chỉ</label>
+            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.DiachiKh"></InputText>
+        </div>
+        
+    </form>
+
+    <button type="button" class="btn btn-primary me-2" @onclick="Submit" style="margin-left:15%">Xác nhận thanh toán</button>
+    <button type="button" class="btn btn-primary me-2" @onclick="Close" style="margin-left:15%">Hủy</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public UserIP userIP { get; set; }
+    public List<CartItems> cartItems = new List<CartItems>();
+
+    public List<Khachhang> khachhangs = new List<Khachhang>();
+    Khachhang khachhang = new Khachhang();
+    KhachHangDto newkhachang = new KhachHangDto();
+    KhachHangService khachHangService = new KhachHangService();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+
+    DonDatDto dondatDto = new DonDatDto();
+    List<DonDatDto> listDonDat = new List<DonDatDto>();
+    DonDatService donDatService = new DonDatService();
+    CtDonDatDto ctDonDatDto = new CtDonDatDto();
+    CtDonDatService CtDonDatService = new CtDonDatService();
+
+
+    GioHangDto gioHangDto = new GioHangDto();
+    CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
+    GioHangService gioHangService = new GioHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
+
+    int temp;
+    private string Message { get; set; } = "";
+    private int CountDonDat { get; set; }
+    private int MaDonDat { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            cartItems = await CartService.GetCartItems(makhachhang);
+            var result = await khachHangService.GetKhachHang(makhachhang);
+            newkhachang.MaKh = result.MaKh;
+            newkhachang.TenKh = result.TenKh;
+            newkhachang.TenTk = result.TenTk;
+            newkhachang.SdtKh = result.SdtKh;
+            newkhachang.DiachiKh = result.DiachiKh;
+
+        }
+        catch(Exception ex) 
+        {
+
+        }
+    }
+    private async void Submit()
+    {
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        await khachHangService.EditKhachhang(makhachhang, newkhachang);
+        await this.ModalInstance.CancelAsync();
+        Payment();
+        //NavigationManager.NavigateTo("/Sanpham/Index");
+
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+        var display = "block;";
+        await sessionStorage.SetItemAsync<string>("display", display);
+    }
+    ////// Pay
+    bool paying = false;
+    public async void Payment()
+    {
+        string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        string returnUrl = "https://localhost:7155/PayComfirm";
+        string tmnCode = "M4SI0GQK";
+        string hashSecret = "TEPHMKQSDCNVKDFCAMUICRAJVMMXNQFF";
+
+        PayLib pay = new PayLib();
+
+        pay.AddRequestData("vnp_Version", "2.0.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.0.0
+        pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
+        pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
+        pay.AddRequestData("vnp_Amount", (cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05) * 100).ToString()); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
+        pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
+        pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
+        pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
+        pay.AddRequestData("vnp_IpAddr", GetIp()); //Địa chỉ IP của khách hàng thực hiện giao dịch
+        pay.AddRequestData("vnp_Locale", "vn"); //Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
+        pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang"); //Thông tin mô tả nội dung thanh toán
+        pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
+        pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
+        pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
+
+        string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
+
+        if (paying == false)
+        {
+            await JSRuntime.InvokeVoidAsync("open", paymentUrl, "_blank");
+            paying = true;
+            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
+           
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Bạn đang thanh toán! ");
+        }
+
+    }
+    public string GetIp()
+    {
+        userIP = new UserIP();
+        return userIP.IPAddress;
+    }
+   
+}

@@ -5,7 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using Model.DataDB;
+using Model.Dto;
+using Models.Page;
+using Newtonsoft.Json;
+using NuGet.Protocol;
 
 namespace Web_Api_Server.Controllers
 {
@@ -20,32 +25,53 @@ namespace Web_Api_Server.Controllers
             _context = context;
         }
 
-        // GET: api/Taikhoans
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Taikhoan>>> GetTaikhoans()
+        [HttpGet("gettaikhoan")]
+        public async Task<ActionResult<IEnumerable<Taikhoan>>> GetLoaiSelectTaikhoan()
         {
-          if (_context.Taikhoans == null)
-          {
-              return NotFound();
-          }
             return await _context.Taikhoans.ToListAsync();
         }
 
+        // GET: api/Taikhoans
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TaikhoanDto>>> GetTaikhoans()
+        {
+            var taikhoan = (from t in _context.Taikhoans
+                            select new TaikhoanDto()
+                            {
+                                TenTk = t.TenTk,
+                                Matkhau = t.Matkhau,
+                                Quyensd = t.Quyensd,
+                            });
+            return await taikhoan.ToListAsync();
+        }
+
+
+        [HttpGet("pageTaikhoan")]
+        public async Task<ActionResult<IEnumerable<TaikhoanDto>>> GetTaikhoanPage([FromQuery] PagingParameters paging)
+        {
+            var taikhoan = (from t in _context.Taikhoans
+                            select new TaikhoanDto()
+                            {
+                                TenTk = t.TenTk,
+                                Matkhau = t.Matkhau,
+                                Quyensd = t.Quyensd,
+                            }).AsQueryable();
+            var result = PagedList<TaikhoanDto>.ToPagedList(taikhoan, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
+        }
         // GET: api/Taikhoans/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Taikhoan>> GetTaikhoan(string id)
+        public async Task<ActionResult<TaikhoanDto>> GetTaikhoan(string id)
         {
-          if (_context.Taikhoans == null)
-          {
-              return NotFound();
-          }
-            var taikhoan = await _context.Taikhoans.FindAsync(id);
-
-            if (taikhoan == null)
-            {
-                return NotFound();
-            }
-
+            var taikhoan = (from t in _context.Taikhoans
+                            where t.TenTk == id
+                            select new TaikhoanDto()
+                            {
+                                TenTk = t.TenTk,
+                                Matkhau = t.Matkhau,
+                                Quyensd = t.Quyensd,
+                            }).SingleOrDefault();
             return taikhoan;
         }
 
@@ -53,43 +79,46 @@ namespace Web_Api_Server.Controllers
         // PUT: api/Taikhoans/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTaikhoan(string id, Taikhoan taikhoan)
+        public async Task<IActionResult> PutTaikhoan(string id,[FromBody] TaikhoanDto taikhoan)
         {
-            if (id != taikhoan.TenTk)
+           if(id!= taikhoan.TenTk)
             {
                 return BadRequest();
             }
+            var temp = await _context.Taikhoans.FindAsync(id);
+            if(temp == null)
+                return NotFound(id);
+            temp.TenTk = taikhoan.TenTk;
+            temp.Matkhau = taikhoan.Matkhau;
+            temp.Quyensd = taikhoan.Quyensd;
 
-            _context.Entry(taikhoan).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TaikhoanExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            _context.Taikhoans.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/Taikhoans
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("page")]
+        public async Task<ActionResult<Taikhoan>> PostTaikhoanPage([FromBody] TaikhoanDto taikhoan)
+        {
+          if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var temp = new Taikhoan()
+            {
+                TenTk = taikhoan.TenTk,
+                Matkhau = taikhoan.Matkhau,
+                Quyensd = taikhoan.Quyensd,
+            };
+            await _context.Taikhoans.AddAsync(temp);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetTaikhoan", new { id = taikhoan.TenTk }, taikhoan);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Taikhoan>> PostTaikhoan(Taikhoan taikhoan)
         {
-          if (_context.Taikhoans == null)
-          {
-              return Problem("Entity set 'LV_FashionStoreContext.Taikhoans'  is null.");
-          }
             _context.Taikhoans.Add(taikhoan);
             try
             {
@@ -106,7 +135,6 @@ namespace Web_Api_Server.Controllers
                     throw;
                 }
             }
-
             return CreatedAtAction("GetTaikhoan", new { id = taikhoan.TenTk }, taikhoan);
         }
 

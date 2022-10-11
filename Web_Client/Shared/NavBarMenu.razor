@@ -81,17 +81,22 @@
     {
         name = await sessionStorage.GetItemAsync<string>("ten_kh");
         name1 = await sessionStorage.GetItemAsync<string>("ten_kh1");
-        toastService.ShowWarning("Bạn không có giỏ hàng cá nhân !", "Mời bạn đăng nhập");
-        Modal.Show<Login>("Đăng nhập");
+        //toastService.ShowWarning("Bạn không có giỏ hàng cá nhân !", "Mời bạn đăng nhập");
+        //Modal.Show<Login>("Đăng nhập");
         try
         {
             if(name != null) 
             {
                 NavigationManager.NavigateTo("/Cart/Cart");
             }
-            if (name1 != null)
+            else if (name1 != null)
             {
                 NavigationManager.NavigateTo("/Cart/Cart");
+            }
+            else if(name == null && name1 == null)
+            {
+                toastService.ShowWarning("Bạn không có giỏ hàng cá nhân !", "Mời bạn đăng nhập");
+                Modal.Show<Login>("Đăng nhập");
             }
        }
        catch (Exception ex) 

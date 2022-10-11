@@ -159,8 +159,8 @@ namespace Web_Api_Server.Controllers
         return CreatedAtAction("GetSanpham", new { id = sanpham.MaSp}, sanpham);
         }
 
-// DELETE: api/Sanphams/5
-[HttpDelete("{id}")]
+        // DELETE: api/Sanphams/5
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSanpham(string id)
         {
             if (_context.Sanphams == null)

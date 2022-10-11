@@ -1,0 +1,83 @@
+﻿@page "/Taikhoan/Create"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using System.Security.Cryptography
+@using System.Text
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
+
+
+<EditForm Model="taikhoan">
+    <form class="forms-sample">
+
+        <div class="form-group">
+            <label for="exampleInputEmail1">Tên tài khoản</label>
+            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.TenTk" @ref=tentaikhoan></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Giá sản phẩm</label>
+            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.Matkhau" @ref=matkhau></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Quyền sử dụng</label>
+            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.Quyensd" @ref=quyensd></InputText>
+        </div>
+        
+    <button type="button" class="btn btn-gradient-primary" @onclick="Create_Sanpham" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary" data-dismiss="modal" @onclick="Close" style="margin-left:19%">Hủy</button>
+    </form>
+</EditForm>
+
+
+@code {
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+
+
+    private TaikhoanDto taikhoan = new TaikhoanDto();
+    TaiKhoanService taikhoanService = new TaiKhoanService();
+    private InputText tentaikhoan;
+    private InputText matkhau;
+    private InputText quyensd;
+    private int Quantily_Pro { get; set; }
+    private int Ma_Pro { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async void Create_Sanpham()
+    {
+
+        taikhoan.TenTk = tentaikhoan.Value;
+        taikhoan.Matkhau = GetMD5(matkhau.Value);
+        taikhoan.Quyensd = quyensd.Value;
+        await taikhoanService.CreateTaikhoan(taikhoan);
+        NavigationManager.NavigateTo("/Taikhoan/Index");
+        toastService.ShowSuccess("Thêm tài khoản thành công", "Thành công !");
+
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+    public string GetMD5(string str)
+    {
+        MD5 md5 = new MD5CryptoServiceProvider();
+        byte[] fromData = Encoding.UTF8.GetBytes(str);
+        byte[] targetData = md5.ComputeHash(fromData);
+        string byte2String = null;
+
+        for (int i = 0; i < targetData.Length; i++)
+        {
+            byte2String += targetData[i].ToString("x2");
+
+        }
+        return byte2String;
+    }
+}

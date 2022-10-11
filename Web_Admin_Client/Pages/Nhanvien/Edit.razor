@@ -1,0 +1,83 @@
+﻿@page "/Nhanvien/Edit/{id}"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager;
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+
+<EditForm Model="nhanvien">
+    <form class="forms-sample">
+        
+        <div class="form-group">
+            <label for="exampleInputEmail1">Họ tên nhân viên</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.HtenNv"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Giới tính</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.GtNv"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Lương nhân viên</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="nhanvien.LuongNv"></InputNumber>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputUsername1">Chức vụ</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.ChucvuNv"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Địa chỉ nhân viên</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.DcNv"></InputText>
+        </div>
+    </form>
+    
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Đóng</button>
+</EditForm>
+
+
+
+
+       
+@code {
+
+
+
+    [Parameter]
+    public string id { get; set; }
+    private NhanvienDto nhanvien = new NhanvienDto();
+    NhanvienService nhanvienService = new NhanvienService();
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        var id = await sessionStorage.GetItemAsync<string>("nv_id");
+        var result = await nhanvienService.GetNhanvien(id);
+        nhanvien.MaNv = result.MaNv;
+        nhanvien.HtenNv = result.HtenNv;
+        nhanvien.TenTk = result.TenTk;
+        nhanvien.DcNv = result.DcNv;
+        nhanvien.GtNv = result.GtNv;
+        nhanvien.LuongNv = result.LuongNv;
+        nhanvien.ChucvuNv = result.ChucvuNv;
+        nhanvien.NsNv = result.NsNv;
+        nhanvien.MaCh = result.MaCh;
+
+    }
+    private async void Submit()
+    {
+        var nv_id = await sessionStorage.GetItemAsync<string>("nv_id");
+        await nhanvienService.EditNhanvien(nv_id, nhanvien);
+        NavigationManager.NavigateTo("/Nhanvien/Index",forceLoad:true);
+        
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}

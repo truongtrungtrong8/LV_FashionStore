@@ -1,0 +1,150 @@
+﻿@page "/Nhanvien/Create"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
+
+
+<EditForm Model="nhanvien">
+    <form class="forms-sample">
+
+        <div class="form-group">
+            <label for="exampleInputEmail1">Họ tên nhân viên</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.HtenNv" @ref=tennv></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Giới tính</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.GtNv" @ref=gioitinh></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Ngày sinh</label>
+            <InputDate class="form-control" placeholder="" @bind-Value="@_ngaysinh" format-value="yyyy-MM-dd"></InputDate>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Lương nhân viên</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="nhanvien.LuongNv" @ref=luongnv></InputNumber>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputUsername1">Chức vụ</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.ChucvuNv" @ref=chucvu></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Địa chỉ nhân viên</label>
+            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.DcNv" @ref=diachi></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Tài khoản nhân viên</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="nhanvien.TenTk" @ref=newtaikhoan>
+                @foreach (var item in taikhoan)
+                {
+                    <option value="@item.TenTk">@item.TenTk</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Nơi làm việc</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="nhanvien.MaCh" @ref=newcuahang>
+                @foreach (var item in cuahang)
+                {
+                    <option value="@item.MaCh">@item.TenCh</option>
+                }
+            </InputSelect>
+        </div>
+    </form>
+    <button type="button" class="btn btn-gradient-primary" @onclick="Create_Sanpham" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary" data-dismiss="modal" @onclick="Close" style="margin-left:19%">Hủy</button>
+</EditForm>
+
+
+@code {
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+
+    [Parameter]
+    public string id { get; set; }
+    private NhanvienDto nhanvien = new NhanvienDto();
+    private List<Nhanvien> nhanvienCount = new List<Nhanvien>();
+    private List<Taikhoan> taikhoan = new List<Taikhoan>();
+    TaiKhoanService taiKhoanService = new TaiKhoanService();
+    private List<Cuahang> cuahang = new List<Cuahang>();
+    CuahangService cuahangService = new CuahangService();
+
+    NhanvienService nhanvienService = new NhanvienService();
+    private InputText tennv;
+    private InputText chucvu;
+    private InputText diachi;
+    private InputText gioitinh;
+    private InputNumber<int> luongnv;
+    private InputSelect<string> newcuahang;
+    private InputSelect<string> newtaikhoan;
+    private DateTime ngaysinh;
+    public DateTime _ngaysinh {
+        get { return ngaysinh; }
+        set { ngaysinh = value; }
+    }
+    private int Quantily_NV { get; set; }
+    private int Ma_NV { get; set; }
+    private int temp { get; set; }
+    private int count { get; set; }
+    private string idnv { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ngaysinh = DateTime.Now;
+        taikhoan = await taiKhoanService.GetListTaikhoan();
+        cuahang = await cuahangService.GetListCuahang();
+        count = cuahang.Count;
+        nhanvienCount = await nhanvienService.GetCountNhanvien();
+        Quantily_NV = nhanvienCount.Count;
+        Ma_NV = Quantily_NV + 1;
+        idnv = ("NV" + Ma_NV).ToString();
+    }
+
+    private async void Create_Sanpham()
+    {
+        try
+        {
+            nhanvien = await nhanvienService.GetNhanvien(idnv);
+            if (nhanvien != null)
+            {
+
+                nhanvien.MaNv = ("NV" + (Ma_NV + 2)).ToString();
+                nhanvien.HtenNv = tennv.Value;
+                nhanvien.DcNv = diachi.Value;
+                nhanvien.GtNv = gioitinh.Value;
+                nhanvien.LuongNv = luongnv.Value;
+                nhanvien.TenTk = newtaikhoan.Value;
+                nhanvien.MaCh = "CH01";
+                nhanvien.ChucvuNv = chucvu.Value;
+                nhanvien.NsNv = _ngaysinh;
+                await nhanvienService.CreateNhanvien(nhanvien);
+                NavigationManager.NavigateTo("/Nhanvien/Index", forceLoad: true);
+                toastService.ShowSuccess("Thêm thành công", "Thành công !");
+            }
+        }
+       catch(Exception ex)
+       {
+                nhanvien.MaNv = ("NV" + Ma_NV).ToString();
+                nhanvien.HtenNv = tennv.Value;
+                nhanvien.DcNv = diachi.Value;
+                nhanvien.GtNv = gioitinh.Value;
+                nhanvien.LuongNv = luongnv.Value;
+                nhanvien.TenTk = newtaikhoan.Value;
+                nhanvien.MaCh = newcuahang.Value;
+                nhanvien.ChucvuNv = chucvu.Value;
+                nhanvien.NsNv = _ngaysinh;
+                await nhanvienService.CreateNhanvien(nhanvien);
+                NavigationManager.NavigateTo("/Nhanvien/Index", forceLoad: true);
+                toastService.ShowSuccess("Thêm thành công", "Thành công !");
+       }
+       
+    }
+}

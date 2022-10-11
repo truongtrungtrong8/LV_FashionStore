@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model.DataDB;
+using Model.Dto;
 
 namespace Web_Api_Server.Controllers
 {
@@ -51,32 +52,26 @@ namespace Web_Api_Server.Controllers
         // PUT: api/Khachhangs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutKhachhang(string id, Khachhang khachhang)
+        public async Task<IActionResult> PutKhachhang( string id, [FromBody] KhachHangDto khachhang)
         {
             if (id != khachhang.MaKh)
             {
                 return BadRequest();
             }
 
-            _context.Entry(khachhang).State = EntityState.Modified;
+            var temp = await _context.Khachhangs.FindAsync(id);
+            if (temp == null)
+                return NotFound($"{id} is not found");
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!KhachhangExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            temp.MaKh = khachhang.MaKh;
+            temp.TenKh = khachhang.TenKh;
+            temp.TenTk = khachhang.TenTk;
+            temp.SdtKh = khachhang.SdtKh;
+            temp.DiachiKh = khachhang.DiachiKh;
 
-            return NoContent();
+            _context.Khachhangs.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/Khachhangs
