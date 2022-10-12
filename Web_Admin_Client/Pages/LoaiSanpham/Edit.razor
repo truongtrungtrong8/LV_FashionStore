@@ -1,0 +1,51 @@
+﻿@page "/LoaiSanpham/Edit/{id}"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager;
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+
+
+<EditForm Model="loaisanpham">
+    <form class="forms-sample">
+
+        <div class="form-group">
+            <label for="exampleInputPassword1">Tên loại</label>
+            <InputText class="form-control" placeholder="" @bind-Value="loaisanpham.Tenloai"></InputText>
+        </div>
+
+    </form>
+    <button type="button" class="btn btn-gradient-primary" @onclick="Submit" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary" data-dismiss="modal" @onclick="Close" style="margin-left:19%">Hủy</button>
+</EditForm>
+
+@code {
+    private LoaiDto loaisanpham = new LoaiDto();
+    LoaiSpService loaiSpService = new LoaiSpService();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        var id = await sessionStorage.GetItemAsync<string>("loai_id");
+        var result = await loaiSpService.GetLoaiSp(id);
+        loaisanpham.MaLoai = result.MaLoai;
+        loaisanpham.Tenloai = result.Tenloai;
+
+    }
+    private async void Submit()
+    {
+        var _id = await sessionStorage.GetItemAsync<string>("loai_id");
+        await loaiSpService.EditLoai(_id, loaisanpham);
+        NavigationManager.NavigateTo("/LoaiSanpham/Index", forceLoad: true);
+
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}

@@ -5,7 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using Model.DataDB;
+using Model.Dto;
+using Models.Page;
+using Newtonsoft.Json;
 
 namespace Web_Api_Server.Controllers
 {
@@ -21,79 +25,86 @@ namespace Web_Api_Server.Controllers
         }
 
         // GET: api/LoaiSps
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<LoaiSp>>> GetLoaiSps()
+        [HttpGet("count")]
+        public async Task<ActionResult<IEnumerable<LoaiSp>>> GetCountLoai()
         {
             return await _context.LoaiSps.ToListAsync();
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LoaiDto>>> GetLoaiSps()
+        {
+            var loaisanpham = (from l in _context.LoaiSps
+                               select new LoaiDto()
+                               {
+                                   MaLoai = l.MaLoai,
+                                   Tenloai = l.Tenloai
+                               });
+            return await loaisanpham.ToListAsync();
+        }
+
         // GET: api/LoaiSps/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<LoaiSp>> GetLoaiSp(string id)
+        public async Task<ActionResult<LoaiDto>> GetLoaiSp(string id)
         {
-            var loaiSp = await _context.LoaiSps.FindAsync(id);
+            var loaisanpham = (from l in _context.LoaiSps
+                               where l.MaLoai == id
+                               select new LoaiDto()
+                               {
+                                   MaLoai = l.MaLoai,
+                                   Tenloai = l.Tenloai
+                               }).SingleOrDefault();
+            return loaisanpham;
+        }
 
-            if (loaiSp == null)
-            {
-                return NotFound();
-            }
-
-            return loaiSp;
+        //Page
+        [HttpGet("pageLoaiSp")]
+        public async Task<ActionResult<IEnumerable<LoaiDto>>> GetLoaiSpPage([FromQuery] PagingParameters paging)
+        {
+            var loaisanpham = (from l in _context.LoaiSps
+                               select new LoaiDto()
+                               {
+                                   MaLoai = l.MaLoai,
+                                   Tenloai = l.Tenloai
+                               }).AsQueryable();
+            var result = PagedList<LoaiDto>.ToPagedList(loaisanpham, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
         }
 
         // PUT: api/LoaiSps/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLoaiSp(string id, LoaiSp loaiSp)
+        public async Task<IActionResult> PutLoaiSp(string id,[FromBody] LoaiSp loaiSp)
         {
             if (id != loaiSp.MaLoai)
             {
                 return BadRequest();
             }
-
-            _context.Entry(loaiSp).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LoaiSpExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var temp = await _context.LoaiSps.FindAsync(id);
+            if (temp == null)
+                return NotFound(id);
+            temp.MaLoai = loaiSp.MaLoai;
+            temp.Tenloai = loaiSp.Tenloai;
+            _context.LoaiSps.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/LoaiSps
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<LoaiSp>> PostLoaiSp(LoaiSp loaiSp)
+        public async Task<ActionResult<LoaiSp>> PostLoaiSp([FromBody] LoaiDto loaiSp)
         {
-            _context.LoaiSps.Add(loaiSp);
-            try
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var temp = new LoaiSp()
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (LoaiSpExists(loaiSp.MaLoai))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+                MaLoai = loaiSp.MaLoai,
+                Tenloai = loaiSp.Tenloai
+            };
+            await _context.LoaiSps.AddAsync(temp);
+            await _context.SaveChangesAsync();
             return CreatedAtAction("GetLoaiSp", new { id = loaiSp.MaLoai }, loaiSp);
         }
 

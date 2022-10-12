@@ -100,11 +100,9 @@
                             <i class="fa fa-angle-down text-dark"></i>
                             </a>
                             <div class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="pay" style="width: calc(100% - 92px); z-index: 999; ">
-                             
                                 <button type="button" style="display: @display" class="nav-item nav-link" @onclick="@(() =>Submit(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán trước</button>
-                                <button type="button" style="display: @display1" class="nav-item nav-link" @onclick="@(() =>SendMail())">Thanh toán khi nhận hàng</button>
+                                <button type="button" style="display: @display1" class="nav-item nav-link" @onclick="@(() =>SendMail(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán khi nhận hàng</button>
                                 <button type="button" style="display: @display2" class="nav-item nav-link" @onclick="@(() =>Ivoice(ModalSize.ExtraLarge,ModalPosition.TopCenter))">Xem hóa đơn</button>
-                                
                             </div>
 
                         </div>
@@ -241,88 +239,16 @@
         Modal.Show<CheckInforPay>("Kiểm tra và chỉnh sửa thông tin", options);
        
     }
-
-    /// Gui mail xac nhan
-
-    private async void SendMail()
+    public async void SendMail(ModalSize size, ModalPosition position)
     {
-        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
-        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if (name_khLogin != null)
-        {
-            //var result = await gioHangService.GetDetail(ma_khLogin);
-            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-            try
-            {
-                using (MailMessage mail = new MailMessage())
-                {
-                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
-                    mail.To.Add("truongtrungtrong@gmail.com");
-                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                    mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                    mail.Body += "<p>Thời gian: " + DateTime.Now;
-                    mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
-                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
-                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
-                    mail.IsBodyHtml = true;
-                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
-                    {
-                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
-                        smtp.EnableSsl = true;
-                        smtp.Send(mail);
-                        Message = "Mail Sent";
-
-                    }
-                }
-                NavigationManager.NavigateTo("/");
-                toastService.ShowSuccess("Mời bạn kiểm tra email !", "Đặt hàng thành công !");
-            }
-            catch (Exception ex)
-            {
-                throw;
-                Message = ex.Message;
-            }
-        }
-        else
-        {
-            //var result = await gioHangService.GetDetail(ma_khCreate);
-            khachhang = await khachHangService.GetKhachHang(ma_khCreate);
-            try
-            {
-                using (MailMessage mail = new MailMessage())
-                {
-                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
-                    mail.To.Add("truongtrungtrong@gmail.com");
-                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                    mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                    mail.Body += "<p>Thời gian: " + DateTime.Now;
-                    mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
-                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
-                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
-                    mail.IsBodyHtml = true;
-
-                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
-                    {
-                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
-                        smtp.EnableSsl = true;
-                        smtp.Send(mail);
-                        Message = "Mail Sent";
-
-                    }
-                }
-                NavigationManager.NavigateTo("/");
-                toastService.ShowSuccess("Mời bạn kiểm tra email !", "Đặt hàng thành công !");
-            }
-            catch (Exception ex)
-            {
-                throw;
-                Message = ex.Message;
-            }
-        }
-
-}
+        display = "none;";
+        display1 = "none;";
+        var options = new ModalOptions { Size = size, Position = position };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<CheckMail>("Kiểm tra và chỉnh sửa thông tin", options);
+        
+    }
 }

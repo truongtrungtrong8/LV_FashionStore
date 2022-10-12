@@ -13,32 +13,60 @@
 @inject SessionTemp tempsessionLogin
 
 
-<EditForm Model="acc" style="width:400px">
-    <!-- Email input -->
-    <div class="form-outline mb-4">
-        <label class="form-label" for="form2Example1">Số điện thoại</label>
-        <InputText type="tel" @bind-Value="acc.TenTk" @ref=phone class="form-control" />
-    </div>
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12 col-lg-10">
+                <div class="wrap d-md-flex">
+                    <div class="img" style="background-image: url(images/logo.jpg);">
+                    </div>
+                    <div class="login-wrap p-4 p-md-5">
+                        <div class="d-flex">
+                            <div class="w-100">
+                                <h3 class="mb-4">Đăng nhập</h3>
+                            </div>
+                            <div class="w-100">
+                                <p class="social-media d-flex justify-content-end">
+                                    <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span class="fa fa-facebook"></span></a>
+                                    <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span class="fa fa-twitter"></span></a>
+                                </p>
+                            </div>
+                        </div>
+                        <EditForm Model="acc">
+                            <form class="signin-form">
+                                <div class="form-group mb-3">
+                                    <label class="label" for="name">Số điện thoại</label>
+                                    <InputText type="tel" @bind-Value="acc.TenTk" @ref=phone class="form-control" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="password">Mật khẩu</label>
+                                    <InputText type="password" @bind-Value="acc.Matkhau" @ref=password class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="form-control btn btn-primary rounded submit px-3" @onclick="CheckLogin">Đăng nhập</button>
+                                </div>
+                                <div class="form-group d-md-flex">
+                                    <div class="w-50 text-left">
+                                        <label class="checkbox-wrap checkbox-primary mb-0">
+                                            Nhớ mật khẩu
+                                            <input type="checkbox" checked>
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="w-50 text-md-right">
+                                        <a href="#">Quên mật khẩu</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </EditForm>
 
-    <!-- Password input -->
-    <div class="form-outline mb-4">
-        <label class="form-label" for="form2Example2">Mật khẩu</label>
-        <InputText type="password" @bind-Value="acc.Matkhau" @ref=password class="form-control" />
-    </div>
-
-    <!-- Submit button -->
-    <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
-
-    <!-- Register buttons -->
-    <div class="text-center">
-        <div class="col">
-            <!-- Simple link -->
-            <a style="color:mediumblue;cursor:pointer" @onclick="ForgetPassword">Quên mật khẩu?</a>
+                        <p class="text-center">Bạn chưa có tài khoản ? <a data-toggle="tab" href="#signup">Đăng ký</a></p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <p>Bạn chưa có tài khoản? <a style="color:mediumblue;cursor:pointer" @onclick="Register">Đăng ký ngay</a></p>
     </div>
-</EditForm>
-
+</section>
 
 
 @code {
@@ -63,7 +91,7 @@
 
 
         await sessionStorage.SetItemAsync("ten_tk_kh", acc.TenTk);
-        try 
+        try
         {
 
 
@@ -85,7 +113,7 @@
 
                     if ((await CheckKhachhang(acc.TenTk)) == false)
                     {
-                        try 
+                        try
                         {
                             var checkMD5 = GetMD5(acc.Matkhau);
                             newAcc = await accService.GetTaiKhoan(acc.TenTk, checkMD5);
@@ -105,7 +133,7 @@
 
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
                         }
@@ -132,10 +160,10 @@
                                 Modal.Show<Create_KhachHang>("Chỉnh sửa thông tin");
                                 //NavigationManager.NavigateTo("/");
                             }
-                            
+
                         }
                     }
-                    catch(Exception ex1)
+                    catch (Exception ex1)
                     {
                         toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
                     }
@@ -143,7 +171,7 @@
             }
         }
 
-        catch(Exception ex) 
+        catch (Exception ex)
         {
             toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
         }
@@ -175,10 +203,10 @@
         if (khachhang == null)
             return true;
         else
-        await sessionStorage.SetItemAsync("ma_khachhang", makhachhang);
+            await sessionStorage.SetItemAsync("ma_khachhang", makhachhang);
         await sessionStorage.SetItemAsync("ten_kh", name_tenkh);
         Console.WriteLine();
-        return false; 
+        return false;
     }
 
     public string GetMD5(string str)
