@@ -97,9 +97,11 @@
     }
     private async void Close()
     {
-        await this.ModalInstance.CancelAsync();
         var display = "block;";
         await sessionStorage.SetItemAsync<string>("display", display);
+        NavigationManager.NavigateTo("/Cart/Cart");
+        await this.ModalInstance.CancelAsync();
+        
     }
     ////// Pay
     bool paying = false;

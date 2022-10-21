@@ -29,6 +29,7 @@ namespace Model
         public string? Ha3 { get; set; }
         public string? TenHsx { get; set; }
         public string? Tenloai { get; set; }
+        public int Sl { get; set; }
         public List<CartItems> Variants { get; set; } = new List<CartItems>();
 
         public Sanpham_Model()

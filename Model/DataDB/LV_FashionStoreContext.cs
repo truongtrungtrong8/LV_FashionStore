@@ -57,17 +57,13 @@ namespace Model.DataDB
 
                 entity.ToTable("CT_DDH");
 
-                entity.HasIndex(e => e.MaSp, "CT_DDH2_FK");
-
-                entity.HasIndex(e => e.MaDdh, "CT_DDH_FK");
-
                 entity.Property(e => e.MaDdh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_DDH");
 
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
@@ -94,17 +90,13 @@ namespace Model.DataDB
 
                 entity.ToTable("CT_DN");
 
-                entity.HasIndex(e => e.MaSp, "CT_DN2_FK");
-
-                entity.HasIndex(e => e.MaDn, "CT_DN_FK");
-
                 entity.Property(e => e.MaDn)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_DN");
 
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
@@ -131,17 +123,13 @@ namespace Model.DataDB
 
                 entity.ToTable("CT_GH");
 
-                entity.HasIndex(e => e.MaGh, "CT_GH2_FK");
-
-                entity.HasIndex(e => e.MaSp, "CT_GH_FK");
-
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
                 entity.Property(e => e.MaGh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_GH");
 
@@ -166,17 +154,13 @@ namespace Model.DataDB
 
                 entity.ToTable("CT_HD");
 
-                entity.HasIndex(e => e.MaHd, "CT_HD2_FK");
-
-                entity.HasIndex(e => e.MaSp, "CT_HD_FK");
-
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
                 entity.Property(e => e.MaHd)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_HD");
 
@@ -203,22 +187,18 @@ namespace Model.DataDB
 
                 entity.ToTable("CT_TS");
 
-                entity.HasIndex(e => e.MaTs, "CT_TS2_FK");
-
-                entity.HasIndex(e => e.MaSp, "CT_TS_FK");
-
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
                 entity.Property(e => e.MaTs)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_TS");
 
                 entity.Property(e => e.Donvi)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("DONVI");
 
@@ -243,7 +223,7 @@ namespace Model.DataDB
                 entity.ToTable("CUAHANG");
 
                 entity.Property(e => e.MaCh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_CH");
 
@@ -274,7 +254,7 @@ namespace Model.DataDB
                 entity.ToTable("DONDATHANG");
 
                 entity.Property(e => e.MaDdh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_DDH");
 
@@ -292,22 +272,18 @@ namespace Model.DataDB
 
                 entity.ToTable("DONNHAP");
 
-                entity.HasIndex(e => e.MaNcc, "CO__ON_FK");
-
-                entity.HasIndex(e => e.MaNv, "LAP__ON_FK");
-
                 entity.Property(e => e.MaDn)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_DN");
 
                 entity.Property(e => e.MaNcc)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_NCC");
 
                 entity.Property(e => e.MaNv)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_NV");
 
@@ -338,12 +314,12 @@ namespace Model.DataDB
                 entity.ToTable("GIOHANG");
 
                 entity.Property(e => e.MaGh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_GH");
 
                 entity.Property(e => e.MaKh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_KH");
 
@@ -366,8 +342,6 @@ namespace Model.DataDB
                     .IsClustered(false);
 
                 entity.ToTable("HINHANH");
-
-                entity.HasIndex(e => e.MaSp, "GOM_FK");
 
                 entity.Property(e => e.MaHa).HasColumnName("MA_HA");
 
@@ -392,7 +366,7 @@ namespace Model.DataDB
                     .HasColumnName("HA_BIA");
 
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
@@ -410,12 +384,8 @@ namespace Model.DataDB
 
                 entity.ToTable("HOADON");
 
-                entity.HasIndex(e => e.MaKh, "CO_HD_FK");
-
-                entity.HasIndex(e => e.MaNv, "TAO_BOI_FK");
-
                 entity.Property(e => e.MaHd)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_HD");
 
@@ -424,12 +394,12 @@ namespace Model.DataDB
                     .HasColumnName("DIACHI_HD");
 
                 entity.Property(e => e.MaKh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_KH");
 
                 entity.Property(e => e.MaNv)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_NV");
 
@@ -460,7 +430,7 @@ namespace Model.DataDB
                 entity.ToTable("HXS");
 
                 entity.Property(e => e.MaHsx)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_HSX");
 
@@ -476,10 +446,8 @@ namespace Model.DataDB
 
                 entity.ToTable("KHACHHANG");
 
-                entity.HasIndex(e => e.TenTk, "CHO_FK");
-
                 entity.Property(e => e.MaKh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_KH");
 
@@ -497,7 +465,7 @@ namespace Model.DataDB
                     .HasColumnName("TEN_KH");
 
                 entity.Property(e => e.TenTk)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("TEN_TK");
 
@@ -514,14 +482,12 @@ namespace Model.DataDB
 
                 entity.ToTable("KHUYENMAI");
 
-                entity.HasIndex(e => e.MaSp, "CO_FK");
-
                 entity.Property(e => e.Thoigian)
                     .HasColumnType("datetime")
                     .HasColumnName("THOIGIAN");
 
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
@@ -542,7 +508,7 @@ namespace Model.DataDB
                 entity.ToTable("LOAI_SP");
 
                 entity.Property(e => e.MaLoai)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_LOAI");
 
@@ -559,7 +525,7 @@ namespace Model.DataDB
                 entity.ToTable("MAU");
 
                 entity.Property(e => e.Mamau)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MAMAU");
 
@@ -579,13 +545,9 @@ namespace Model.DataDB
 
                             j.ToTable("CO_MAU");
 
-                            j.HasIndex(new[] { "MaSp" }, "CO_MAU2_FK");
+                            j.IndexerProperty<string>("Mamau").HasMaxLength(100).IsUnicode(false).HasColumnName("MAMAU");
 
-                            j.HasIndex(new[] { "Mamau" }, "CO_MAU_FK");
-
-                            j.IndexerProperty<string>("Mamau").HasMaxLength(10).IsUnicode(false).HasColumnName("MAMAU");
-
-                            j.IndexerProperty<string>("MaSp").HasMaxLength(10).IsUnicode(false).HasColumnName("MA_SP");
+                            j.IndexerProperty<string>("MaSp").HasMaxLength(100).IsUnicode(false).HasColumnName("MA_SP");
                         });
             });
 
@@ -597,7 +559,7 @@ namespace Model.DataDB
                 entity.ToTable("NHACUNGCAP");
 
                 entity.Property(e => e.MaNcc)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_NCC");
 
@@ -623,12 +585,8 @@ namespace Model.DataDB
 
                 entity.ToTable("NHANVIEN");
 
-                entity.HasIndex(e => e.MaCh, "CO_NV_FK");
-
-                entity.HasIndex(e => e.TenTk, "SU_DUNG_FK");
-
                 entity.Property(e => e.MaNv)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_NV");
 
@@ -652,7 +610,7 @@ namespace Model.DataDB
                 entity.Property(e => e.LuongNv).HasColumnName("LUONG_NV");
 
                 entity.Property(e => e.MaCh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_CH");
 
@@ -661,7 +619,7 @@ namespace Model.DataDB
                     .HasColumnName("NS_NV");
 
                 entity.Property(e => e.TenTk)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("TEN_TK");
 
@@ -685,12 +643,8 @@ namespace Model.DataDB
 
                 entity.ToTable("SANPHAM");
 
-                entity.HasIndex(e => e.MaLoai, "LOAI_FK");
-
-                entity.HasIndex(e => e.MaHsx, "SAN_XUAT_FK");
-
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
@@ -699,18 +653,20 @@ namespace Model.DataDB
                 entity.Property(e => e.GiaSp).HasColumnName("GIA_SP");
 
                 entity.Property(e => e.MaHsx)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_HSX");
 
                 entity.Property(e => e.MaLoai)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_LOAI");
 
                 entity.Property(e => e.Mota)
                     .HasMaxLength(1000)
                     .HasColumnName("MOTA");
+
+                entity.Property(e => e.Sl).HasColumnName("SL");
 
                 entity.Property(e => e.TenSp)
                     .HasMaxLength(200)
@@ -740,13 +696,9 @@ namespace Model.DataDB
 
                             j.ToTable("CO_SIZE");
 
-                            j.HasIndex(new[] { "MaSize" }, "CO_SIZE2_FK");
+                            j.IndexerProperty<string>("MaSp").HasMaxLength(100).IsUnicode(false).HasColumnName("MA_SP");
 
-                            j.HasIndex(new[] { "MaSp" }, "CO_SIZE_FK");
-
-                            j.IndexerProperty<string>("MaSp").HasMaxLength(10).IsUnicode(false).HasColumnName("MA_SP");
-
-                            j.IndexerProperty<string>("MaSize").HasMaxLength(10).IsUnicode(false).HasColumnName("MA_SIZE");
+                            j.IndexerProperty<string>("MaSize").HasMaxLength(100).IsUnicode(false).HasColumnName("MA_SIZE");
                         });
             });
 
@@ -758,7 +710,7 @@ namespace Model.DataDB
                 entity.ToTable("SIZE");
 
                 entity.Property(e => e.MaSize)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SIZE");
 
@@ -776,7 +728,7 @@ namespace Model.DataDB
                 entity.ToTable("TAIKHOAN");
 
                 entity.Property(e => e.TenTk)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("TEN_TK");
 
@@ -799,7 +751,7 @@ namespace Model.DataDB
                 entity.ToTable("THONGSOSP");
 
                 entity.Property(e => e.MaTs)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_TS");
 
@@ -815,17 +767,13 @@ namespace Model.DataDB
 
                 entity.ToTable("TONKHO");
 
-                entity.HasIndex(e => e.MaCh, "TONKHO2_FK");
-
-                entity.HasIndex(e => e.MaSp, "TONKHO_FK");
-
                 entity.Property(e => e.MaSp)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
                 entity.Property(e => e.MaCh)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_CH");
 

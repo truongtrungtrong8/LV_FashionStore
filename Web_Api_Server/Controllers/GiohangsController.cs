@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
@@ -37,36 +38,26 @@ namespace Web_Api_Server.Controllers
             return giohang;
         }
 
-        // PUT: api/Giohangs/5
+        //PUT: api/Giohangs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutGiohang(string id, Giohang giohang)
-        //{
-        //    if (id != giohang.MaGh)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(giohang).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!GiohangExists(id.ToString()))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutGiohang(string id, [FromBody] GioHangDto giohang)
+        {
+            if (id != giohang.MaGh)
+            {
+                return BadRequest();
+            }
+            var temp = await _context.Giohangs.FindAsync(id);
+            if (temp == null)
+                return NotFound(id);
+            temp.MaGh = giohang.MaGh;
+            temp.MaKh = giohang.MaKh;
+            temp.Tongtien = giohang.Tongtien;
+            temp.Ngaydat = giohang.Ngaydat;
+            _context.Giohangs.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
 
         // POST: api/Giohangs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -82,9 +73,7 @@ namespace Web_Api_Server.Controllers
                 Tongtien = request.Tongtien,
                 Ngaydat = request.Ngaydat,
                 MaKh = request.MaKh,   
-                
             };
-
             await _context.Giohangs.AddAsync(giohang);
             await _context.SaveChangesAsync();
 

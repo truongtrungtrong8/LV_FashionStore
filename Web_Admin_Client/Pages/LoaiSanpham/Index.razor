@@ -13,12 +13,15 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager;
 
+@inject IWebHostEnvironment Environment
+
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="page-header">
             <h3 class="page-title"> Quản lý loai sản phẩm</h3>
             @*<SearchForm OnSearchChanged="SearchChanged" />*@
             <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => Create(ModalSize.Custom,ModalPosition.Custom)">Thêm mới loại sản phẩm !</button>
+            <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => ImportExcel(ModalSize.Custom,ModalPosition.Custom)">Import File Excel</button>
         </div>
         <div class="row">
 
@@ -140,4 +143,19 @@
             options.PositionCustomClass = "my-custom-position";
         Modal.Show<Delete>("Xóa thông tin", options);
     }
+    public async Task ImportExcel(ModalSize size, ModalPosition position)
+    {
+        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<ImportExcel>("Thêm dữ liệu ", options);
+    }
+
+
+    //Excel----------------
+
+
+
 }

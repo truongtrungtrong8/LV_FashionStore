@@ -25,7 +25,8 @@ namespace Model.DataDB
         public string? TenSp { get; set; }
         public int GiaSp { get; set; }
         public int Baohanh { get; set; }
-        public string Mota { get; set; }
+        public string? Mota { get; set; }
+        public int Sl { get; set; }
 
         public virtual Hx MaHsxNavigation { get; set; } = null!;
         public virtual LoaiSp MaLoaiNavigation { get; set; } = null!;

@@ -24,9 +24,9 @@ namespace Web_Client.Services
             return result.IsSuccessStatusCode;
         }
 
-        public async Task<bool> Edit(string id, Giohang request)
+        public async Task<bool> Edit(string id, GioHangDto request)
         {
-            var result = await Http.PutAsJsonAsync($"https://localhost:7118/api/Giohangs/{id}", request);
+            var result = await Http.PutAsJsonAsync(baseUrl + "/" + id, request);
             return result.IsSuccessStatusCode;
         }
 

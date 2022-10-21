@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Model.DataDB
+namespace Model.Dto
 {
-    public partial class Tonkho
+    public class TonkhoDto
     {
         public string MaSp { get; set; } = null!;
         public string MaCh { get; set; } = null!;
         public int Sl { get; set; }
         public int Dg { get; set; }
-
-        public virtual Cuahang MaChNavigation { get; set; } = null!;
-        public virtual Sanpham MaSpNavigation { get; set; } = null!;
     }
 }

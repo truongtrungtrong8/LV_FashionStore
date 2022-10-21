@@ -1,6 +1,7 @@
 ﻿@page "/Detail/{id}"
 @using Model
 @using Model.DataDB
+@using Model.Dto
 @using Web_Client.Pages.Cart
 @using Web_Client.Services
 @inject IJSRuntime JS
@@ -56,28 +57,75 @@
                 <p class="mb-4">
                     Sản phẩm áo thun chất lượng tốt, phù hợp với nhiều lứa tuổi
                 </p>
-
+                <div class="d-flex mb-3">
+                    <strong class="text-dark mr-3">Sizes:</strong>
+                    <form>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="size-1" name="size">
+                            <label class="custom-control-label" for="size-1">XS</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="size-2" name="size">
+                            <label class="custom-control-label" for="size-2">S</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="size-3" name="size">
+                            <label class="custom-control-label" for="size-3">M</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="size-4" name="size">
+                            <label class="custom-control-label" for="size-4">L</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="size-5" name="size">
+                            <label class="custom-control-label" for="size-5">XL</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="d-flex mb-4">
+                    <strong class="text-dark mr-3">Màu:</strong>
+                    <form>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="color-1" name="color">
+                            <label class="custom-control-label" for="color-1">Trắng</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="color-2" name="color">
+                            <label class="custom-control-label" for="color-2">Đen</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="color-3" name="color">
+                            <label class="custom-control-label" for="color-3">Đỏ</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="color-4" name="color">
+                            <label class="custom-control-label" for="color-4">Xanh</label>
+                        </div>
+                    </form>
+                </div>
+                
                 <div class="d-flex align-items-center mb-4 pt-2">
                     <div class="input-group quantity mr-3" style="width: 130px;">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary btn-minus">
-                                <i class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <input type="text" class="form-control bg-secondary border-0 text-center" value="1">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary btn-plus">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                        </div>
+                        <EditForm Model="cTGioHangDto">
+
+                            <InputNumber id="quantity" @bind-Value="@cTGioHangDto.Sl" @ref=Sl
+                                         class="form-control bg-secondary border-0 text-center" style="width: 70px" />
+
+                        </EditForm>
                     </div>
                     <button type="button" class="btn btn-primary px-3" @onclick="AddToCart">
                         <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
                     </button>
-                    
                 </div>
                 <div class="d-flex pt-2">
-                    <strong class="text-dark mr-2">Share on:</strong>
+                    @if(tonkho == null)
+                    {
+                        <strong class="text-dark mr-2">Số lượng sản phẩm: @sanpham.Sl sản phẩm</strong>
+                    }
+                    else {
+                         <strong class="text-dark mr-2">Số lượng sản phẩm: @tonkho.Sl sản phẩm</strong>
+                    }
+                   
                     <div class="d-inline-flex">
                         <a class="text-dark px-2" href="">
                             <i class="fab fa-facebook-f"></i>
@@ -215,6 +263,7 @@
 @code {
     string urlimage = "https://localhost:7268";
     const string key = "CartItemCollection";
+    private InputNumber<int> Sl { get; set; }
     [Parameter]
 
     public string Id { get; set; }
@@ -224,11 +273,15 @@
 
     private CartItems cartItem = new CartItems { Sl = 1 };
     public List<CartItems> cartItems_List = new List<CartItems>();
+    public int countCart { get; set; }
+    public int MaGh { get; set; }
+
 
     private int currentEditionId = 1;
     private string name { get; set; }
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
     List<CtGh> list_ctgiohang = new List<CtGh>();
     List<Giohang> giohangList = new List<Giohang>();
 
@@ -238,6 +291,9 @@
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
 
+    TonkhoDto tonkho = new TonkhoDto();
+    TonkhoService tonkhoService = new TonkhoService();
+
     [CascadingParameter] public IModalService Modal { get; set; }
 
 
@@ -245,93 +301,234 @@
     {
         try
         {
-
-
+            //giohangList = await gioHangService.GetList();
+            //countCart = giohangList.Count;
+            //MaGh = countCart + 1;
+            tonkho = await tonkhoService.GetTonkho(Id);
             sanpham = await sanphamService.GetProduct(Id);
-            if (sanpham.Variants.Count > 0)
-            {
-                currentEditionId = sanpham.Variants[0].EditID;
-            }
 
         }
-        //cartitem = await GetCollection();
         catch (Exception ex)
         {
 
+            tonkho = null;
+            sanpham = await sanphamService.GetProduct(Id);
         }
     }
-   
+
 
     private async Task AddToCart()
     {
 
-            var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
-            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
 
-            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-            var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            try 
+        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        try 
+        {
+            if (name_khLogin != null)
             {
-                if (name_khLogin != null)
+                cartItem.MaSp = sanpham.MaSp;
+                cartItem.TenSp = sanpham.TenSp;
+                cartItem.MaGh = "GH" + ma_khLogin;
+                cartItem.GiaSp = sanpham.GiaSp;
+                cartItem.HaBia = sanpham.HaBia;
+                cartItem.MaKh = ma_khLogin;
+                cartItem.Sl = Sl.Value;
+                await CartService.AddToCart(cartItem);
+                cartItems_List = await CartService.GetCartItems(ma_khLogin);
+                foreach (var item in cartItems_List)
                 {
-                    
-                    string temp = "GH" + cartItems_List.Count + 1 + DateTime.Now.Millisecond.ToString().Substring(0, 3) + DateTime.Now.Second.ToString().Substring(0, 2);
-                    Console.WriteLine(temp);
+                    try 
                     {
-                        cartItem.MaSp = sanpham.MaSp;
-                        cartItem.TenSp = sanpham.TenSp;
-                        cartItem.MaGh = temp;
-                        cartItem.GiaSp = sanpham.GiaSp;
-                        cartItem.HaBia = sanpham.HaBia;
-                        cartItem.MaKh = ma_khLogin;
-
-                        await CartService.AddToCart(cartItem);
-                    }
-                    cartItems_List = await CartService.GetCartItems(ma_khLogin);
-                    gioHangDto.MaGh = temp;
-                    DateTime now = DateTime.Now;
-                    gioHangDto.Ngaydat = now;
-                    gioHangDto.MaKh = ma_khLogin;
-                    await gioHangService.Create(gioHangDto);
-                        foreach (var item in cartItems_List)
+                        var tempGH = "GH" + ma_khLogin;
+                        Giohang check = new Giohang();
+                        check = await gioHangService.GetDetail(tempGH);
+                        if(check != null)
                         {
+                            ///Co gio hang thi sua
+                            var result = await gioHangService.GetDetail(tempGH);
+                            gioHangDto.MaGh = result.MaGh;
+                            gioHangDto.Ngaydat = result.Ngaydat;
+                            gioHangDto.MaKh = result.MaKh;
+                            gioHangDto.Tongtien = item.Sl * item.GiaSp;
+                            await gioHangService.Edit(tempGH, gioHangDto);
+                            //////Sua chi tiet gio hang luon
 
-                            cTGioHangDto.MaGh = gioHangDto.MaGh;
-                            cTGioHangDto.MaSp = item.MaSp;
-                            cTGioHangDto.Sl = item.Sl;
+                            try 
+                            {
+                                //var edit = await cTGioHangService.GetCtGiohang(tempGH);
+                                //var editSP = await cTGioHangService.GetCtGiohangSP(item.MaSp);
+                                var edit = await cTGioHangService.GetID(sanpham.MaSp, tempGH);
+                                if (edit != null)
+                                {
+                                    cTGioHangDto.MaGh = edit.MaGh;
+                                    cTGioHangDto.MaSp = edit.MaSp;
+                                    cTGioHangDto.Sl = edit.Sl + Sl.Value;
+                                    try
+                                    {
+                                        if (tonkho.Sl < Sl.Value)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                        await cTGioHangService.Edit(item.MaSp, tempGH, cTGioHangDto);
+                                    }
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                //var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
+                                cTGioHangDto.MaGh = tempGH;
+                                cTGioHangDto.MaSp = item.MaSp;
+                                cTGioHangDto.Sl = Sl.Value;
+                                try
+                                {
+                                    if (tonkho.Sl < item.Sl)
+                                    {
+                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                    await cTGioHangService.Create(cTGioHangDto);
+                                }
+                           }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        /////Chua co gio hang thi them moi
+                        gioHangDto.MaGh = "GH" + ma_khLogin;
+                        gioHangDto.Ngaydat = DateTime.Now;
+                        gioHangDto.MaKh = ma_khLogin;
+                        gioHangDto.Tongtien = item.Sl * item.GiaSp;
+                        await gioHangService.Create(gioHangDto);
+                        //////Chi tiet gio hang them moi
+                        cTGioHangDto.MaGh = gioHangDto.MaGh;
+                        cTGioHangDto.MaSp = item.MaSp;
+                        cTGioHangDto.Sl = Sl.Value;
+                        try 
+                        {
+                            if (tonkho.Sl < Sl.Value)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                        }
+                        catch(Exception ex1)
+                        {
                             await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
                             await cTGioHangService.Create(cTGioHangDto);
                         }
+                    }
                 }
+            }
 
-                else if (name_khCreate != null)
-                {
-                string temp = "GH" + cartItems_List.Count + 1 + DateTime.Now.Millisecond.ToString().Substring(0, 3) + DateTime.Now.Second.ToString().Substring(0, 2);
+            else if (name_khCreate != null)
+            {
                 cartItem.MaSp = sanpham.MaSp;
                 cartItem.TenSp = sanpham.TenSp;
-                cartItem.MaGh = temp;
+                cartItem.MaGh = "GH" + ma_khCreate;
                 cartItem.GiaSp = sanpham.GiaSp;
                 cartItem.HaBia = sanpham.HaBia;
                 cartItem.MaKh = ma_khCreate;
-
-               
+                await CartService.AddToCart(cartItem);
                 cartItems_List = await CartService.GetCartItems(ma_khCreate);
-                gioHangDto.MaGh = temp;
-                DateTime now = DateTime.Now;
-                gioHangDto.Ngaydat = now;
-                gioHangDto.MaKh = ma_khCreate;
-                await gioHangService.Create(gioHangDto);
-
-                cartItems_List = await CartService.GetCartItems(ma_khCreate);
-                    foreach (var item in cartItems_List)
+                foreach (var item in cartItems_List)
+                {
+                    try
                     {
+                        var tempGH = "GH" + ma_khCreate;
+                        Giohang check = new Giohang();
+                        check = await gioHangService.GetDetail(tempGH);
+                        if (check != null)
+                        {
+                            ///Co gio hang thi sua
+                            var result = await gioHangService.GetDetail(tempGH);
+                            gioHangDto.MaGh = result.MaGh;
+                            gioHangDto.Ngaydat = result.Ngaydat;
+                            gioHangDto.MaKh = result.MaKh;
+                            gioHangDto.Tongtien = item.Sl * item.GiaSp;
+                            await gioHangService.Edit(tempGH, gioHangDto);
+                            //////Sua chi tiet gio hang luon
+
+                            try
+                            {
+                                //var edit = await cTGioHangService.GetCtGiohang(tempGH);
+                                //var editSP = await cTGioHangService.GetCtGiohangSP(item.MaSp);
+                                var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
+                                if (edit != null)
+                                {
+                                    cTGioHangDto.MaGh = edit.MaGh;
+                                    cTGioHangDto.MaSp = edit.MaSp;
+                                    cTGioHangDto.Sl = edit.Sl + 1;
+                                    try
+                                    {
+                                        if (tonkho.Sl < item.Sl)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                        await cTGioHangService.Edit(item.MaSp, tempGH, cTGioHangDto);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
+                                cTGioHangDto.MaGh = edit.MaGh;
+                                cTGioHangDto.MaSp = item.MaSp;
+                                cTGioHangDto.Sl = edit.Sl + 1;
+                                try
+                                {
+                                    if (tonkho.Sl < item.Sl)
+                                    {
+                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                    await cTGioHangService.Edit(item.MaSp, tempGH, cTGioHangDto);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        /////Chua co gio hang thi them moi
+                        gioHangDto.MaGh = "GH" + ma_khCreate;
+                        gioHangDto.Ngaydat = DateTime.Now;
+                        gioHangDto.MaKh = ma_khCreate;
+                        gioHangDto.Tongtien = item.Sl * item.GiaSp;
+                        await gioHangService.Create(gioHangDto);
+                        //////Chi tiet gio hang them moi
                         cTGioHangDto.MaGh = gioHangDto.MaGh;
                         cTGioHangDto.MaSp = item.MaSp;
                         cTGioHangDto.Sl = item.Sl;
-                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
-                        await cTGioHangService.Create(cTGioHangDto);
+                        try
+                        {
+                            if (tonkho.Sl < item.Sl)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                        }
+                        catch (Exception ex1)
+                        {
+                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                            await cTGioHangService.Create(cTGioHangDto);
+                        }
                     }
                 }
+            }
                 else
                 {
                     toastService.ShowWarning("Mời bạn tạo tài khoản hoặc đăng nhập!", "Bạn chưa đăng nhập");

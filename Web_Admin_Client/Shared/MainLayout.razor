@@ -194,6 +194,12 @@
               </a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="@homeurl">
+                <span class="menu-title">Trang khách hàng</span>
+                <i class="mdi mdi-table-large menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="/Sanpham/Index">
                 <span class="menu-title">Sản phẩm</span>
                 <i class="mdi mdi-table-large menu-icon"></i>
@@ -219,7 +225,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/loaiSanpham/Index">
+                    <a class="nav-link" href="/LoaiSanpham/Index">
                         <span class="menu-title">Loại sản phẩm</span>
                         <i class="mdi mdi-medical-bag menu-icon"></i>
                     </a>
@@ -227,6 +233,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/HangSanXuat/Index">
                         <span class="menu-title">Hãng sản xuất</span>
+                        <i class="mdi mdi-medical-bag menu-icon"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@chaturl">
+                        <span class="menu-title">Chăm sóc khách hàng</span>
                         <i class="mdi mdi-medical-bag menu-icon"></i>
                     </a>
                 </li>
@@ -301,6 +313,8 @@
 
    
 @code{
+    private string chaturl = "https://dashboard.tawk.to/#/dashboard/634a384737898912e96eba1c";
+    private string homeurl = "https://localhost:7155";
     private string name { get; set; }
     protected override async Task OnInitializedAsync()
     {

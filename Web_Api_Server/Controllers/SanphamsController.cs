@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
 using Model.Dto;
+using Model.PageIndex;
 using Models.Page;
 using Newtonsoft.Json;
 using Web_Api_Server.Repositoreies;
@@ -36,6 +37,7 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Hinhanhs on s.MaSp equals h.MaSp
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -46,8 +48,8 @@ namespace Web_Api_Server.Controllers
                                MaHa = h.MaHa,
                                GiaSp = s.GiaSp,
                                TenSp = s.TenSp,
-                               TenHsx = hsx.TenHsx
-                               
+                               TenHsx = hsx.TenHsx,
+                              
                            });
             return await sanpham.ToListAsync();
         }
@@ -79,7 +81,30 @@ namespace Web_Api_Server.Controllers
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;
         }
-        
+
+        [HttpGet("pageIndex")]
+        public async Task<ActionResult<PagedListIndex<Sanpham_Model>>> GetProductPagesIndex([FromQuery] PagingParametersIndex paging)
+        {
+            var sanpham = (from s in _context.Sanphams
+                           join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                           join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
+                           join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           select new Sanpham_Model()
+                           {
+                               MaSp = s.MaSp,
+                               MaLoai = s.MaLoai,
+                               HaBia = h.HaBia,
+                               Ha1 = h.Ha1,
+                               Ha2 = h.Ha2,
+                               GiaSp = s.GiaSp,
+                               TenSp = s.TenSp,
+                               TenHsx = hsx.TenHsx
+                           }).Search(paging.SearchTerm).AsQueryable();
+            var result = PagedListIndex<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
+        }
+
         // GET: api/Sanphams/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Sanpham_Model>> GetSanpham(string id)
@@ -102,8 +127,8 @@ namespace Web_Api_Server.Controllers
                                Tenloai = l.Tenloai,
                                Mota = s.Mota,
                                MaHsx = hsx.MaHsx,
-                               Baohanh = s.Baohanh
-                               
+                               Baohanh = s.Baohanh,
+                               Sl = s.Sl
                            }).SingleOrDefault();
 
             return sanpham;
@@ -130,6 +155,7 @@ namespace Web_Api_Server.Controllers
             temp.MaHsx = sanpham.MaHsx;
             temp.MaLoai = sanpham.MaLoai;
             temp.Baohanh = sanpham.Baohanh;
+            temp.Sl = sanpham.Sl;
 
             _context.Sanphams.Update(temp);
             await _context.SaveChangesAsync();
@@ -153,6 +179,7 @@ namespace Web_Api_Server.Controllers
                 MaHsx = sanpham.MaHsx,
                 MaLoai = sanpham.MaLoai,
                 Baohanh = sanpham.Baohanh,
+                Sl = sanpham.Sl
         };
             await _context.Sanphams.AddAsync(temp);
             await _context.SaveChangesAsync();

@@ -15,6 +15,7 @@ namespace Model.Dto
         public int GiaSp { get; set; }
         public int Baohanh { get; set; }
         public string? Mota { get; set; }
+        public int Sl { get; set; }
 
     }
 }

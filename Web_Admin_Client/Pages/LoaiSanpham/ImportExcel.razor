@@ -1,0 +1,99 @@
+﻿@page "/LoaiSanpham/ImportExcel"
+@using Blazored.Modal.Services
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Models.Page
+@using System.Globalization
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
+@layout MainLayout
+@inject IJSRuntime JS
+@inject IToastService toastService
+@inject IWebHostEnvironment Environment
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<EditForm Model="loaisanpham">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Tải file...</label>
+            <InputFile OnChange="@LoadFiles" multiple/>
+        </div>
+    </form>
+    <button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%" @onclick="Close">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%">Đóng</button>
+</EditForm>
+
+@code {
+    LoaiDto loaisanpham = new LoaiDto();
+    LoaiSpService loaiSpService = new LoaiSpService();
+    List<LoaiSp> loaisamphamcount = new List<LoaiSp>();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private List<IBrowserFile> loadedFiles = new();
+    public List<LoaiDto> newLoai = new List<LoaiDto>();
+    private int maxFileUpload = 1; //multipleFile
+    string filePath = "";
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        ///
+    }
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(maxFileUpload))
+        {
+            try
+            {
+                loadedFiles.Add(file);
+                var filename = file.Name;
+                var size = file.Size;
+                var path = Path.Combine(Environment.WebRootPath, "fileExcel", filename);
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.OpenReadStream(size).CopyToAsync(fs);
+                ////Add Table Temp
+                List<LoaiDto> table = new List<LoaiDto>();
+                FileInfo fileInfo = new FileInfo(path);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
+                {
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
+                    int totalCollumn = worksheet.Dimension.End.Column;
+                    int totalRow = worksheet.Dimension.End.Row;
+
+                    for (int row = 1; row <= totalRow; row++)
+                    {
+                        LoaiDto emp = new LoaiDto();
+                        for (int col = 1; col <= totalCollumn; col++)
+                        {
+
+                            if (col == 1) emp.MaLoai = worksheet.Cells[row, col].Value.ToString();
+                            if (col == 2) emp.Tenloai = worksheet.Cells[row, col].Value.ToString();
+
+                        }
+                        table.Add(emp);
+                    }
+                }
+                ////Add Table Database
+                foreach (var item in table)
+                {
+                    loaisanpham.MaLoai = item.MaLoai;
+                    loaisanpham.Tenloai = item.Tenloai;
+                    await loaiSpService.CreateLoai(loaisanpham);
+                }
+                toastService.ShowSuccess("Thêm thành công", "Thành công !");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+
+     private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}
+   
+

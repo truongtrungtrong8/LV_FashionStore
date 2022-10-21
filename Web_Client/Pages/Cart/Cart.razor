@@ -6,7 +6,7 @@
 @using Web_Client.Pages.Taikhoan
 @using Web_Client.Services
 @inject ICartService CartService
-@inject ISanphamService sanpham
+@inject ISanphamService sanphamService
 @layout LayoutCart
 @inject IJSRuntime JS
 @inject IJSRuntime JSRuntime
@@ -44,7 +44,7 @@
                             <tbody class="align-middle">
                                 <tr>
                                     <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
-                                    <td class="align-middle">@sanpham.FormatVND(item.GiaSp) VND</td>
+                                    <td class="align-middle">@sanphamService.FormatVND(item.GiaSp) VND</td>
                                     <td class="align-middle">
                                         <div class="input-group quantity mx-auto" style="width: 100px;">
                                             @*<div class="input-group-btn">
@@ -64,7 +64,7 @@
                                             </div>*@
                                         </div>
                                     </td>
-                                    <td class="align-middle">@sanpham.FormatVND((item.GiaSp * item.Sl)) VND</td>
+                                    <td class="align-middle">@sanphamService.FormatVND((item.GiaSp * item.Sl)) VND</td>
                                     <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick="@(() => DeleteItem(item))"><i class="fa fa-times"></i></button></td>
                                 </tr>
 
@@ -80,7 +80,7 @@
                         <div class="border-bottom pb-2">
                             <div class="d-flex justify-content-between mb-3">
                                 <h6>Chưa VAT</h6>
-                                <h6>@sanpham.FormatVND(@cartItems.Sum(item =>(item.GiaSp * item.Sl))) VND</h6>
+                                <h6>@sanphamService.FormatVND(@cartItems.Sum(item =>(item.GiaSp * item.Sl))) VND</h6>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <h6 class="font-weight-medium">Phí VAT</h6>
@@ -90,7 +90,7 @@
                         <div class="pt-2">
                             <div class="d-flex justify-content-between mt-2">
                                 <h5>Tổng tiền</h5>
-                                <h5>(@cartItems.Count): @sanpham.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)+(item.GiaSp * item.Sl)*0.02).ToString())) VND</h5>
+                                <h5>(@cartItems.Count): @sanphamService.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)+(item.GiaSp * item.Sl)*0.02).ToString())) VND</h5>
                             </div>
 
                            @* <button class="btn btn-block btn-primary font-weight-bold my-3 py-3" @onclick="@(() => Payment())">Thanh toán trước</button>
@@ -100,7 +100,7 @@
                             <i class="fa fa-angle-down text-dark"></i>
                             </a>
                             <div class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="pay" style="width: calc(100% - 92px); z-index: 999; ">
-                                <button type="button" style="display: @display" class="nav-item nav-link" @onclick="@(() =>Submit(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán trước</button>
+                                <button type="button" style="display: @display" class="nav-item nav-link" @onclick="@(() =>Pay(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán trước</button>
                                 <button type="button" style="display: @display1" class="nav-item nav-link" @onclick="@(() =>SendMail(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán khi nhận hàng</button>
                                 <button type="button" style="display: @display2" class="nav-item nav-link" @onclick="@(() =>Ivoice(ModalSize.ExtraLarge,ModalPosition.TopCenter))">Xem hóa đơn</button>
                             </div>
@@ -141,6 +141,10 @@
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
 
+    TonkhoDto tonkho = new TonkhoDto();
+    Sanpham_Model sanpham = new Sanpham_Model();
+    TonkhoService tonkhoService = new TonkhoService();
+
     [CascadingParameter] public IModalService Modal { get; set; }
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
@@ -158,12 +162,15 @@
     {
         try 
         {
+            listDonDat = await donDatService.GetCountDonDat();
+            CountDonDat = listDonDat.Count;
+            MaDonDat = CountDonDat + 1;
             var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
-            if(checkdisplay != null)
-                {
-                    display = checkdisplay;
-                    display1 = checkdisplay;
-                }
+            if (checkdisplay == "block;")
+            {
+                display = checkdisplay;
+                display1 = checkdisplay;
+            }
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             cartItems = await CartService.GetCartItems(makhachhang);
             var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
@@ -197,7 +204,7 @@
         display = "none;";
         display1 = "none;";
         display2 = "none;";
-        var options = new ModalOptions { Size = size, Position = position };
+        var options = new ModalOptions { Size = size, Position = position, HideCloseButton = true,DisableBackgroundCancel = true  };
         if (size == ModalSize.Custom)
             options.SizeCustomClass = "my-custom-size";
         if (position == ModalPosition.Custom)
@@ -224,14 +231,39 @@
             ctDonDatDto.Sl = item.Sl;
             ctDonDatDto.Dg = item.Sl * item.GiaSp;
             await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+            ///Tonkho
+
+            try
+            {
+                sanpham = await sanphamService.GetProduct(item.MaSp);
+                tonkho = await tonkhoService.GetTonkho(item.MaSp);
+                if (tonkho != null)
+                {
+                    var result = await tonkhoService.GetTonkho(item.MaSp);
+                    tonkho.MaSp = result.MaSp;
+                    tonkho.MaCh = result.MaCh;
+                    tonkho.Sl = result.Sl - item.Sl;
+                    tonkho.Dg = (result.Sl - item.Sl) * item.GiaSp;
+                    await tonkhoService.EditTonkho(item.MaSp,result.MaCh, tonkho);
+                }
+            }
+            catch(Exception ex)
+            {
+                tonkho.MaSp = item.MaSp;
+                tonkho.MaCh = "CH01";
+                tonkho.Sl = sanpham.Sl - item.Sl;
+                tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+                await tonkhoService.CreateTonkho(tonkho);
+            }
+            
         }
 
     }
-    public async void Submit(ModalSize size, ModalPosition position)
+    public async void Pay(ModalSize size, ModalPosition position)
     {
         display = "none;";
         display1 = "none;";
-        var options = new ModalOptions { Size = size, Position = position };
+        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
         if (size == ModalSize.Custom)
             options.SizeCustomClass = "my-custom-size";
         if (position == ModalPosition.Custom)
@@ -243,12 +275,16 @@
     {
         display = "none;";
         display1 = "none;";
-        var options = new ModalOptions { Size = size, Position = position };
+        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
         if (size == ModalSize.Custom)
             options.SizeCustomClass = "my-custom-size";
         if (position == ModalPosition.Custom)
             options.PositionCustomClass = "my-custom-position";
         Modal.Show<CheckMail>("Kiểm tra và chỉnh sửa thông tin", options);
         
+    }
+    public async void CheckTonkho()
+    {
+
     }
 }

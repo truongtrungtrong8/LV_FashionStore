@@ -1,5 +1,5 @@
 ﻿@using Blazored.Toast.Configuration
-
+@inject IJSRuntime JS
 
 @inherits LayoutComponentBase
 
@@ -140,6 +140,14 @@
 
 
  @code{
-    
-    
+    private IJSObjectReference module;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MainLayout.razor.js");
+            
+        }
+
+    }
 }

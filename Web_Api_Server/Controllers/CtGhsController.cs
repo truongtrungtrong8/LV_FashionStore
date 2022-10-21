@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
+using Model.Dto;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -48,36 +49,55 @@ namespace Web_Api_Server.Controllers
 
             return await cartuser.ToListAsync();
         }
+        [HttpGet("GetCTGiohang")]
+        public async Task<ActionResult<CtGioHangDto>> GetCtGiohang(string id, string id1)
+        {
+
+            var giohang = (from g in _context.CtGhs
+                           where g.MaSp == id && g.MaGh == id1
+                           select new CtGioHangDto()
+                           {
+                               MaGh = g.MaGh,
+                               MaSp = g.MaSp,
+                               Sl = g.Sl
+                           }).SingleOrDefault();
+            return giohang;
+        }
+
+        [HttpGet("GetCTGiohangSanpham")]
+        public async Task<ActionResult<CtGioHangDto>> GetCtGiohangSanpham(string id)
+        {
+
+            var giohang = (from g in _context.CtGhs
+                           where g.MaSp == id
+                           select new CtGioHangDto()
+                           {
+                               MaGh = g.MaGh,
+                               MaSp = g.MaSp,
+                               Sl = g.Sl
+                           }).SingleOrDefault();
+            return giohang;
+        }
 
         // PUT: api/CtGhs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCtGh(string id, CtGh ctGh)
+        public async Task<IActionResult> PutCtGh(string id,string id1, [FromBody] CTGioHangDto ctGh)
         {
-            if (id != ctGh.MaSp)
+
+            if (id != ctGh.MaSp && id1 != ctGh.MaGh )
             {
                 return BadRequest();
             }
-
-            _context.Entry(ctGh).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CtGhExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var temp = await _context.CtGhs.FindAsync(id, id1);
+            if (temp == null)
+                return NotFound(id);
+            temp.MaGh = ctGh.MaGh;
+            temp.MaSp = ctGh.MaSp;
+            temp.Sl = ctGh.Sl;
+            _context.CtGhs.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/CtGhs
