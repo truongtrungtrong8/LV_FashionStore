@@ -15,6 +15,7 @@
 
     <!-- Products Start -->
     <div class="container-fluid pt-5 pb-3">
+
         <SearchForm OnSearchChanged="SearchChanged" />
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Sản phẩm</span></h2>
         <div class="row px-xl-5">
@@ -65,6 +66,20 @@
 
     SanphamService sanphamservice = new SanphamService();
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                await GetProducts();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         try

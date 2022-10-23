@@ -301,6 +301,7 @@ hr {
     public List<Khachhang> khachhangs = new List<Khachhang>();
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
 
 
     protected override async Task OnInitializedAsync()
@@ -311,7 +312,8 @@ hr {
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
             var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            cartItems = await CartService.GetCartItems(makhachhang);
+            string temp = "GH" + makhachhang;
+            cartItems = await cTGioHangService.GetCartAllInUser(temp);
             khachhang = await khachHangService.GetKhachHang(ma_khLogin);
         }
         catch (Exception ex)

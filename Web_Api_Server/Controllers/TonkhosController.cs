@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model.DataDB;
 using Model.Dto;
+using Models.Page;
+using Newtonsoft.Json;
 
 namespace Web_Api_Server.Controllers
 {
@@ -28,7 +30,25 @@ namespace Web_Api_Server.Controllers
                           });
             return await tonkho.ToListAsync();
         }
-
+        [HttpGet("getThongke")]
+        public async Task<ActionResult<IEnumerable<ThongKeDto>>> GetThongke()
+        {
+            var tonkho = (from t in _context.Tonkhos
+                          join c in _context.Cuahangs on t.MaCh equals c.MaCh
+                          join s in _context.Sanphams on t.MaSp equals s.MaSp
+                          join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                          select new ThongKeDto()
+                          {
+                              MaSp = t.MaSp,
+                              MaCh = t.MaCh,
+                              Sl = t.Sl,
+                              Dg = t.Dg,
+                              TenCh = c.TenCh,
+                              TenSp = s.TenSp,
+                              HaBia = h.HaBia
+                          });
+            return await tonkho.ToListAsync();
+        }
         // GET: api/Tonkhos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TonkhoDto>> GetTonkho(string id)
@@ -45,7 +65,28 @@ namespace Web_Api_Server.Controllers
             return tonkho;
         }
 
-       
+
+        [HttpGet("pageTonkho")]
+        public async Task<ActionResult<IEnumerable<TonkhoDtoList>>> GetTonkhoPage([FromQuery] PagingParameters paging)
+        {
+            var tonkho = (from t in _context.Tonkhos
+                          join c in _context.Cuahangs on t.MaCh equals c.MaCh
+                          join s in _context.Sanphams on t.MaSp equals s.MaSp
+
+                          select new TonkhoDtoList()
+                          {
+                              MaSp = t.MaSp,
+                              MaCh = t.MaCh,
+                              Sl = t.Sl,
+                              Dg = t.Dg,
+                              TenCh = c.TenCh,
+                              TenSp = s.TenSp
+                          }).AsQueryable();
+            var result = PagedList<TonkhoDtoList>.ToPagedList(tonkho, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTonkho(string id,string id2 ,[FromBody] TonkhoDto tonkho)
         {

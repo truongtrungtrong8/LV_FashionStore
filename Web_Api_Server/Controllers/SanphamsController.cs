@@ -49,7 +49,7 @@ namespace Web_Api_Server.Controllers
                                GiaSp = s.GiaSp,
                                TenSp = s.TenSp,
                                TenHsx = hsx.TenHsx,
-                              
+                               Sl = s.Sl
                            });
             return await sanpham.ToListAsync();
         }

@@ -1,0 +1,141 @@
+﻿@page "/Tonkho/Index"
+@using Blazored.Modal.Services
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Models.Page
+@using Web_Admin_Client.Pages.Modal
+@inject IJSRuntime JS
+@layout MainLayout
+@using System.Globalization
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager;
+
+
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <h3 class="page-title"> Quản lý tồn kho</h3>
+            @*<SearchForm OnSearchChanged="SearchChanged" />*@
+            @*<button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => Create(ModalSize.Custom,ModalPosition.Custom)">Thêm mới loại sản phẩm !</button>
+            <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => ImportExcel(ModalSize.Custom,ModalPosition.Custom)">Import File Excel</button>*@
+        </div>
+        <div class="row">
+
+            <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title"></h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Chỉnh sửa</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Tên cửa hàng</th>
+                                    <th>Số lượng tồn kho</th>
+                                    <th>Đơn giá</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in tonkho)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                            </a>
+                                            <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+                                                <a class="dropdown-item" >
+                                                    <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Chỉnh sửa
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" >
+                                                    <i class="mdi mdi-playlist-remove me-2 text-danger"></i> Xóa
+                                                </a>
+                                            </div>
+                                        </td>
+
+                                        <td> @item.TenSp</td>
+                                        <td> @item.TenCh </td>
+                                        <td> @item.Sl </td>
+                                        <td>@tonkhoService.FormatVND(item.Dg)</td>
+
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    public List<TonkhoDtoList> tonkho = new List<TonkhoDtoList>();
+    public TonkhoService tonkhoService = new TonkhoService();
+    TonkhoDto tonkhoDto = new TonkhoDto();
+
+    public List<Sanpham_Model> sanphamList = new List<Sanpham_Model>();
+    public Sanpham_Model sanpham = new Sanpham_Model();
+    SanphamService sanphamService = new SanphamService();
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters paging = new PagingParameters();
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            sanphamList = await sanphamService.GetAllProducts();
+            await AddTonkho();
+        }
+        catch(Exception ex)
+        {
+
+        }
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        paging.PageNumber = page;
+        await GetTonkho();
+    }
+    private async Task GetTonkho()
+    {
+        var pagingResponse = await tonkhoService.GetListPageTonkho(paging);
+        tonkho = pagingResponse.Items;
+        MetaData = pagingResponse.MetaData;
+    }
+    private async Task AddTonkho()
+    {
+        foreach(var item in sanphamList)
+        {
+            try
+            {
+                tonkhoDto = await tonkhoService.GetTonkho(item.MaSp);
+                if(tonkhoDto != null)
+                {
+                    await GetTonkho();
+                }
+            }
+            catch(Exception ex)
+            {
+                tonkhoDto.MaSp = item.MaSp;
+                tonkhoDto.MaCh = "CH01";
+                tonkhoDto.Sl = item.Sl;
+                tonkhoDto.Dg = item.Sl * item.GiaSp;
+                await tonkhoService.CreateTonkho(tonkhoDto);
+                await GetTonkho();
+            }
+        }
+    }
+}

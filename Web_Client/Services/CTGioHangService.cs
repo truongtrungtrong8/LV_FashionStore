@@ -14,7 +14,11 @@ namespace Web_Client.Services
         {
             return await Http.GetFromJsonAsync<List<CtGh>>(baseUrl);
         }
-
+        ///GetCart
+        public async Task<List<CartItems>> GetCartAllInUser(string id)
+        {
+            return await Http.GetFromJsonAsync<List<CartItems>>(baseUrl + "/" + id);
+        }
         public async Task<bool> Create(CTGioHangDto request)
         {
             var result = await Http.PostAsJsonAsync(baseUrl, request);
@@ -40,5 +44,11 @@ namespace Web_Client.Services
             return await Http.GetFromJsonAsync<CTGioHangDto>(baseUrl + "/GetCTGiohang?id=" + id + "&id1=" + id1);
 
         }
-}
+        //https://localhost:7118/api/CtGhs/SP01?id1=GH0866822122
+        public async Task<bool> DeleteCart(string id,string id1)
+        {
+            var result = await Http.DeleteAsync(baseUrl + "/" + id + "?id1=" + id1);
+            return result.IsSuccessStatusCode;
+        }
+    }
 }

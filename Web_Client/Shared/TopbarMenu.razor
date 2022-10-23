@@ -69,7 +69,7 @@
         <div class="col-lg-4 col-6 text-left">
             <form action="">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
+                    <input type="text" class="form-control" placeholder="Search for products">
                     <div class="input-group-append">
                         <span class="input-group-text bg-transparent text-primary">
                             <i class="fa fa-search"></i>
@@ -126,10 +126,10 @@
             options.PositionCustomClass = "my-custom-position-login";
         Modal.Show<Register>("", options);
     }
-    public void Logout() 
+    public async void Logout() 
     {
-        sessionStorage.ClearAsync();
-        localstorage.ClearAsync();
+        await sessionStorage.ClearAsync();
+        await localstorage.ClearAsync();
         toastService.ShowWarning("Đăng xuất thành công !", "Hẹn gặp lại bạn !");
         NavigationManager.NavigateTo("/",forceLoad: true);
         StateHasChanged();

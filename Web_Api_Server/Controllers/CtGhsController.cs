@@ -35,10 +35,10 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Giohangs on s.MaGh equals h.MaGh
                            join x in _context.Sanphams on s.MaSp equals x.MaSp
                            join l in _context.Hinhanhs on x.MaSp equals l.MaSp
-                           where h.MaKh == id
+                           where s.MaGh == id
                            select new CartItems()
                            {
-                               MaSp = l.MaSp,
+                               MaSp = s.MaSp,
                                MaGh = s.MaGh,
                                MaKh = h.MaKh,
                                TenSp = x.TenSp,

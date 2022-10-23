@@ -19,7 +19,7 @@
 
 @if (!orderPlaced)
 {
-    @if (cartItems == null || cartItems.Count <= 0)
+    @if (cartItems == null || cartItems.Count == 0)
     {
         <h>Bạn chưa có sản phẩm nào trong giỏ hàng của bạn !</h>
     }
@@ -65,7 +65,7 @@
                                         </div>
                                     </td>
                                     <td class="align-middle">@sanphamService.FormatVND((item.GiaSp * item.Sl)) VND</td>
-                                    <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick="@(() => DeleteItem(item))"><i class="fa fa-times"></i></button></td>
+                                    <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick ="@(() => DeleteItem(item.MaSp,item.MaGh))"><i class="fa fa-times"></i></button></td>
                                 </tr>
 
                             </tbody>
@@ -157,22 +157,31 @@
     bool flagIvoice = false;
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return base.OnAfterRenderAsync(firstRender);
+    }
     protected override async Task OnInitializedAsync()
 
     {
         try 
         {
+            //Create Dondat
             listDonDat = await donDatService.GetCountDonDat();
             CountDonDat = listDonDat.Count;
             MaDonDat = CountDonDat + 1;
+            ///Load Cart
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            string temp = "GH" + makhachhang;
+            cartItems = await cTGioHangService.GetCartAllInUser(temp);
+            //cartItems = await CartService.GetCartItems(makhachhang);
+
             var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
             if (checkdisplay == "block;")
             {
                 display = checkdisplay;
                 display1 = checkdisplay;
             }
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            cartItems = await CartService.GetCartItems(makhachhang);
             var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
             if (getvnpcheck == "00")
             {
@@ -188,11 +197,10 @@
 
     }
 
-    private async Task DeleteItem(CartItems items)
+    private async Task DeleteItem(string id, string id1)
     {
-        await CartService.DeleteItem(items);
-        var ma_khachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        cartItems = await CartService.GetCartItems(ma_khachhang);
+        await cTGioHangService.DeleteCart(id, id1);
+        cartItems = await cTGioHangService.GetCartAllInUser(id1);
     }
 
     private async Task PlaceOrder()
@@ -232,7 +240,6 @@
             ctDonDatDto.Dg = item.Sl * item.GiaSp;
             await CtDonDatService.CreateCtdonDat(ctDonDatDto);
             ///Tonkho
-
             try
             {
                 sanpham = await sanphamService.GetProduct(item.MaSp);
@@ -241,7 +248,7 @@
                 {
                     var result = await tonkhoService.GetTonkho(item.MaSp);
                     tonkho.MaSp = result.MaSp;
-                    tonkho.MaCh = result.MaCh;
+                    tonkho.MaCh = result.MaCh; 
                     tonkho.Sl = result.Sl - item.Sl;
                     tonkho.Dg = (result.Sl - item.Sl) * item.GiaSp;
                     await tonkhoService.EditTonkho(item.MaSp,result.MaCh, tonkho);
@@ -255,7 +262,7 @@
                 tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
                 await tonkhoService.CreateTonkho(tonkho);
             }
-            
+
         }
 
     }
@@ -269,7 +276,7 @@
         if (position == ModalPosition.Custom)
             options.PositionCustomClass = "my-custom-position";
         Modal.Show<CheckInforPay>("Kiểm tra và chỉnh sửa thông tin", options);
-       
+
     }
     public async void SendMail(ModalSize size, ModalPosition position)
     {
@@ -280,6 +287,7 @@
             options.SizeCustomClass = "my-custom-size";
         if (position == ModalPosition.Custom)
             options.PositionCustomClass = "my-custom-position";
+        await AddDonDat();
         Modal.Show<CheckMail>("Kiểm tra và chỉnh sửa thông tin", options);
         
     }

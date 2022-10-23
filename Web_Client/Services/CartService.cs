@@ -54,7 +54,7 @@ namespace Web_Client.Services
                 }
 
                 await _localStorage.SetItemAsync("cart", cart);
-                _toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                
                 OnChange.Invoke();
             }
             catch (Exception ex)

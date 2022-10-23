@@ -1,17 +1,22 @@
 ﻿@page "/LoaiSanpham/Index"
 @using Blazored.Modal.Services
+@using ClosedXML.Excel
 @using Model
 @using Model.DataDB
 @using Model.Dto
 @using Models.Page
+@using System.Data
+@using Syncfusion.XlsIO
 @using Web_Admin_Client.Pages.Modal
 @inject IJSRuntime JS
+@inject Microsoft.JSInterop.IJSRuntime JS1
 @layout MainLayout
 @using System.Globalization
 @using Web_Admin_Client.Pages.Sanpham
 @using Web_Admin_Client.Service
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager;
+
 
 @inject IWebHostEnvironment Environment
 
@@ -22,6 +27,7 @@
             @*<SearchForm OnSearchChanged="SearchChanged" />*@
             <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => Create(ModalSize.Custom,ModalPosition.Custom)">Thêm mới loại sản phẩm !</button>
             <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => ImportExcel(ModalSize.Custom,ModalPosition.Custom)">Import File Excel</button>
+            <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => CreateDocument()">Export File Excel</button>
         </div>
         <div class="row">
 
@@ -76,7 +82,10 @@
 </div>
 
 @code {
+    MemoryStream excelStream;
     List<LoaiDto> loaisanpham = new List<LoaiDto>();
+    List<LoaiDto> loaisanphamExcel = new List<LoaiDto>();
+    List<LoaiSp> loaisp = new List<LoaiSp>();
     LoaiSpService loaiSpService = new LoaiSpService();
     public MetaData MetaData { get; set; } = new MetaData();
     private PagingParameters paging = new PagingParameters();
@@ -86,7 +95,7 @@
     {
         try
         {
-
+            loaisanphamExcel = await loaiSpService.GetListLoaiSp();
             await GetLoaiSp();
 
         }
@@ -95,6 +104,11 @@
             Console.WriteLine(ex.ToString());
         }
 
+    }
+    protected async void CreateDocument()
+    {
+        excelStream = CreateExcel();
+        await JS1.SaveAs("Sample.xlsx", excelStream.ToArray());
     }
     public async void Edit(string id, ModalSize size, ModalPosition position)
     {
@@ -154,8 +168,39 @@
     }
 
 
-    //Excel----------------
 
+    public MemoryStream CreateExcel()
+    {
+        //Create an instance of ExcelEngine.
+        using (ExcelEngine excelEngine = new ExcelEngine())
+        {
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+            DataTable table = SampleDataTable();
+            worksheet.ImportDataTable(table, true, 1, 1);
+            worksheet.UsedRange.AutofitColumns();
+            using (MemoryStream stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                return stream;
+            }
+        }
+        return null; 
+    }
+    private DataTable SampleDataTable()
+    {
+        DataTable dt = new DataTable("Grid");
+        dt.Columns.AddRange(new DataColumn[2] { new DataColumn("Mã loại"),
+                                                new DataColumn("Tên loại")});
 
-
+        var temp = loaisanphamExcel.Take(100);
+        foreach (var loaisp in temp)
+        {
+            dt.Rows.Add(loaisp.MaLoai, loaisp.Tenloai);
+        }
+        return dt;
+    }
 }
+
