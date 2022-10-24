@@ -1,4 +1,4 @@
-﻿@page "/LoaiSanpham/ImportExcel"
+﻿@page "/Sanpham/ImportExcel"
 @using Blazored.Modal.Services
 @using Model
 @using Model.DataDB
@@ -14,11 +14,12 @@
 @inject NavigationManager NavigationManager
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
-<EditForm Model="loaisanpham">
+
+<EditForm Model="sanphamdto">
     <form class="forms-sample">
         <div class="form-group">
             <label for="exampleInputEmail1">Tải file...</label>
-            <InputFile OnChange="@LoadFiles" multiple/>
+            <InputFile OnChange="@LoadFiles" multiple />
         </div>
     </form>
     <button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%" @onclick="Close">Lưu</button>
@@ -26,19 +27,14 @@
 </EditForm>
 
 @code {
-    LoaiDto loaisanpham = new LoaiDto();
-    LoaiSpService loaiSpService = new LoaiSpService();
-    List<LoaiSp> loaisamphamcount = new List<LoaiSp>();
+    private SanphamEdit sanphamdto = new SanphamEdit();
+    SanphamService sanphamService = new SanphamService();
     [CascadingParameter] public IModalService Modal { get; set; }
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
     private List<IBrowserFile> loadedFiles = new();
-    public List<LoaiDto> newLoai = new List<LoaiDto>();
     private int maxFileUpload = 1; //multipleFile
     string filePath = "";
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-        ///
-    }
+
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
         foreach (var file in e.GetMultipleFiles(maxFileUpload))
@@ -52,7 +48,7 @@
                 await using FileStream fs = new(path, FileMode.Create);
                 await file.OpenReadStream(size).CopyToAsync(fs);
                 ////Add Table Temp
-                List<LoaiDto> table = new List<LoaiDto>();
+                List<SanphamEdit> table = new List<SanphamEdit>();
                 FileInfo fileInfo = new FileInfo(path);
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
@@ -63,12 +59,18 @@
 
                     for (int row = 2; row <= totalRow; row++)
                     {
-                        LoaiDto emp = new LoaiDto();
+                        SanphamEdit emp = new SanphamEdit();
                         for (int col = 1; col <= totalCollumn; col++)
                         {
 
-                            if (col == 1) emp.MaLoai = worksheet.Cells[row, col].Value.ToString();
-                            if (col == 2) emp.Tenloai = worksheet.Cells[row, col].Value.ToString();
+                            if (col == 1) emp.MaSp = worksheet.Cells[row, col].Value.ToString();
+                            if (col == 2) emp.MaHsx = worksheet.Cells[row, col].Value.ToString();
+                            if (col == 3) emp.MaLoai= worksheet.Cells[row, col].Value.ToString();
+                            if (col == 4) emp.TenSp= worksheet.Cells[row, col].Value.ToString();
+                            if (col == 5) emp.GiaSp = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            if (col == 6) emp.Baohanh = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            if (col == 7) emp.Sl = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            if (col == 8) emp.Mota = worksheet.Cells[row, col].Value.ToString();
 
                         }
                         table.Add(emp);
@@ -79,17 +81,31 @@
                 {
                     try
                     {
-                        var check = await loaiSpService.GetLoaiSp(item.MaLoai);
-                        if(check != null)
+                        var check = await sanphamService.GetProductByExcel(item.MaSp);
+                        if (check != null)
                         {
-
+                            sanphamdto.MaSp = item.MaSp;
+                            sanphamdto.MaHsx = item.MaHsx;
+                            sanphamdto.MaLoai = item.MaLoai;
+                            sanphamdto.TenSp = item.TenSp;
+                            sanphamdto.GiaSp = item.GiaSp;
+                            sanphamdto.Baohanh = item.Baohanh;
+                            sanphamdto.Mota = item.Mota;
+                            sanphamdto.Sl = item.Sl;
+                            await sanphamService.EditSanpham(item.MaSp, sanphamdto);
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        loaisanpham.MaLoai = item.MaLoai;
-                        loaisanpham.Tenloai = item.Tenloai;
-                        await loaiSpService.CreateLoai(loaisanpham);
+                        sanphamdto.MaSp = item.MaSp;
+                        sanphamdto.MaHsx = item.MaHsx;
+                        sanphamdto.MaLoai = item.MaLoai;
+                        sanphamdto.TenSp = item.TenSp;
+                        sanphamdto.GiaSp = item.GiaSp;
+                        sanphamdto.Baohanh = item.Baohanh;
+                        sanphamdto.Mota = item.Mota;
+                        sanphamdto.Sl = item.Sl;
+                        await sanphamService.CreateSanpham(sanphamdto);
                     }
                 }
                 toastService.ShowSuccess("Thêm thành công", "Thành công !");
@@ -101,10 +117,8 @@
         }
     }
 
-     private async void Close()
+    private async void Close()
     {
         await this.ModalInstance.CancelAsync();
     }
 }
-   
-

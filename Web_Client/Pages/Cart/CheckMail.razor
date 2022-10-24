@@ -62,7 +62,6 @@
 
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
-
     int temp;
     private string Message { get; set; } = "";
 
@@ -75,12 +74,27 @@
             var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             cartItems = await CartService.GetCartItems(makhachhang);
-            var result = await khachHangService.GetKhachHang(makhachhang);
-            newkhachang.MaKh = result.MaKh;
-            newkhachang.TenKh = result.TenKh;
-            newkhachang.TenTk = result.TenTk;
-            newkhachang.SdtKh = result.SdtKh;
-            newkhachang.DiachiKh = result.DiachiKh;
+            
+            if(makhachhang != null)
+            {
+                var result = await khachHangService.GetKhachHang(makhachhang);
+                newkhachang.MaKh = result.MaKh;
+                newkhachang.TenKh = result.TenKh;
+                newkhachang.TenTk = result.TenTk;
+                newkhachang.SdtKh = result.SdtKh;
+                newkhachang.DiachiKh = result.DiachiKh;
+            }
+            else
+            {
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                var result = await khachHangService.GetKhachHang(ma_khCreate);
+                newkhachang.MaKh = result.MaKh;
+                newkhachang.TenKh = result.TenKh;
+                newkhachang.TenTk = result.TenTk;
+                newkhachang.SdtKh = result.SdtKh;
+                newkhachang.DiachiKh = result.DiachiKh;
+            }
+           
         }
         catch (Exception ex)
         {
@@ -95,57 +109,66 @@
     private async void Submit()
     {
         var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        await khachHangService.EditKhachhang(makhachhang, newkhachang);
-        await this.ModalInstance.CancelAsync();
-        SendMail();
+        if (makhachhang != null)
+        {
+            await khachHangService.EditKhachhang(makhachhang, newkhachang);
+            await this.ModalInstance.CancelAsync();
+            SendMail();
+        }
+        else
+        {
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            await khachHangService.EditKhachhang(ma_khCreate, newkhachang);
+            await this.ModalInstance.CancelAsync();
+            SendMail();
+        }
         
     }
     private async void SendMail()
     {
-        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
-        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if (name_khLogin != null)
-        {
-            //var result = await gioHangService.GetDetail(ma_khLogin);
+            var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
             khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-            try
+            if(name_khLogin != null)
             {
-                using (MailMessage mail = new MailMessage())
+                try
                 {
-                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
-                    mail.To.Add("truongtrungtrong@gmail.com");
-                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                    mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                    mail.Body += "<p>Thời gian: " + DateTime.Now;
-                    mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
-                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
-                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
-                    mail.IsBodyHtml = true;
-                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    using (MailMessage mail = new MailMessage())
                     {
-                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
-                        smtp.EnableSsl = true;
-                        smtp.Send(mail);
-                        Message = "Mail Sent";
+                        mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                        mail.To.Add("truongtrungtrong@gmail.com");
+                        mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
+                        mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
+                        mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
+                        mail.Body += "<p>Thời gian: " + DateTime.Now;
+                        mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
+                        mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
+                        mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                        mail.IsBodyHtml = true;
+                        using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                        {
+                            smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
+                            smtp.EnableSsl = true;
+                            smtp.Send(mail);
+                            Message = "Mail Sent";
 
+                        }
                     }
-                }
 
-                NavigationManager.NavigateTo("/");
-                toastService.ShowSuccess("Mời bạn kiểm tra email truongtrungtrong@gmail.com ", "Thành công !");
+                    NavigationManager.NavigateTo("/");
+                    toastService.ShowSuccess("Mời bạn kiểm tra email truongtrungtrong@gmail.com ", "Thành công !");
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                    Message = ex.Message;
+                }
             }
-            catch (Exception ex)
-            {
-                throw;
-                Message = ex.Message;
-            }
-        }
+
         else
         {
-            //var result = await gioHangService.GetDetail(ma_khCreate);
+            var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
             khachhang = await khachHangService.GetKhachHang(ma_khCreate);
             try
             {
@@ -178,6 +201,5 @@
                 Message = ex.Message;
             }
         }
-
     }
 }

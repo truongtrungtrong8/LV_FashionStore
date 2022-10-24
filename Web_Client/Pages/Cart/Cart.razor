@@ -7,7 +7,7 @@
 @using Web_Client.Services
 @inject ICartService CartService
 @inject ISanphamService sanphamService
-@layout LayoutCart
+@layout MainLayout
 @inject IJSRuntime JS
 @inject IJSRuntime JSRuntime
 @using System.Net.Mail
@@ -171,9 +171,21 @@
             CountDonDat = listDonDat.Count;
             MaDonDat = CountDonDat + 1;
             ///Load Cart
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            string temp = "GH" + makhachhang;
-            cartItems = await cTGioHangService.GetCartAllInUser(temp);
+           
+                var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+                if(makhachhang != null)
+                {
+                    string temp = "GH" + makhachhang;
+                    cartItems = await cTGioHangService.GetCartAllInUser(temp);
+                }
+                
+            else
+            {
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                string tempCreate = "GH" + ma_khCreate;
+                cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
+            }
+            
             //cartItems = await CartService.GetCartItems(makhachhang);
 
             var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
@@ -225,45 +237,87 @@
         var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
         var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
         var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-
-        khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-
-        dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
-        dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
-        dondatDto.Diachi = khachhang.DiachiKh;
-        await donDatService.CreateDonDat(dondatDto);
-        foreach (var item in cartItems)
+        if(ma_khLogin != null)
         {
-            ctDonDatDto.MaDdh = dondatDto.MaDdh;
-            ctDonDatDto.MaSp = item.MaSp;
-            ctDonDatDto.Sl = item.Sl;
-            ctDonDatDto.Dg = item.Sl * item.GiaSp;
-            await CtDonDatService.CreateCtdonDat(ctDonDatDto);
-            ///Tonkho
-            try
+            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+            dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+            dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
+            dondatDto.Diachi = khachhang.DiachiKh;
+            await donDatService.CreateDonDat(dondatDto);
+            foreach (var item in cartItems)
             {
-                sanpham = await sanphamService.GetProduct(item.MaSp);
-                tonkho = await tonkhoService.GetTonkho(item.MaSp);
-                if (tonkho != null)
+                ctDonDatDto.MaDdh = dondatDto.MaDdh;
+                ctDonDatDto.MaSp = item.MaSp;
+                ctDonDatDto.Sl = item.Sl;
+                ctDonDatDto.Dg = item.Sl * item.GiaSp;
+                await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+                ///Tonkho
+                try
                 {
-                    var result = await tonkhoService.GetTonkho(item.MaSp);
-                    tonkho.MaSp = result.MaSp;
-                    tonkho.MaCh = result.MaCh; 
-                    tonkho.Sl = result.Sl - item.Sl;
-                    tonkho.Dg = (result.Sl - item.Sl) * item.GiaSp;
-                    await tonkhoService.EditTonkho(item.MaSp,result.MaCh, tonkho);
+                    sanpham = await sanphamService.GetProduct(item.MaSp);
+                    tonkho = await tonkhoService.GetTonkho(item.MaSp);
+                    if (tonkho != null)
+                    {
+                        var result = await tonkhoService.GetTonkho(item.MaSp);
+                        tonkho.MaSp = result.MaSp;
+                        tonkho.MaCh = result.MaCh;
+                        tonkho.Sl = result.Sl - item.Sl;
+                        tonkho.Dg = (result.Sl - item.Sl) * item.GiaSp;
+                        await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+                    }
                 }
-            }
-            catch(Exception ex)
-            {
-                tonkho.MaSp = item.MaSp;
-                tonkho.MaCh = "CH01";
-                tonkho.Sl = sanpham.Sl - item.Sl;
-                tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
-                await tonkhoService.CreateTonkho(tonkho);
-            }
+                catch (Exception ex)
+                {
+                    tonkho.MaSp = item.MaSp;
+                    tonkho.MaCh = "CH01";
+                    tonkho.Sl = sanpham.Sl - item.Sl;
+                    tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+                    await tonkhoService.CreateTonkho(tonkho);
+                }
 
+            }
         }
+        else
+        {
+            khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+            dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+            dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
+            dondatDto.Diachi = khachhang.DiachiKh;
+            await donDatService.CreateDonDat(dondatDto);
+            foreach (var item in cartItems)
+            {
+                ctDonDatDto.MaDdh = dondatDto.MaDdh;
+                ctDonDatDto.MaSp = item.MaSp;
+                ctDonDatDto.Sl = item.Sl;
+                ctDonDatDto.Dg = item.Sl * item.GiaSp;
+                await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+                ///Tonkho
+                try
+                {
+                    sanpham = await sanphamService.GetProduct(item.MaSp);
+                    tonkho = await tonkhoService.GetTonkho(item.MaSp);
+                    if (tonkho != null)
+                    {
+                        var result = await tonkhoService.GetTonkho(item.MaSp);
+                        tonkho.MaSp = result.MaSp;
+                        tonkho.MaCh = result.MaCh;
+                        tonkho.Sl = result.Sl - item.Sl;
+                        tonkho.Dg = (result.Sl - item.Sl) * item.GiaSp;
+                        await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tonkho.MaSp = item.MaSp;
+                    tonkho.MaCh = "CH01";
+                    tonkho.Sl = sanpham.Sl - item.Sl;
+                    tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+                    await tonkhoService.CreateTonkho(tonkho);
+                }
+
+            }
+        }
+        
 
     }
     public async void Pay(ModalSize size, ModalPosition position)

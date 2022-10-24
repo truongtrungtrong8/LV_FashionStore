@@ -52,8 +52,8 @@
                     <i class="fas fa-heart text-dark"></i>
                     <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom: 2px;">0</span>
                 </a>
-                <button type="button" class="btn px-0 ml-2">
-                    <i class="fas fa-shopping-cart text-dark" @onclick="CartShow"></i>
+                <button type="button" class="btn px-0 ml-2" @onclick="() => CartShow(ModalSize.Custom,ModalPosition.TopCenter)">
+                    <i class="fas fa-shopping-cart text-dark" ></i>
                     <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom: 2px;">0</span>
                 </button>
             </div>
@@ -145,7 +145,7 @@
             options.PositionCustomClass = "my-custom-position-login";
         Modal.Show<Login>("", options);
     }
-    public async void CartShow()
+    public async void CartShow(ModalSize size, ModalPosition position)
     {
         name = await sessionStorage.GetItemAsync<string>("ten_kh");
         name1 = await sessionStorage.GetItemAsync<string>("ten_kh1");
@@ -153,7 +153,12 @@
         if(name == null || name1 == null)
         {
             toastService.ShowWarning("Bạn không có giỏ hàng cá nhân !", "Mời bạn đăng nhập");
-            Modal.Show<Login>("Đăng nhập");
+            var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
+            if (size == ModalSize.Custom)
+                options.SizeCustomClass = "my-custom-size-login";
+            if (position == ModalPosition.Custom)
+                options.PositionCustomClass = "my-custom-position-login";
+            Modal.Show<Login>("Đăng nhập",options);
         }
         else 
         {

@@ -45,6 +45,21 @@ namespace Web_Api_Server.Controllers
                          });
             return await image.ToListAsync();
         }
+        [HttpGet("getImage")]
+        public async Task<ActionResult<Images_Model>> GetHinhanhInProduct(string id)
+        {
+            var image = (from h in _context.Hinhanhs
+                         where h.MaSp == id
+                         select new Images_Model()
+                         {
+                             MaHa = h.MaHa,
+                             MaSp = h.MaSp,
+                             HaBia = h.HaBia,
+                             Ha1 = h.Ha1,
+                             Ha2 = h.Ha2
+                         }).SingleOrDefault();
+            return image;
+        }
 
         // GET: api/Hinhanhs/5
         [HttpGet("{id}")]

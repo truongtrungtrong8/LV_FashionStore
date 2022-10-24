@@ -22,10 +22,15 @@ namespace Web_Admin_Client.Service
             return await Http.GetFromJsonAsync<List<Images_Model>>(urldefault);
         }
 
+
         public async Task<bool> AddImage(ImageDto request)
         {
             var result = await Http.PostAsJsonAsync(urldefault, request);
             return result.IsSuccessStatusCode;
+        }
+        public async Task<Images_Model> GetProductByImage(string id)
+        {
+            return await Http.GetFromJsonAsync<Images_Model>(urldefault + "/getImage?id=" + id);
         }
 
         public async Task<PagingResponse<Images_Model>> GetListPageImage(PagingParameters paging)

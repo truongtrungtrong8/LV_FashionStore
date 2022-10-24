@@ -69,9 +69,10 @@
     private int MaDonDat { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        try 
+
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (makhachhang != null)
         {
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             cartItems = await CartService.GetCartItems(makhachhang);
             var result = await khachHangService.GetKhachHang(makhachhang);
             newkhachang.MaKh = result.MaKh;
@@ -79,21 +80,36 @@
             newkhachang.TenTk = result.TenTk;
             newkhachang.SdtKh = result.SdtKh;
             newkhachang.DiachiKh = result.DiachiKh;
-
         }
-        catch(Exception ex) 
+        else
         {
-
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            cartItems = await CartService.GetCartItems(ma_khCreate);
+            var result = await khachHangService.GetKhachHang(ma_khCreate);
+            newkhachang.MaKh = result.MaKh;
+            newkhachang.TenKh = result.TenKh;
+            newkhachang.TenTk = result.TenTk;
+            newkhachang.SdtKh = result.SdtKh;
+            newkhachang.DiachiKh = result.DiachiKh;
         }
     }
     private async void Submit()
     {
+       
         var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        await khachHangService.EditKhachhang(makhachhang, newkhachang);
-        await this.ModalInstance.CancelAsync();
-        Payment();
-        //NavigationManager.NavigateTo("/Sanpham/Index");
-
+        if (makhachhang != null)
+        {
+            await khachHangService.EditKhachhang(makhachhang, newkhachang);
+            await this.ModalInstance.CancelAsync();
+            Payment();
+        }
+        else
+        {
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            await khachHangService.EditKhachhang(ma_khCreate, newkhachang);
+            await this.ModalInstance.CancelAsync();
+            Payment();
+        }
     }
     private async void Close()
     {

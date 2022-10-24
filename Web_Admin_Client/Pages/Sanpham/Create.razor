@@ -46,7 +46,7 @@
             </InputSelect>
         </div>
     </form>
-    <button type="button" class="btn btn-gradient-primary" @onclick="Create_Sanpham" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary" @onclick="() => Create_Sanpham(ModalSize.Custom,ModalPosition.Custom)" style="margin-left:19%">Lưu</button>
     <button type="button" class="btn btn-gradient-primary" data-dismiss="modal" @onclick="Close" style="margin-left:19%">Hủy</button>
 </EditForm>
 
@@ -54,7 +54,6 @@
 @code {
     [CascadingParameter] public IModalService Modal { get; set; }
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
-
     private async void Close()
     {
         await this.ModalInstance.CancelAsync();
@@ -87,9 +86,8 @@
         hsx = await hsxService.GetListHsx();
     }
 
-    private async void Create_Sanpham()
+    private async void Create_Sanpham(ModalSize size, ModalPosition position)
     {
-
         sanphamdto.MaSp = ("SP" + Ma_Pro).ToString();
         sanphamdto.TenSp = tensanpham.Value;
         sanphamdto.GiaSp = giasanpham.Value;
@@ -97,8 +95,11 @@
         sanphamdto.MaLoai = loaisanpham.Value;
         sanphamdto.MaHsx = hangsx.Value;
         await sanphamService.CreateSanpham(sanphamdto);
-        NavigationManager.NavigateTo("/Sanpham/Index",forceLoad:true);
+        ModalInstance.CloseAsync();
+        var options = new ModalOptions { Size = size, Position = position };
+            options.SizeCustomClass = "my-custom-size-image";
+            options.PositionCustomClass = "my-custom-position-image";
+        Modal.Show<HinhAnh.Create>("Thêm hình ảnh mới ", options);
         toastService.ShowSuccess("Thêm sản phẩm thành công", "Thành công !");
-
     }
 }

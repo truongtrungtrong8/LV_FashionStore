@@ -42,6 +42,7 @@ namespace Web_Api_Server.Controllers
                            {
                                MaSp = s.MaSp,
                                MaLoai = s.MaLoai,
+                               MaHsx = s.MaHsx,
                                HaBia = h.HaBia,
                                Ha1 = h.Ha1,
                                Ha2 = h.Ha2,
@@ -49,7 +50,9 @@ namespace Web_Api_Server.Controllers
                                GiaSp = s.GiaSp,
                                TenSp = s.TenSp,
                                TenHsx = hsx.TenHsx,
-                               Sl = s.Sl
+                               Sl = s.Sl,
+                               Baohanh = s.Baohanh,
+                               Mota = s.Mota
                            });
             return await sanpham.ToListAsync();
         }
@@ -75,7 +78,9 @@ namespace Web_Api_Server.Controllers
                                Ha2 = h.Ha2,
                                GiaSp = s.GiaSp,
                                TenSp = s.TenSp,
-                               TenHsx = hsx.TenHsx
+                               TenHsx = hsx.TenHsx,
+                               Baohanh = s.Baohanh,
+                               Mota = s.Mota
                            }).Search(paging.SearchTerm).AsQueryable();
             var result = PagedList<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
@@ -133,7 +138,28 @@ namespace Web_Api_Server.Controllers
 
             return sanpham;
         }
+        [HttpGet("getExcel")]
+        public async Task<ActionResult<SanphamEdit>> GetSanphamExcel(string id)
+        {
+            var sanpham = (from s in _context.Sanphams
+                           join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                           join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
+                           join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           where s.MaSp == id
+                           select new SanphamEdit()
+                           {
+                               MaSp = s.MaSp,
+                               MaLoai = s.MaLoai,
+                               GiaSp = s.GiaSp,
+                               TenSp = s.TenSp,
+                               Mota = s.Mota,
+                               MaHsx = hsx.MaHsx,
+                               Baohanh = s.Baohanh,
+                               Sl = s.Sl
+                           }).SingleOrDefault();
 
+            return sanpham;
+        }
         // PUT: api/Sanphams/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

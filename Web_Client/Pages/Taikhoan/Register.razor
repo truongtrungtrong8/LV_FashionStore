@@ -83,6 +83,9 @@
     TaiKhoanService accountService = new TaiKhoanService();
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
+    ModalSize size;
+    ModalPosition position;
+
     protected override async Task OnInitializedAsync()
     {
         acc.Quyensd = "user";
@@ -154,7 +157,10 @@
                             toastService.ShowSuccess("Bạn vui lòng điền thông tin cá nhân khi đăng nhập !", "Chúc mừng!");
                             Thread.Sleep(500);
                             await this.ModalInstance.CancelAsync();
-                            Modal.Show<Login>("Đăng nhập");
+                            var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
+                                options.SizeCustomClass = "my-custom-size-login";
+                                options.PositionCustomClass = "my-custom-position-login";
+                            Modal.Show<Login>("Đăng nhập",options);
                         }
                     }
                     catch (Exception x)

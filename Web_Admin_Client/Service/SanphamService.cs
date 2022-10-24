@@ -25,6 +25,10 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<Sanpham_Model>(urldefault + "/" + id);
         }
+        public async Task<SanphamEdit> GetProductByExcel(string id)
+        {
+            return await Http.GetFromJsonAsync<SanphamEdit>(urldefault + "/getExcel?id=" + id);
+        }
         public async Task<List<Sanpham_Model>> GetAllProducts()
         {
             return await Http.GetFromJsonAsync<List<Sanpham_Model>>(urldefault);
