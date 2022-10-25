@@ -1,4 +1,4 @@
-﻿@page "/LoaiSanpham/Index"
+﻿@page "/KhuyenMai/Index"
 @using Blazored.Modal.Services
 @using ClosedXML.Excel
 @using Model
@@ -15,16 +15,14 @@
 @using Web_Admin_Client.Service
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager;
-
-
-@inject IWebHostEnvironment Environment
+@inject IToastService toastService
 
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="page-header">
-            <h3 class="page-title"> Quản lý loại sản phẩm</h3>
+            <h3 class="page-title"> Quản lý khuyến mãi</h3>
             @*<SearchForm OnSearchChanged="SearchChanged" />*@
-            <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false"> Thêm sản phẩm mới !</button>
+            <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false"> Thêm thông tin khuyến mãi !</button>
             <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
                 <a class="dropdown-item" @onclick="() => Create(ModalSize.Custom,ModalPosition.Custom)">
                     <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Nhập bằng Form
@@ -50,34 +48,33 @@
                                 <tr>
                                     <th>Chỉnh sửa</th>
                                     <th>#</th>
-                                    <th>Mã loại</th>
-                                    <th>Tên loại</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Phần trăm khuyến mãi</th>
+                                    <th>Thời gian khuyến mãi</th>
 
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in loaisanpham.Select((value, i) => new { i, value }))
+                                @foreach (var item in khuyenmaiList)
                                 {
                                     <tr>
                                         <td>
                                             <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                             </a>
                                             <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
-                                                <a class="dropdown-item" @onclick="() => Edit(item.value.MaLoai,ModalSize.Custom,ModalPosition.Custom)">
+                                                <a class="dropdown-item" @onclick="() => Edit(item.Id,ModalSize.Custom,ModalPosition.Custom)">
                                                     <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Chỉnh sửa
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" @onclick="() => Delete(item.value.MaLoai,ModalSize.Custom,ModalPosition.Custom)">
+                                                <a class="dropdown-item" @onclick="() => Delete(item.Id,ModalSize.Custom,ModalPosition.Custom)">
                                                     <i class="mdi mdi-playlist-remove me-2 text-danger"></i> Xóa
                                                 </a>
                                             </div>
                                         </td>
-
-                                        <td> @(item.i + 1)</td>
-                                        <td> @item.value.MaLoai </td>
-                                        <td> @item.value.Tenloai </td>
-
-
+                                        <td>@item.Id</td>
+                                        <td> @item.TenSp </td>
+                                        <td> @item.Tile </td>
+                                        <td> @item.Thoigian </td>
                                     </tr>
                                 }
                             </tbody>
@@ -93,10 +90,10 @@
 
 @code {
     MemoryStream excelStream;
-    List<LoaiDto> loaisanpham = new List<LoaiDto>();
-    List<LoaiDto> loaisanphamExcel = new List<LoaiDto>();
-    List<LoaiSp> loaisp = new List<LoaiSp>();
-    LoaiSpService loaiSpService = new LoaiSpService();
+
+    List<KhuyenMaiDtoList> khuyenmaiList = new List<KhuyenMaiDtoList>();
+    List<KhuyenMaiDtoList> khuyenmaiByExcel = new List<KhuyenMaiDtoList>();
+    KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
     public MetaData MetaData { get; set; } = new MetaData();
     private PagingParameters paging = new PagingParameters();
     [CascadingParameter] public IModalService Modal { get; set; } = default!;
@@ -105,27 +102,28 @@
     {
         try
         {
-            loaisanphamExcel = await loaiSpService.GetListLoaiSp();
-            await GetLoaiSp();
-
+            khuyenmaiByExcel = await khuyenMaiService.GetListKhuyenMai();
+            await GetListKhuyenMai();
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+
         }
-
     }
-    
-    public async void Edit(string id, ModalSize size, ModalPosition position)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await sessionStorage.SetItemAsync("loai_id", id);
-        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
-        if (size == ModalSize.Custom)
-            options.SizeCustomClass = "my-custom-size";
-        if (position == ModalPosition.Custom)
-            options.PositionCustomClass = "my-custom-position";
-        Modal.Show<Edit>("Chỉnh sửa thông tin", options);
-
+        await GetListKhuyenMai();
+    }
+    private async Task SelectedPage(int page)
+    {
+        paging.PageNumber = page;
+        await GetListKhuyenMai();
+    }
+    private async Task GetListKhuyenMai()
+    {
+        var pagingResponse = await khuyenMaiService.GetListPageKhuyenMai(paging);
+        khuyenmaiList = pagingResponse.Items;
+        MetaData = pagingResponse.MetaData;
     }
     public async void Create(ModalSize size, ModalPosition position)
     {
@@ -134,28 +132,22 @@
             options.SizeCustomClass = "my-custom-size";
         if (position == ModalPosition.Custom)
             options.PositionCustomClass = "my-custom-position";
-        Modal.Show<Create>("Thêm sản phẩm", options);
+        Modal.Show<Create>("Thêm thông tin khuyến mãi", options);
     }
-    private async Task SelectedPage(int page)
+    public async void Edit(int id, ModalSize size, ModalPosition position)
     {
-        paging.PageNumber = page;
-        await GetLoaiSp();
+        await sessionStorage.SetItemAsync("khuyenmai_id", id);
+        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<Edit>("Chỉnh sửa thông tin", options);
+
     }
-    private async Task GetLoaiSp()
+    public async Task Delete(int id, ModalSize size, ModalPosition position)
     {
-        var pagingResponse = await loaiSpService.GetListPageLoaiSp(paging);
-        loaisanpham = pagingResponse.Items;
-        MetaData = pagingResponse.MetaData;
-    }
-    private async Task SearchChanged(string search)
-    {
-        //paging.PageNumber = 1;
-        //paging.SearchTerm = search;
-        //await GetProducts();
-    }
-    public async Task Delete(string id, ModalSize size, ModalPosition position)
-    {
-        await sessionStorage.SetItemAsync("loaisp_idDelete", id);
+        await sessionStorage.SetItemAsync("khuyenmai_idDelete", id);
         var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
         if (size == ModalSize.Custom)
             options.SizeCustomClass = "my-custom-size";
@@ -163,6 +155,8 @@
             options.PositionCustomClass = "my-custom-position";
         Modal.Show<Delete>("Xóa thông tin", options);
     }
+    /////////////////////ImportExcel///////////////////////////
+    //ClosedXML
     public async Task ImportExcel(ModalSize size, ModalPosition position)
     {
         var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
@@ -172,12 +166,16 @@
             options.PositionCustomClass = "my-custom-position";
         Modal.Show<ImportExcel>("Thêm dữ liệu ", options);
     }
-
-    ///ImportExcel
+    /////////////////////ExportExcel//////////////////////////////
+    //MemoryStream excelStream
+    //_Host
+    //Class FileUtils
+    //Syncfusion.XlslO.Net.Core
     protected async void CreateDocument()
     {
         excelStream = CreateExcel();
-        await JS.SaveAs("Sample.xlsx", excelStream.ToArray());
+        await JS.SaveAs("Khuyenmai.xlsx", excelStream.ToArray());
+        toastService.ShowSuccess("Đã lưu file !", "Thành công");
     }
 
     public MemoryStream CreateExcel()
@@ -197,20 +195,21 @@
                 return stream;
             }
         }
-        return null; 
+        return null;
     }
     private DataTable SampleDataTable()
     {
         DataTable dt = new DataTable("Grid");
-        dt.Columns.AddRange(new DataColumn[2] { new DataColumn("Mã loại"),
-                                                new DataColumn("Tên loại")});
+        dt.Columns.AddRange(new DataColumn[4] { new DataColumn("Id"),
+                                                new DataColumn("Thời gian khuyến mãi"),
+                                                new DataColumn("Mã sản phẩm"),
+                                                new DataColumn("Tỉ lệ khuyến mãi") });
 
-        var temp = loaisanphamExcel.Take(100);
-        foreach (var loaisp in temp)
+        var temp = khuyenmaiByExcel.Take(1000);
+        foreach (var kmExport in temp)
         {
-            dt.Rows.Add(loaisp.MaLoai, loaisp.Tenloai);
+            dt.Rows.Add(kmExport.Id,kmExport.Thoigian,kmExport.MaSp,kmExport.Tile);
         }
         return dt;
     }
 }
-

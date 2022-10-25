@@ -1,0 +1,74 @@
+﻿@page "/KhuyenMai/Delete/{id}"
+@using Blazored.Modal.Services
+@using ClosedXML.Excel
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Models.Page
+@using System.Data
+@using Syncfusion.XlsIO
+@using Web_Admin_Client.Pages.Modal
+@inject IJSRuntime JS
+@layout MainLayout
+@using System.Globalization
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager;
+@inject IToastService toastService
+
+<EditForm Model="khuyenMai">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="tensanpham">Tên sản phẩm</label>
+            <InputText class="form-control" placeholder="" @bind-Value="khuyenMai.TenSp"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputUsername1">Phần trăm khuyến mãi</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="khuyenMai.Tile"></InputNumber>
+        </div>
+    </form>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Xóa</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Hủy</button>
+</EditForm>
+
+@code {
+    private KhuyenMaiDtoList khuyenMai = new KhuyenMaiDtoList();
+    private KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
+    private List<Sanpham> sanphams = new List<Sanpham>();
+    private SanphamService sanphamService = new SanphamService();
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var id = await sessionStorage.GetItemAsync<int>("khuyenmai_idDelete");
+            var result = await khuyenMaiService.GetkhuyenMaiByEdit(id);
+            khuyenMai.TenSp = result.TenSp;
+            khuyenMai.Tile = int.Parse((result.Tile * 100) + "%");
+        }
+        catch(Exception ex)
+        {
+
+        }
+    }
+    private async void Submit()
+    {
+        var id = await sessionStorage.GetItemAsync<int>("khuyenmai_idDelete");
+        await khuyenMaiService.DeleteKhuyenMai(id);
+        NavigationManager.NavigateTo("/KhuyenMai/Index");
+        toastService.ShowSuccess("Xóa thành công !", " Ok ");
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}

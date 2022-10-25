@@ -1,0 +1,90 @@
+﻿@page "/KhuyenMai/Edit/{id}"
+@using Blazored.Modal.Services
+@using ClosedXML.Excel
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Models.Page
+@using System.Data
+@using Syncfusion.XlsIO
+@using Web_Admin_Client.Pages.Modal
+@inject IJSRuntime JS
+@layout MainLayout
+@using System.Globalization
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager;
+
+
+<EditForm Model="khuyenMai">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="masanpham">Tên sản phẩm</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="khuyenMai.MaSp">
+                @foreach (var item in sanphams)
+                {
+                    <option value="@item.MaSp">@item.TenSp</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-group">
+            <label for="thoigian">Thời gian khuyến mãi</label>
+            <InputDate class="form-control" placeholder="" @bind-Value="khuyenMai.Thoigian"></InputDate>
+        </div>
+        <div class="form-group">
+            <label for="tile">Phần trăm khuyến mãi</label>
+            <InputNumber class="form-control" placeholder="nhập từ 10-100 %" @bind-Value="khuyenMai.Tile"></InputNumber>
+        </div>
+    </form>
+
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Đóng</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    private KhuyenMaiDto khuyenMai = new KhuyenMaiDto();
+    private KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
+    private List<Sanpham> sanphams = new List<Sanpham>();
+    private SanphamService sanphamService = new SanphamService();
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private DateTime thoigiankhuyenmai;
+    public DateTime _thoigiankhuyenmai
+
+    {
+        get { return thoigiankhuyenmai; }
+        set { thoigiankhuyenmai = value; }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            sanphams = await sanphamService.GetAllProductQuantily();
+            var id = await sessionStorage.GetItemAsync<int>("khuyenmai_id");
+            var result = await khuyenMaiService.GetkhuyenMaiByEdit(id);
+
+            khuyenMai.Id = result.Id;
+            khuyenMai.MaSp = result.MaSp;
+            khuyenMai.Tile = (result.Tile) * 100;
+            khuyenMai.Thoigian = result.Thoigian;
+        }
+        catch(Exception ex)
+        {
+
+        }
+    }
+    private async Task Submit()
+    {
+        khuyenMai.Tile = khuyenMai.Tile / 100;
+        var id = await sessionStorage.GetItemAsync<int>("khuyenmai_id");
+        await khuyenMaiService.EditKhuyenMai(id, khuyenMai);
+        NavigationManager.NavigateTo("/KhuyenMai/Index");
+    }
+    private async void Close()
+    {
+        await ModalInstance.CloseAsync();
+
+    }
+}

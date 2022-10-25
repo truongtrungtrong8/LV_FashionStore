@@ -477,19 +477,21 @@ namespace Model.DataDB
 
             modelBuilder.Entity<Khuyenmai>(entity =>
             {
-                entity.HasKey(e => e.Thoigian)
+                entity.HasKey(e => e.Id)
                     .IsClustered(false);
 
                 entity.ToTable("KHUYENMAI");
 
-                entity.Property(e => e.Thoigian)
-                    .HasColumnType("datetime")
-                    .HasColumnName("THOIGIAN");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.MaSp)
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
+
+                entity.Property(e => e.Thoigian)
+                    .HasColumnType("datetime")
+                    .HasColumnName("THOIGIAN");
 
                 entity.Property(e => e.Tile).HasColumnName("TILE");
 

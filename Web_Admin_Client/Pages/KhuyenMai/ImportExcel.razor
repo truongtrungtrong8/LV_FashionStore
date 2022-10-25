@@ -1,0 +1,111 @@
+﻿@page "/KhuyenMai/ImportExcel"
+@using Blazored.Modal.Services
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Models.Page
+@using System.Globalization
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
+@layout MainLayout
+@inject IJSRuntime JS
+@inject IToastService toastService
+@inject IWebHostEnvironment Environment
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+
+<EditForm Model="khuyenMai">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="file">Tải file...</label>
+            <InputFile OnChange="@LoadFiles" multiple />
+        </div>
+    </form>
+    @*<button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%" @onclick="Close">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%" @onclick="Close">Đóng</button>*@
+</EditForm>
+
+@code {
+    private KhuyenMaiDto khuyenMai = new KhuyenMaiDto();
+    private KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private List<IBrowserFile> loadedFiles = new();
+    private int maxFileUpload = 1; //multipleFile
+    string filePath = "";
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(maxFileUpload))
+        {
+            try
+            {
+                loadedFiles.Add(file);
+                var filename = file.Name;
+                var size = file.Size;
+                var path = Path.Combine(Environment.WebRootPath, "fileExcel", filename);
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.OpenReadStream(size).CopyToAsync(fs);
+                ////Add Table Temp
+                List<KhuyenMaiDto> table = new List<KhuyenMaiDto>();
+                FileInfo fileInfo = new FileInfo(path);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
+                {
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
+                    int totalCollumn = worksheet.Dimension.End.Column;
+                    int totalRow = worksheet.Dimension.End.Row;
+
+                    for (int row = 2; row <= totalRow; row++)
+                    {
+                        KhuyenMaiDto emp = new KhuyenMaiDto();
+                        for (int col = 1; col <= totalCollumn; col++)
+                        {
+                            if (col == 1) emp.Id = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            if (col == 2) emp.Thoigian = Convert.ToDateTime(worksheet.Cells[row, col].Value.ToString());
+                            if (col == 3) emp.MaSp = worksheet.Cells[row, col].Value.ToString();
+                            if (col == 4) emp.Tile = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString());
+                        }
+                        table.Add(emp);
+                    }
+                }
+                ////Add Table Database
+                foreach (var item in table)
+                {
+                    try
+                    {
+                        var check = await khuyenMaiService.GetkhuyenMaiByEdit(item.Id);
+                        if (check != null)
+                        {
+                            khuyenMai.Id = item.Id;
+                            khuyenMai.Thoigian = item.Thoigian;
+                            khuyenMai.MaSp = item.MaSp;
+                            khuyenMai.Tile = item.Tile;
+                            await khuyenMaiService.EditKhuyenMai(item.Id, khuyenMai);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //khuyenMai.Id = item.Id;
+                        khuyenMai.Thoigian = item.Thoigian;
+                        khuyenMai.MaSp = item.MaSp;
+                        khuyenMai.Tile = item.Tile;
+                        await khuyenMaiService.CreateKhuyenMai(khuyenMai);
+                    }
+                }
+                await this.ModalInstance.CancelAsync();
+                toastService.ShowSuccess("Thêm thành công", "Thành công !");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}
