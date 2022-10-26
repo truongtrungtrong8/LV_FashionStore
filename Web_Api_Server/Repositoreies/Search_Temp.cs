@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Reflection;
+using System.Linq.Dynamic.Core;
 namespace Web_Api_Server.Repositoreies
 {
     public static class Search_Temp
@@ -35,6 +36,39 @@ namespace Web_Api_Server.Repositoreies
             Regex regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");
             string temp = s.Normalize(NormalizationForm.FormD);
             return regex.Replace(temp, String.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D');
+        }
+
+
+        ////////SortBy/////////
+        public static IQueryable<Sanpham_Model> Sort(this IQueryable<Sanpham_Model> products, string orderByQueryString)
+        {
+            if (string.IsNullOrWhiteSpace(orderByQueryString))
+                return products.OrderBy(e => e.TenSp);
+
+            var orderParams = orderByQueryString.Trim().Split(',');
+            var propertyInfos = typeof(Sanpham_Model).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var orderQueryBuilder = new StringBuilder();
+
+            foreach (var param in orderParams)
+            {
+                if (string.IsNullOrWhiteSpace(param))
+                    continue;
+
+                var propertyFromQueryName = param.Split(" ")[0];
+                var objectProperty = propertyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (objectProperty == null)
+                    continue;
+
+                var direction = param.EndsWith(" desc") ? "descending" : "ascending";
+                orderQueryBuilder.Append($"{objectProperty.Name} {direction}, ");
+            }
+
+            var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
+            if (string.IsNullOrWhiteSpace(orderQuery))
+                return products.OrderBy(e => e.TenSp);
+
+            return products.OrderBy(orderQuery);
         }
     }
 }

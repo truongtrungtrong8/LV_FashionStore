@@ -87,7 +87,9 @@ namespace Web_Api_Server.Controllers
                                Mota = s.Mota,
                                Tile = k.Tile,
                                Thoigian = k.Thoigian
-                           }).Search(paging.SearchTerm).AsQueryable();
+                           }).Search(paging.SearchTerm)
+                             .Sort(paging.OrderBy)
+                             .AsQueryable();
             var result = PagedList<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;

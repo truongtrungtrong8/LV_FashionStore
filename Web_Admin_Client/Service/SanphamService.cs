@@ -56,7 +56,8 @@ namespace Web_Admin_Client.Service
             var queryStringParam = new Dictionary<string, string>
             {
                 ["pageNumber"] = paging.PageNumber.ToString(),
-                ["searchTerm"] = paging.SearchTerm == null ? "" : paging.SearchTerm
+                ["searchTerm"] = paging.SearchTerm == null ? "" : paging.SearchTerm,
+                ["orderBy"] = paging.OrderBy
             };
             var response = await Http.GetAsync(QueryHelpers.AddQueryString(urldefault + "/page", queryStringParam));
             var content = await response.Content.ReadAsStringAsync();
