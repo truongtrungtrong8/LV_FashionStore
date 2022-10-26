@@ -30,6 +30,9 @@ namespace Model
         public string? TenHsx { get; set; }
         public string? Tenloai { get; set; }
         public int Sl { get; set; }
+        public DateTime Thoigian { get; set; }
+
+        public double Tile { get; set; }
         public List<CartItems> Variants { get; set; } = new List<CartItems>();
 
         public Sanpham_Model()

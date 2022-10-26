@@ -10,7 +10,8 @@ namespace Model.Dto
     {
         public int Id { get; set; }
         public DateTime Thoigian { get; set; }
-        public string MaSp { get; set; }
+        
         public double Tile { get; set; }
+        public string MaSp { get; set; }
     }
 }

@@ -29,11 +29,11 @@
 @code {
     private KhuyenMaiDto khuyenMai = new KhuyenMaiDto();
     private KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
-    [CascadingParameter] public IModalService Modal { get; set; }
-    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
     private List<IBrowserFile> loadedFiles = new();
     private int maxFileUpload = 1; //multipleFile
     string filePath = "";
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {

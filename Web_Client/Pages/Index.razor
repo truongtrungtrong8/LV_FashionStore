@@ -24,6 +24,7 @@
                         <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                             <div class="product-item bg-light mb-4">
                                 <div class="product-img position-relative overflow-hidden">
+                                    <h6 style="color: red;position: absolute;top: 3px;">Khuyến mãi đến @item.Thoigian.Day/@item.Thoigian.Month/@item.Thoigian.Year </h6>
                                     <img class="img-fluid w-100" src="@urlimage/images/@item.HaBia" alt="">
                                     <div class="product-action">
                                         <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
@@ -35,15 +36,10 @@
                                 <div class="text-center py-4">
                                     <a class="h6 text-decoration-none text-truncate" href="">@item.TenSp</a>
                                     <div class="d-flex align-items-center justify-content-center mt-2">
-                                        <h5>@sanphamservice.FormatVND(item.GiaSp) VND</h5><h6 class="text-muted ml-2"><del>@sanphamservice.FormatVND(item.GiaSp) VND</del></h6>
+                                        <h5 class="text-muted ml-2"><del> @sanphamservice.FormatVND(item.GiaSp) VND </del></h5>&nbsp;&nbsp;&nbsp<h6 style="color:red ;">@FormatTile(item.Tile)</h6>
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-center mb-1">
-                                        <small class="fa fa-star text-primary mr-1"></small>
-                                        <small class="fa fa-star text-primary mr-1"></small>
-                                        <small class="fa fa-star text-primary mr-1"></small>
-                                        <small class="fa fa-star text-primary mr-1"></small>
-                                        <small class="fa fa-star text-primary mr-1"></small>
-                                        <small>(99)</small>
+                                    <div class="d-flex align-items-center justify-content-center mt-2">
+                                        <h5 style="color:red;">@sanphamservice.FormatVND(item.GiaSp-(item.GiaSp*item.Tile)) VND</h5>
                                     </div>
                                 </div>
                             </div>
@@ -79,6 +75,11 @@
                 Console.WriteLine(ex.ToString());
             }
         }
+    }
+    private string FormatTile(double tile)
+    {
+        var temp = tile * 100;
+        return ("-"+temp+"%").ToString();
     }
     protected override async Task OnInitializedAsync()
     {

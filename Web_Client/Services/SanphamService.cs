@@ -25,7 +25,7 @@ namespace Web_Client.Services
             return await Http.GetFromJsonAsync<List<Sanpham_Model>>(urldefault);
         }
 
-        public string FormatVND(int price)
+        public string FormatVND(double price)
         {
             CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
             return price.ToString("#,###", cul.NumberFormat);

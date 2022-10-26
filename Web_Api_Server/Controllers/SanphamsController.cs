@@ -37,6 +37,7 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Hinhanhs on s.MaSp equals h.MaSp
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           join k in _context.Khuyenmais on s.MaSp equals k.MaSp
                            
                            select new Sanpham_Model()
                            {
@@ -52,7 +53,9 @@ namespace Web_Api_Server.Controllers
                                TenHsx = hsx.TenHsx,
                                Sl = s.Sl,
                                Baohanh = s.Baohanh,
-                               Mota = s.Mota
+                               Mota = s.Mota,
+                               Tile = k.Tile,
+                               Thoigian = k.Thoigian
                            });
             return await sanpham.ToListAsync();
         }
@@ -69,6 +72,7 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Hinhanhs on s.MaSp equals h.MaSp
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           join k in _context.Khuyenmais on s.MaSp equals k.MaSp
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -80,7 +84,9 @@ namespace Web_Api_Server.Controllers
                                TenSp = s.TenSp,
                                TenHsx = hsx.TenHsx,
                                Baohanh = s.Baohanh,
-                               Mota = s.Mota
+                               Mota = s.Mota,
+                               Tile = k.Tile,
+                               Thoigian = k.Thoigian
                            }).Search(paging.SearchTerm).AsQueryable();
             var result = PagedList<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
@@ -94,6 +100,7 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Hinhanhs on s.MaSp equals h.MaSp
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           join k in _context.Khuyenmais on s.MaSp equals k.MaSp
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -103,7 +110,11 @@ namespace Web_Api_Server.Controllers
                                Ha2 = h.Ha2,
                                GiaSp = s.GiaSp,
                                TenSp = s.TenSp,
-                               TenHsx = hsx.TenHsx
+                               TenHsx = hsx.TenHsx,
+                               Baohanh = s.Baohanh,
+                               Mota = s.Mota,
+                               Tile = k.Tile,
+                               Thoigian = k.Thoigian
                            }).Search(paging.SearchTerm).AsQueryable();
             var result = PagedListIndex<Sanpham_Model>.ToPagedList(sanpham, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
@@ -118,6 +129,7 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Hinhanhs on s.MaSp equals h.MaSp
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
+                           join k in _context.Khuyenmais on s.MaSp equals k.MaSp
                            where s.MaSp == id
                            select new Sanpham_Model()
                            {
@@ -133,7 +145,9 @@ namespace Web_Api_Server.Controllers
                                Mota = s.Mota,
                                MaHsx = hsx.MaHsx,
                                Baohanh = s.Baohanh,
-                               Sl = s.Sl
+                               Sl = s.Sl,
+                               Tile = k.Tile,
+                               Thoigian = k.Thoigian
                            }).SingleOrDefault();
 
             return sanpham;
