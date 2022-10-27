@@ -53,9 +53,28 @@
                     </div>
                     <small class="pt-1">(99 Reviews)</small>
                 </div>
-                <h3 class="font-weight-semi-bold mb-4">@sanphamService.FormatVND(sanpham.GiaSp) VND</h3>
+                @if (sanpham.Thoigian.Date == DateTime.Now.Date)
+                {
+                    <h5>Đã hết thời gian khuyến mãi</h5>
+                    <h4 class="font-weight-semi-bold mb-4"><del>@sanphamService.FormatVND(sanpham.GiaSp) VND</del></h4>
+                    <h3 class="font-weight-semi-bold mb-4" style="color:red">@sanphamService.FormatVND(sanpham.GiaSp) VND</h3>
+                }
+                @if ( sanpham.Thoigian.Date < DateTime.Now.Date)
+                {
+                    <h5>Đã hết thời gian khuyến mãi</h5>
+                    <h4 class="font-weight-semi-bold mb-4"><del>@sanphamService.FormatVND(sanpham.GiaSp) VND</del></h4>
+                    <h3 class="font-weight-semi-bold mb-4" style="color:red">@sanphamService.FormatVND(sanpham.GiaSp) VND</h3>
+                }
+                @if(sanpham.Thoigian.Date > DateTime.Now.Date)
+                {
+                    <h5>Khuyến mãi còn @(sanpham.Thoigian.DayOfYear - DateTime.Now.DayOfYear) ngày đến @sanpham.Thoigian.Day/@sanpham.Thoigian.Month/@sanpham.Thoigian.Year</h5>
+                    <h4 class="font-weight-semi-bold mb-4"><del>@sanphamService.FormatVND(sanpham.GiaSp) VND</del></h4>
+                    <h6 style="color:red">-@(sanpham.Tile * 100)%</h6>
+                    <h3 class="font-weight-semi-bold mb-4" style="color:red">@sanphamService.FormatVND(sanpham.GiaSp-(sanpham.GiaSp*sanpham.Tile)) VND</h3>
+                }
+                
                 <p class="mb-4">
-                    Sản phẩm áo thun chất lượng tốt, phù hợp với nhiều lứa tuổi
+                    @sanpham.Mota
                 </p>
                 <div class="d-flex mb-3">
                     <strong class="text-dark mr-3">Sizes:</strong>
