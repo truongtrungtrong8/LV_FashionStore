@@ -78,7 +78,23 @@
                 </p>
                 <div class="d-flex mb-3">
                     <strong class="text-dark mr-3">Sizes:</strong>
-                    <form>
+                   
+                    <EditForm Model="cTGioHangDto">
+                        
+                        <InputRadioGroup @bind-Value=@cTGioHangDto.Size @ref=checkSize>
+                            
+                            @foreach(var item in sizeList)
+                            {
+                                <div class="custom-control custom-radio custom-control-inline">
+                                <InputRadio class="custom-control-input" id="@item.MaSize" Value="@item.TenSize" />
+                                <label class="custom-control-label" for="@item.MaSize"> @item.TenSize </label>
+                                </div>
+                            }
+                            
+                        </InputRadioGroup>
+                        
+                    </EditForm>
+                    @*<form>
                         <div class="custom-control custom-radio custom-control-inline">
                             <input type="radio" class="custom-control-input" id="size-1" name="size">
                             <label class="custom-control-label" for="size-1">XS</label>
@@ -99,7 +115,7 @@
                             <input type="radio" class="custom-control-input" id="size-5" name="size">
                             <label class="custom-control-label" for="size-5">XL</label>
                         </div>
-                    </form>
+                    </form>*@
                 </div>
                 <div class="d-flex mb-4">
                     <strong class="text-dark mr-3">Màu:</strong>
@@ -176,11 +192,15 @@
     const string key = "CartItemCollection";
     private InputNumber<int> Sl { get; set; }
     [Parameter]
-
     public string Id { get; set; }
+    public InputRadioGroup<string> checkSize { get; set; }
     Sanpham_Model sanpham = new Sanpham_Model();
     //private CartInUser cartItem = new CartInUser { Sl = 1 };
     //public List<CartInUser> cartItems_List = new List<CartInUser>();
+
+    private List<Size> sizeList = new List<Size>();
+    Size size = new Size();
+    SizeService sizeService = new SizeService();
 
     private CartItems cartItem = new CartItems { Sl = 1 };
     public List<CartItems> cartItems_List = new List<CartItems>();
@@ -215,8 +235,10 @@
             //giohangList = await gioHangService.GetList();
             //countCart = giohangList.Count;
             //MaGh = countCart + 1;
+
             tonkho = await tonkhoService.GetTonkho(Id);
             sanpham = await sanphamService.GetProduct(Id);
+            sizeList = await sizeService.GetListSize();
 
         }
         catch (Exception ex)
@@ -224,6 +246,7 @@
 
             tonkho = null;
             sanpham = await sanphamService.GetProduct(Id);
+            sizeList = await sizeService.GetListSize();
         }
     }
 
@@ -249,33 +272,64 @@
                 cartItem.Sl = Sl.Value;
                 await CartService.AddToCart(cartItem);
                 cartItems_List = await CartService.GetCartItems(ma_khLogin);
-                    try 
+                try 
+                {
+                    var tempGH = "GH" + ma_khLogin;
+                    Giohang check = new Giohang();
+                    check = await gioHangService.GetDetail(tempGH);
+                    if(check != null)
                     {
-                        var tempGH = "GH" + ma_khLogin;
-                        Giohang check = new Giohang();
-                        check = await gioHangService.GetDetail(tempGH);
-                        if(check != null)
+                        if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
                         {
                             ///Co gio hang thi sua
                             var result = await gioHangService.GetDetail(tempGH);
                             gioHangDto.MaGh = result.MaGh;
                             gioHangDto.Ngaydat = result.Ngaydat;
                             gioHangDto.MaKh = result.MaKh;
-                            gioHangDto.Tongtien = Sl.Value * sanpham.GiaSp;
+                            gioHangDto.Tongtien = result.Tongtien + (Sl.Value * sanpham.GiaSp);
                             await gioHangService.Edit(tempGH, gioHangDto);
-                            
-
-                            try 
+                            try
                             {
-                            //////Sua chi tiet gio hang luon
+                                //////Sua chi tiet gio hang luon
                                 var edit = await cTGioHangService.GetID(sanpham.MaSp, tempGH);
                                 if (edit != null)
                                 {
                                     cTGioHangDto.MaGh = edit.MaGh;
                                     cTGioHangDto.MaSp = edit.MaSp;
                                     cTGioHangDto.Sl = edit.Sl + Sl.Value;
+                                    cTGioHangDto.Size = checkSize.Value;
                                     try
                                     {
+                                        if (tonkho.Sl < Sl.Value)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl == 0)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl >= Sl.Value)
+                                        {
+                                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                            await cTGioHangService.Edit(sanpham.MaSp, tempGH, cTGioHangDto);
+                                            toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
+                                cTGioHangDto.MaGh = tempGH;
+                                cTGioHangDto.MaSp = sanpham.MaSp;
+                                cTGioHangDto.Sl = Sl.Value;
+                                cTGioHangDto.Size = checkSize.Value;
+                                try
+                                {
                                     if (tonkho.Sl < Sl.Value)
                                     {
                                         toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
@@ -287,9 +341,52 @@
                                     else if (tonkho.Sl >= Sl.Value)
                                     {
                                         await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
-                                        await cTGioHangService.Edit(sanpham.MaSp, tempGH, cTGioHangDto);
+                                        await cTGioHangService.Create(cTGioHangDto);
                                         toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
                                     }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            ///Co gio hang thi sua
+                            var result = await gioHangService.GetDetail(tempGH);
+                            gioHangDto.MaGh = result.MaGh;
+                            gioHangDto.Ngaydat = result.Ngaydat;
+                            gioHangDto.MaKh = result.MaKh;
+                            gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value));
+                            await gioHangService.Edit(tempGH, gioHangDto);
+                            try
+                            {
+                                //////Sua chi tiet gio hang luon
+                                var edit = await cTGioHangService.GetID(sanpham.MaSp, tempGH);
+                                if (edit != null)
+                                {
+                                    cTGioHangDto.MaGh = edit.MaGh;
+                                    cTGioHangDto.MaSp = edit.MaSp;
+                                    cTGioHangDto.Sl = edit.Sl + Sl.Value;
+                                    cTGioHangDto.Size = checkSize.Value;
+                                    try
+                                    {
+                                        if (tonkho.Sl < Sl.Value)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl == 0)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl >= Sl.Value)
+                                        {
+                                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                            await cTGioHangService.Edit(sanpham.MaSp, tempGH, cTGioHangDto);
+                                            toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
@@ -297,7 +394,174 @@
                                     }
                                 }
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
+                            {
+                                //var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
+                                cTGioHangDto.MaGh = tempGH;
+                                cTGioHangDto.MaSp = sanpham.MaSp;
+                                cTGioHangDto.Sl = Sl.Value;
+                                cTGioHangDto.Size = checkSize.Value;
+                                try
+                                {
+                                    if (tonkho.Sl < Sl.Value)
+                                    {
+                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                    }
+                                    else if (tonkho.Sl == 0)
+                                    {
+                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                    }
+                                    else if (tonkho.Sl >= Sl.Value)
+                                    {
+                                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                        await cTGioHangService.Create(cTGioHangDto);
+                                        toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                    {
+                        /////Chua co gio hang thi them moi
+                        gioHangDto.MaGh = "GH" + ma_khLogin;
+                        gioHangDto.Ngaydat = DateTime.Now;
+                        gioHangDto.MaKh = ma_khLogin;
+                        gioHangDto.Tongtien = sanpham.GiaSp * Sl.Value;
+                        await gioHangService.Create(gioHangDto);
+                        //////Chi tiet gio hang them moi
+                        cTGioHangDto.MaGh = gioHangDto.MaGh;
+                        cTGioHangDto.MaSp = sanpham.MaSp;
+                        cTGioHangDto.Sl = Sl.Value;
+                        cTGioHangDto.Size = checkSize.Value;
+                        cTGioHangDto.Mau = "Do";
+                        try
+                        {
+                            if (tonkho.Sl < Sl.Value)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                            else if (tonkho.Sl == 0)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                            else if (tonkho.Sl >= Sl.Value)
+                            {
+                                await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                await cTGioHangService.Create(cTGioHangDto);
+                                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                            toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                        }
+                    }
+                    else
+                    {
+                        /////Chua co gio hang thi them moi
+                        gioHangDto.MaGh = "GH" + ma_khLogin;
+                        gioHangDto.Ngaydat = DateTime.Now;
+                        gioHangDto.MaKh = ma_khLogin;
+                        gioHangDto.Tongtien = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value);
+                        await gioHangService.Create(gioHangDto);
+                        //////Chi tiet gio hang them moi
+                        cTGioHangDto.MaGh = gioHangDto.MaGh;
+                        cTGioHangDto.MaSp = sanpham.MaSp;
+                        cTGioHangDto.Sl = Sl.Value;
+                        cTGioHangDto.Size = checkSize.Value;
+                        try
+                        {
+                            if (tonkho.Sl < Sl.Value)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                            else if (tonkho.Sl == 0)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                            else if (tonkho.Sl >= Sl.Value)
+                            {
+                                await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                await cTGioHangService.Create(cTGioHangDto);
+                                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                            toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                        }
+                    }
+                        
+                }
+            }
+            else if (name_khCreate != null)
+            {
+                cartItem.MaSp = sanpham.MaSp;
+                cartItem.TenSp = sanpham.TenSp;
+                cartItem.MaGh = "GH" + ma_khCreate;
+                cartItem.GiaSp = sanpham.GiaSp;
+                cartItem.HaBia = sanpham.HaBia;
+                cartItem.MaKh = ma_khCreate;
+                cartItem.Sl = Sl.Value;
+                await CartService.AddToCart(cartItem);
+                cartItems_List = await CartService.GetCartItems(ma_khCreate);
+                try
+                {
+                    var tempGH = "GH" + ma_khCreate;
+                    Giohang check = new Giohang();
+                    check = await gioHangService.GetDetail(tempGH);
+                    if (check != null)
+                    {
+                        if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                        {
+                            ///Co gio hang thi sua
+                            var result = await gioHangService.GetDetail(tempGH);
+                            gioHangDto.MaGh = result.MaGh;
+                            gioHangDto.Ngaydat = result.Ngaydat;
+                            gioHangDto.MaKh = result.MaKh;
+                            gioHangDto.Tongtien = result.Tongtien + (Sl.Value * sanpham.GiaSp);
+                            await gioHangService.Edit(tempGH, gioHangDto);
+                            try
+                            {
+                                //////Sua chi tiet gio hang luon
+                                var edit = await cTGioHangService.GetID(sanpham.MaSp, tempGH);
+                                if (edit != null)
+                                {
+                                    cTGioHangDto.MaGh = edit.MaGh;
+                                    cTGioHangDto.MaSp = edit.MaSp;
+                                    cTGioHangDto.Sl = edit.Sl + Sl.Value;
+                                    try
+                                    {
+                                        if (tonkho.Sl < Sl.Value)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl == 0)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl >= Sl.Value)
+                                        {
+                                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                            await cTGioHangService.Edit(sanpham.MaSp, tempGH, cTGioHangDto);
+                                            toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
                             {
                                 //var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
                                 cTGioHangDto.MaGh = tempGH;
@@ -309,31 +573,105 @@
                                     {
                                         toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
                                     }
-                                    else if(tonkho.Sl == 0)
+                                    else if (tonkho.Sl == 0)
                                     {
                                         toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
                                     }
-                                    else if(tonkho.Sl >= Sl.Value)
+                                    else if (tonkho.Sl >= Sl.Value)
                                     {
-                                    await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
-                                    await cTGioHangService.Create(cTGioHangDto);
-                                    toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                        await cTGioHangService.Create(cTGioHangDto);
+                                        toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
                                     }
                                 }
                                 catch (Exception ex2)
                                 {
                                     toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
                                 }
-                           }
+                            }
+                        }
+                        else
+                        {
+
+                            ///Co gio hang thi sua
+                            var result = await gioHangService.GetDetail(tempGH);
+                            gioHangDto.MaGh = result.MaGh;
+                            gioHangDto.Ngaydat = result.Ngaydat;
+                            gioHangDto.MaKh = result.MaKh;
+                            gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value));
+                            await gioHangService.Edit(tempGH, gioHangDto);
+                            try
+                            {
+                                //////Sua chi tiet gio hang luon
+                                var edit = await cTGioHangService.GetID(sanpham.MaSp, tempGH);
+                                if (edit != null)
+                                {
+                                    cTGioHangDto.MaGh = edit.MaGh;
+                                    cTGioHangDto.MaSp = edit.MaSp;
+                                    cTGioHangDto.Sl = edit.Sl + Sl.Value;
+                                    try
+                                    {
+                                        if (tonkho.Sl < Sl.Value)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl == 0)
+                                        {
+                                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                        }
+                                        else if (tonkho.Sl >= Sl.Value)
+                                        {
+                                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                            await cTGioHangService.Edit(sanpham.MaSp, tempGH, cTGioHangDto);
+                                            toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
+                                cTGioHangDto.MaGh = tempGH;
+                                cTGioHangDto.MaSp = sanpham.MaSp;
+                                cTGioHangDto.Sl = Sl.Value;
+                                try
+                                {
+                                    if (tonkho.Sl < Sl.Value)
+                                    {
+                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                    }
+                                    else if (tonkho.Sl == 0)
+                                    {
+                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                    }
+                                    else if (tonkho.Sl >= Sl.Value)
+                                    {
+                                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                        await cTGioHangService.Create(cTGioHangDto);
+                                        toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
+                                }
+                            }
                         }
                     }
-                    catch(Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
                     {
                         /////Chua co gio hang thi them moi
-                        gioHangDto.MaGh = "GH" + ma_khLogin;
+                        gioHangDto.MaGh = "GH" + ma_khCreate;
                         gioHangDto.Ngaydat = DateTime.Now;
-                        gioHangDto.MaKh = ma_khLogin;
-                        gioHangDto.Tongtien = Sl.Value * sanpham.GiaSp;
+                        gioHangDto.MaKh = ma_khCreate;
+                        gioHangDto.Tongtien = sanpham.GiaSp * Sl.Value;
                         await gioHangService.Create(gioHangDto);
                         //////Chi tiet gio hang them moi
                         cTGioHangDto.MaGh = gioHangDto.MaGh;
@@ -360,130 +698,42 @@
                         {
                             toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
                         }
-                        }
-            }
-            else if (name_khCreate != null)
-            {
-                cartItem.MaSp = sanpham.MaSp;
-                cartItem.TenSp = sanpham.TenSp;
-                cartItem.MaGh = "GH" + ma_khCreate;
-                cartItem.GiaSp = sanpham.GiaSp;
-                cartItem.HaBia = sanpham.HaBia;
-                cartItem.MaKh = ma_khCreate;
-                cartItem.Sl = Sl.Value;
-                await CartService.AddToCart(cartItem);
-                cartItems_List = await CartService.GetCartItems(ma_khCreate);
-                try
-                {
-                    var tempGH = "GH" + ma_khCreate;
-                    Giohang check = new Giohang();
-                    check = await gioHangService.GetDetail(tempGH);
-                    if (check != null)
+                    }
+                    else
                     {
-                        ///Co gio hang thi sua
-                        var result = await gioHangService.GetDetail(tempGH);
-                        gioHangDto.MaGh = result.MaGh;
-                        gioHangDto.Ngaydat = result.Ngaydat;
-                        gioHangDto.MaKh = result.MaKh;
-                        gioHangDto.Tongtien = Sl.Value * sanpham.GiaSp;
-                        await gioHangService.Edit(tempGH, gioHangDto);
-
-
+                        /////Chua co gio hang thi them moi
+                        gioHangDto.MaGh = "GH" + ma_khCreate;
+                        gioHangDto.Ngaydat = DateTime.Now;
+                        gioHangDto.MaKh = ma_khCreate;
+                        gioHangDto.Tongtien = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value);
+                        await gioHangService.Create(gioHangDto);
+                        //////Chi tiet gio hang them moi
+                        cTGioHangDto.MaGh = gioHangDto.MaGh;
+                        cTGioHangDto.MaSp = sanpham.MaSp;
+                        cTGioHangDto.Sl = Sl.Value;
                         try
                         {
-                            //////Sua chi tiet gio hang luon
-                            var edit = await cTGioHangService.GetID(sanpham.MaSp, tempGH);
-                            if (edit != null)
+                            if (tonkho.Sl < Sl.Value)
                             {
-                                cTGioHangDto.MaGh = edit.MaGh;
-                                cTGioHangDto.MaSp = edit.MaSp;
-                                cTGioHangDto.Sl = edit.Sl + Sl.Value;
-                                try
-                                {
-                                    if (tonkho.Sl < Sl.Value)
-                                    {
-                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
-                                    }
-                                    else if (tonkho.Sl == 0)
-                                    {
-                                        toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
-                                    }
-                                    else if (tonkho.Sl >= Sl.Value)
-                                    {
-                                        await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
-                                        await cTGioHangService.Edit(sanpham.MaSp, tempGH, cTGioHangDto);
-                                        toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
-                                }
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                            else if (tonkho.Sl == 0)
+                            {
+                                toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                            }
+                            else if (tonkho.Sl >= Sl.Value)
+                            {
+                                await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
+                                await cTGioHangService.Create(cTGioHangDto);
+                                toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception ex2)
                         {
-                            //var edit = await cTGioHangService.GetID(item.MaSp, tempGH);
-                            cTGioHangDto.MaGh = tempGH;
-                            cTGioHangDto.MaSp = sanpham.MaSp;
-                            cTGioHangDto.Sl = Sl.Value;
-                            try
-                            {
-                                if (tonkho.Sl < Sl.Value)
-                                {
-                                    toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
-                                }
-                                else if (tonkho.Sl == 0)
-                                {
-                                    toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
-                                }
-                                else if (tonkho.Sl >= Sl.Value)
-                                {
-                                    await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
-                                    await cTGioHangService.Create(cTGioHangDto);
-                                    toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
-                                }
-                            }
-                            catch (Exception ex2)
-                            {
-                                toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
-                            }
+                            toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    /////Chua co gio hang thi them moi
-                    gioHangDto.MaGh = "GH" + ma_khCreate;
-                    gioHangDto.Ngaydat = DateTime.Now;
-                    gioHangDto.MaKh = ma_khCreate;
-                    gioHangDto.Tongtien = Sl.Value * sanpham.GiaSp;
-                    await gioHangService.Create(gioHangDto);
-                    //////Chi tiet gio hang them moi
-                    cTGioHangDto.MaGh = gioHangDto.MaGh;
-                    cTGioHangDto.MaSp = sanpham.MaSp;
-                    cTGioHangDto.Sl = Sl.Value;
-                    try
-                    {
-                        if (tonkho.Sl < Sl.Value)
-                        {
-                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
-                        }
-                        else if (tonkho.Sl == 0)
-                        {
-                            toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
-                        }
-                        else if (tonkho.Sl >= Sl.Value)
-                        {
-                            await sessionStorage.SetItemAsync("magiohang_ctgh", cTGioHangDto.MaGh);
-                            await cTGioHangService.Create(cTGioHangDto);
-                            toastService.ShowSuccess("Mời bạn tiếp tục mua hàng!", "Thêm thành công !");
-                        }
-                    }
-                    catch (Exception ex2)
-                    {
-                        toastService.ShowWarning("Có lỗi trong quá trình xữ lý !", "Không thành công !");
-                    }
+
                 }
             }
            

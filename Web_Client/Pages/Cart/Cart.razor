@@ -41,34 +41,45 @@
                         </thead>
                         @foreach (var item in cartItems)
                         {
-                            <tbody class="align-middle">
+                            if (item.Thoigian.Date == DateTime.Now.Date || item.Thoigian.Date < DateTime.Now.Date)
+                            {
+                                <tbody class="align-middle">
                                 <tr>
                                     <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
                                     <td class="align-middle">@sanphamService.FormatVND(item.GiaSp) VND</td>
                                     <td class="align-middle">
                                         <div class="input-group quantity mx-auto" style="width: 100px;">
-                                            @*<div class="input-group-btn">
-                                                <button class="btn btn-sm btn-primary btn-minus">
-                                                    <i class="fa fa-minus"></i>
-                                                </button>
-                                            </div>*@
                                              <EditForm Model="item">
                                                 <InputNumber id="quantity" @bind-Value="@item.Sl"
                                                  class="form-control" style="width: 70px" />
-                                                 
                                             </EditForm>
-@*                                            <div class="input-group-btn">
-                                                <button class="btn btn-sm btn-primary btn-plus">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            </div>*@
                                         </div>
                                     </td>
                                     <td class="align-middle">@sanphamService.FormatVND((item.GiaSp * item.Sl)) VND</td>
                                     <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick ="@(() => DeleteItem(item.MaSp,item.MaGh))"><i class="fa fa-times"></i></button></td>
                                 </tr>
-
-                            </tbody>
+                                </tbody>
+                            }
+                            else
+                            {
+                                <tbody class="align-middle">
+                                <tr>
+                                    <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
+                                    <td class="align-middle">@sanphamService.FormatVND(item.GiaSp - (item.GiaSp * item.Tile)) VND</td>
+                                    <td class="align-middle">
+                                        <div class="input-group quantity mx-auto" style="width: 100px;">
+                                             <EditForm Model="item">
+                                                <InputNumber id="quantity" @bind-Value="@item.Sl"
+                                                 class="form-control" style="width: 70px" />
+                                            </EditForm>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">@sanphamService.FormatVND((item.GiaSp - (item.GiaSp * item.Tile)) * item.Sl) VND</td>
+                                    <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick ="@(() => DeleteItem(item.MaSp,item.MaGh))"><i class="fa fa-times"></i></button></td>
+                                </tr>
+                                </tbody>
+                            }
+                            
                         }
 
                     </table>
@@ -77,35 +88,33 @@
 
                     <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Thông tin thanh toán</span></h5>
                     <div class="bg-light p-30 mb-5">
-                        <div class="border-bottom pb-2">
-                            <div class="d-flex justify-content-between mb-3">
-                                <h6>Chưa VAT</h6>
-                                <h6>@sanphamService.FormatVND(@cartItems.Sum(item =>(item.GiaSp * item.Sl))) VND</h6>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <h6 class="font-weight-medium">Phí VAT</h6>
-                                <h6 class="font-weight-medium">2%</h6>
-                            </div>
-                        </div>
-                        <div class="pt-2">
-                            <div class="d-flex justify-content-between mt-2">
-                                <h5>Tổng tiền</h5>
-                                <h5>(@cartItems.Count): @sanphamService.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)+(item.GiaSp * item.Sl)*0.02).ToString())) VND</h5>
-                            </div>
+                              <div class="border-bottom pb-2">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <h6>Chưa VAT</h6>
+                                        <h6>@sanphamService.FormatVND(Convert.ToInt32(giohang.Tongtien)) VND</h6>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="font-weight-medium">Phí VAT</h6>
+                                        <h6 class="font-weight-medium">2%</h6>
+                                    </div>
+                                </div>
+                                <div class="pt-2">
 
-                           @* <button class="btn btn-block btn-primary font-weight-bold my-3 py-3" @onclick="@(() => Payment())">Thanh toán trước</button>
-                            <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Thanh toán khi nhận hàng</button>*@
-                              <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#pay" style="height: 65px; padding: 0 30px;">
-                            <h6 class="text-dark m-0" style="font-size:16px"><i class="fa-brands fa-cc-amazon-pay"></i> Chọn hình thức thanh toán</h6>
-                            <i class="fa fa-angle-down text-dark"></i>
-                            </a>
-                            <div class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="pay" style="width: calc(100% - 92px); z-index: 999; ">
-                                <button type="button" style="display: @display" class="nav-item nav-link" @onclick="@(() =>Pay(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán trước</button>
-                                <button type="button" style="display: @display1" class="nav-item nav-link" @onclick="@(() =>SendMail(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán khi nhận hàng</button>
-                                <button type="button" style="display: @display2" class="nav-item nav-link" @onclick="@(() =>Ivoice(ModalSize.ExtraLarge,ModalPosition.TopCenter))">Xem hóa đơn</button>
-                            </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <h5>Tổng tiền</h5>
+                                        <h5>(@cartItems.Count): @sanphamService.FormatVND(Convert.ToInt32(giohang.Tongtien + (giohang.Tongtien * 0.02))) VND</h5>
+                                    </div>
+                                    <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#pay" style="height: 65px; padding: 0 30px;">
+                                        <h6 class="text-dark m-0" style="font-size:16px"><i class="fa-brands fa-cc-amazon-pay"></i> Chọn hình thức thanh toán</h6>
+                                        <i class="fa fa-angle-down text-dark"></i>
+                                    </a>
+                                    <div class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="pay" style="width: calc(100% - 92px); z-index: 999; ">
+                                        <button type="button" style="display: @display" class="nav-item nav-link" @onclick="@(() =>Pay(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán trước</button>
+                                        <button type="button" style="display: @display1" class="nav-item nav-link" @onclick="@(() =>SendMail(ModalSize.Medium,ModalPosition.TopCenter))">Thanh toán khi nhận hàng</button>
+                                        <button type="button" style="display: @display2" class="nav-item nav-link" @onclick="@(() =>Ivoice(ModalSize.ExtraLarge,ModalPosition.TopCenter))">Xem hóa đơn</button>
+                                    </div>
 
-                        </div>
+                                </div>
                     </div>
                     </div>
              </div>
@@ -122,7 +131,7 @@
     [Parameter]
     public UserIP userIP { get; set; }
     public List<CartItems> cartItems = new List<CartItems>();
-
+    CartItems cart = new CartItems();
     public List<Khachhang> khachhangs = new List<Khachhang>();
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
@@ -134,7 +143,7 @@
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
     CtDonDatService CtDonDatService = new CtDonDatService();
 
-
+    Giohang giohang = new Giohang();
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
 
@@ -144,6 +153,8 @@
     TonkhoDto tonkho = new TonkhoDto();
     Sanpham_Model sanpham = new Sanpham_Model();
     TonkhoService tonkhoService = new TonkhoService();
+
+    KhuyenMaiDto khuyenmai = new KhuyenMaiDto();
 
     [CascadingParameter] public IModalService Modal { get; set; }
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
@@ -157,9 +168,55 @@
     bool flagIvoice = false;
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return base.OnAfterRenderAsync(firstRender);
+        try
+        {
+            //Create Dondat
+            listDonDat = await donDatService.GetCountDonDat();
+            CountDonDat = listDonDat.Count;
+            MaDonDat = CountDonDat + 1;
+            ///Load Cart
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if (makhachhang != null)
+            {
+                string temp = "GH" + makhachhang;
+                cartItems = await cTGioHangService.GetCartAllInUser(temp);
+                giohang = await gioHangService.GetDetail(temp);
+            }
+
+            else
+            {
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                string tempCreate = "GH" + ma_khCreate;
+                cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
+                giohang = await gioHangService.GetDetail(tempCreate);
+            }
+
+
+            var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
+            if (checkdisplay == "block;")
+            {
+                display = checkdisplay;
+                display1 = checkdisplay;
+            }
+            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
+            if(firstRender)
+            {
+                if (getvnpcheck == "00")
+                {
+                    toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
+                    display2 = "block;";
+                    await AddDonDat();
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex.ToString());
+        }
     }
     protected override async Task OnInitializedAsync()
 
@@ -171,48 +228,79 @@
             CountDonDat = listDonDat.Count;
             MaDonDat = CountDonDat + 1;
             ///Load Cart
-           
-                var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-                if(makhachhang != null)
-                {
-                    string temp = "GH" + makhachhang;
-                    cartItems = await cTGioHangService.GetCartAllInUser(temp);
-                }
-                
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if(makhachhang != null)
+            {
+                string temp = "GH" + makhachhang;
+                cartItems = await cTGioHangService.GetCartAllInUser(temp);
+                giohang = await gioHangService.GetDetail(temp);
+            }
+
             else
             {
                 var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
                 string tempCreate = "GH" + ma_khCreate;
                 cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
+                giohang = await gioHangService.GetDetail(tempCreate);
             }
-            
-            //cartItems = await CartService.GetCartItems(makhachhang);
 
-            var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
-            if (checkdisplay == "block;")
-            {
-                display = checkdisplay;
-                display1 = checkdisplay;
-            }
-            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
-            if (getvnpcheck == "00")
-            {
-                toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
-                display2 = "block;";
-                await AddDonDat();
-            }
+
+            //var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
+            //if (checkdisplay == "block;")
+            //{
+            //    display = checkdisplay;
+            //    display1 = checkdisplay;
+            //}
+            //var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
+            //if (getvnpcheck == "00")
+            //{
+            //    toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
+            //    display2 = "block;";
+            //    await AddDonDat();
+            //}
 
         }
         catch (Exception ex) {
-
+            Console.Write(ex.ToString());
         }
 
     }
 
     private async Task DeleteItem(string id, string id1)
     {
-        await cTGioHangService.DeleteCart(id, id1);
-        cartItems = await cTGioHangService.GetCartAllInUser(id1);
+        try
+        {
+            var result = await gioHangService.GetDetail(id1);
+            var sanpham = await sanphamService.GetProduct(id);
+            var getCTGH = await cTGioHangService.GetID(id, id1);//loi
+            if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+            {
+                gioHangDto.MaGh = id1;
+                gioHangDto.MaKh = result.MaKh;
+                gioHangDto.Ngaydat = DateTime.Now;
+                gioHangDto.Tongtien = result.Tongtien - (sanpham.GiaSp * getCTGH.Sl);
+                await gioHangService.Edit(id1, gioHangDto);
+            }
+
+            else
+            {
+                gioHangDto.MaGh = id1;
+                gioHangDto.MaKh = result.MaKh;
+                gioHangDto.Ngaydat = DateTime.Now;
+                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl));
+                await gioHangService.Edit(id1, gioHangDto);
+            }
+            await cTGioHangService.DeleteCart(id, id1);
+            cartItems = await cTGioHangService.GetCartAllInUser(id1);
+            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/Cart/Cart");
+        }
+        catch(Exception ex)
+        {
+
+        }
+
+
     }
 
     private async Task PlaceOrder()
@@ -237,19 +325,30 @@
         var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
         var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
         var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+
         if(ma_khLogin != null)
         {
-            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-            dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
-            dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
-            dondatDto.Diachi = khachhang.DiachiKh;
-            await donDatService.CreateDonDat(dondatDto);
+            var id = "GH" + ma_khLogin;
             foreach (var item in cartItems)
             {
+                ///check khuyen mai
+                var result_km = await gioHangService.GetDetail(id);
+                var sanpham = await sanphamService.GetProduct(item.MaSp);
+                var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+                khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+                dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                dondatDto.TongDdh = result_km.Tongtien;
+                dondatDto.Diachi = khachhang.DiachiKh;
+                dondatDto.MaKh = ma_khLogin;
+                await donDatService.CreateDonDat(dondatDto);
+                //chi tiet don dat hang
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;
                 ctDonDatDto.MaSp = item.MaSp;
-                ctDonDatDto.Sl = item.Sl;
-                ctDonDatDto.Dg = item.Sl * item.GiaSp;
+                ctDonDatDto.Sl = getCTGH.Sl;
+                if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
+                else
+                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp -(sanpham.GiaSp*sanpham.Tile)));
                 await CtDonDatService.CreateCtdonDat(ctDonDatDto);
                 ///Tonkho
                 try
@@ -261,8 +360,11 @@
                         var result = await tonkhoService.GetTonkho(item.MaSp);
                         tonkho.MaSp = result.MaSp;
                         tonkho.MaCh = result.MaCh;
-                        tonkho.Sl = result.Sl - item.Sl;
-                        tonkho.Dg = (result.Sl - item.Sl) * item.GiaSp;
+                        tonkho.Sl = result.Sl - getCTGH.Sl;
+                        if(sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                            tonkho.Dg = (result.Sl - getCTGH.Sl) * sanpham.GiaSp;
+                        else
+                            tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
                         await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
                     }
                 }
@@ -274,8 +376,8 @@
                     tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
                     await tonkhoService.CreateTonkho(tonkho);
                 }
-
             }
+
         }
         else
         {
@@ -283,7 +385,9 @@
             dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
             dondatDto.TongDdh = @cartItems.Sum(item => (item.GiaSp * item.Sl));
             dondatDto.Diachi = khachhang.DiachiKh;
+            dondatDto.MaKh = ma_khCreate;
             await donDatService.CreateDonDat(dondatDto);
+            //chi tiet don dat
             foreach (var item in cartItems)
             {
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;

@@ -7,6 +7,8 @@ namespace Model.DataDB
     {
         public Sanpham()
         {
+            CoMaus = new HashSet<CoMau>();
+            CoSizes = new HashSet<CoSize>();
             CtDdhs = new HashSet<CtDdh>();
             CtDns = new HashSet<CtDn>();
             CtGhs = new HashSet<CtGh>();
@@ -15,8 +17,6 @@ namespace Model.DataDB
             Hinhanhs = new HashSet<Hinhanh>();
             Khuyenmais = new HashSet<Khuyenmai>();
             Tonkhos = new HashSet<Tonkho>();
-            MaSizes = new HashSet<Size>();
-            Mamaus = new HashSet<Mau>();
         }
 
         public string MaSp { get; set; } = null!;
@@ -30,6 +30,8 @@ namespace Model.DataDB
 
         public virtual Hx MaHsxNavigation { get; set; } = null!;
         public virtual LoaiSp MaLoaiNavigation { get; set; } = null!;
+        public virtual ICollection<CoMau> CoMaus { get; set; }
+        public virtual ICollection<CoSize> CoSizes { get; set; }
         public virtual ICollection<CtDdh> CtDdhs { get; set; }
         public virtual ICollection<CtDn> CtDns { get; set; }
         public virtual ICollection<CtGh> CtGhs { get; set; }
@@ -38,8 +40,5 @@ namespace Model.DataDB
         public virtual ICollection<Hinhanh> Hinhanhs { get; set; }
         public virtual ICollection<Khuyenmai> Khuyenmais { get; set; }
         public virtual ICollection<Tonkho> Tonkhos { get; set; }
-
-        public virtual ICollection<Size> MaSizes { get; set; }
-        public virtual ICollection<Mau> Mamaus { get; set; }
     }
 }

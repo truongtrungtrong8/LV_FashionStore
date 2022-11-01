@@ -16,6 +16,8 @@ namespace Model.DataDB
         {
         }
 
+        public virtual DbSet<CoMau> CoMaus { get; set; } = null!;
+        public virtual DbSet<CoSize> CoSizes { get; set; } = null!;
         public virtual DbSet<CtDdh> CtDdhs { get; set; } = null!;
         public virtual DbSet<CtDn> CtDns { get; set; } = null!;
         public virtual DbSet<CtGh> CtGhs { get; set; } = null!;
@@ -51,6 +53,72 @@ namespace Model.DataDB
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CoMau>(entity =>
+            {
+                entity.HasKey(e => new { e.Mamau, e.MaSp });
+
+                entity.ToTable("CO_MAU");
+
+                entity.Property(e => e.Mamau)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("MAMAU");
+
+                entity.Property(e => e.MaSp)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("MA_SP");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ID");
+
+                entity.HasOne(d => d.MaSpNavigation)
+                    .WithMany(p => p.CoMaus)
+                    .HasForeignKey(d => d.MaSp)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CO_MAU_CO_MAU2_SANPHAM");
+
+                entity.HasOne(d => d.MamauNavigation)
+                    .WithMany(p => p.CoMaus)
+                    .HasForeignKey(d => d.Mamau)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CO_MAU_CO_MAU_MAU");
+            });
+
+            modelBuilder.Entity<CoSize>(entity =>
+            {
+                entity.HasKey(e => new { e.MaSp, e.MaSize });
+
+                entity.ToTable("CO_SIZE");
+
+                entity.Property(e => e.MaSp)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("MA_SP");
+
+                entity.Property(e => e.MaSize)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("MA_SIZE");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ID");
+
+                entity.HasOne(d => d.MaSizeNavigation)
+                    .WithMany(p => p.CoSizes)
+                    .HasForeignKey(d => d.MaSize)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CO_SIZE_CO_SIZE2_SIZE");
+
+                entity.HasOne(d => d.MaSpNavigation)
+                    .WithMany(p => p.CoSizes)
+                    .HasForeignKey(d => d.MaSp)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CO_SIZE_CO_SIZE_SANPHAM");
+            });
+
             modelBuilder.Entity<CtDdh>(entity =>
             {
                 entity.HasKey(e => new { e.MaDdh, e.MaSp });
@@ -68,6 +136,14 @@ namespace Model.DataDB
                     .HasColumnName("MA_SP");
 
                 entity.Property(e => e.Dg).HasColumnName("DG");
+
+                entity.Property(e => e.Mau)
+                    .HasMaxLength(50)
+                    .HasColumnName("MAU");
+
+                entity.Property(e => e.Size)
+                    .HasMaxLength(50)
+                    .HasColumnName("SIZE");
 
                 entity.Property(e => e.Sl).HasColumnName("SL");
 
@@ -132,6 +208,14 @@ namespace Model.DataDB
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_GH");
+
+                entity.Property(e => e.Mau)
+                    .HasMaxLength(50)
+                    .HasColumnName("MAU");
+
+                entity.Property(e => e.Size)
+                    .HasMaxLength(50)
+                    .HasColumnName("SIZE");
 
                 entity.Property(e => e.Sl).HasColumnName("SL");
 
@@ -248,8 +332,7 @@ namespace Model.DataDB
 
             modelBuilder.Entity<Dondathang>(entity =>
             {
-                entity.HasKey(e => e.MaDdh)
-                    .IsClustered(false);
+                entity.HasKey(e => e.MaDdh);
 
                 entity.ToTable("DONDATHANG");
 
@@ -262,7 +345,18 @@ namespace Model.DataDB
                     .HasMaxLength(140)
                     .HasColumnName("DIACHI");
 
+                entity.Property(e => e.MaKh)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("MA_KH");
+
                 entity.Property(e => e.TongDdh).HasColumnName("TONG_DDH");
+
+                entity.HasOne(d => d.MaKhNavigation)
+                    .WithMany(p => p.Dondathangs)
+                    .HasForeignKey(d => d.MaKh)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DONDATHANG_KHACHHANG");
             });
 
             modelBuilder.Entity<Donnhap>(entity =>
@@ -534,23 +628,6 @@ namespace Model.DataDB
                 entity.Property(e => e.Tenmau)
                     .HasMaxLength(100)
                     .HasColumnName("TENMAU");
-
-                entity.HasMany(d => d.MaSps)
-                    .WithMany(p => p.Mamaus)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "CoMau",
-                        l => l.HasOne<Sanpham>().WithMany().HasForeignKey("MaSp").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CO_MAU_CO_MAU2_SANPHAM"),
-                        r => r.HasOne<Mau>().WithMany().HasForeignKey("Mamau").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CO_MAU_CO_MAU_MAU"),
-                        j =>
-                        {
-                            j.HasKey("Mamau", "MaSp");
-
-                            j.ToTable("CO_MAU");
-
-                            j.IndexerProperty<string>("Mamau").HasMaxLength(100).IsUnicode(false).HasColumnName("MAMAU");
-
-                            j.IndexerProperty<string>("MaSp").HasMaxLength(100).IsUnicode(false).HasColumnName("MA_SP");
-                        });
             });
 
             modelBuilder.Entity<Nhacungcap>(entity =>
@@ -685,23 +762,6 @@ namespace Model.DataDB
                     .HasForeignKey(d => d.MaLoai)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_SANPHAM_LOAI_LOAI_SP");
-
-                entity.HasMany(d => d.MaSizes)
-                    .WithMany(p => p.MaSps)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "CoSize",
-                        l => l.HasOne<Size>().WithMany().HasForeignKey("MaSize").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CO_SIZE_CO_SIZE2_SIZE"),
-                        r => r.HasOne<Sanpham>().WithMany().HasForeignKey("MaSp").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CO_SIZE_CO_SIZE_SANPHAM"),
-                        j =>
-                        {
-                            j.HasKey("MaSp", "MaSize");
-
-                            j.ToTable("CO_SIZE");
-
-                            j.IndexerProperty<string>("MaSp").HasMaxLength(100).IsUnicode(false).HasColumnName("MA_SP");
-
-                            j.IndexerProperty<string>("MaSize").HasMaxLength(100).IsUnicode(false).HasColumnName("MA_SIZE");
-                        });
             });
 
             modelBuilder.Entity<Size>(entity =>

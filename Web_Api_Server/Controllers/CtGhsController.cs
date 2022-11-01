@@ -35,6 +35,11 @@ namespace Web_Api_Server.Controllers
                            join h in _context.Giohangs on s.MaGh equals h.MaGh
                            join x in _context.Sanphams on s.MaSp equals x.MaSp
                            join l in _context.Hinhanhs on x.MaSp equals l.MaSp
+                           join k in _context.Khuyenmais on x.MaSp equals k.MaSp
+                           join co_size in _context.CoSizes on x.MaSp equals co_size.MaSp
+                           join size in _context.Sizes on co_size.MaSize equals size.MaSize
+                           join co_mau in _context.CoMaus on x.MaSp equals co_mau.MaSp
+                           join mau in _context.Maus on co_mau.Mamau equals mau.Mamau
                            where s.MaGh == id
                            select new CartItems()
                            {
@@ -45,9 +50,47 @@ namespace Web_Api_Server.Controllers
                                HaBia = l.HaBia,
                                GiaSp = x.GiaSp,
                                Sl = s.Sl,
+                               Thoigian = k.Thoigian,
+                               Tile = k.Tile,
+                               Ma_Mau = mau.Mamau,
+                               Ten_Mau = mau.Tenmau,
+                               Ma_Size = size.MaSize,
+                               Ten_Size = size.TenSize,
                            });
-
             return await cartuser.ToListAsync();
+        }
+        //
+        [HttpGet("getCartBySP")]
+        public async Task<ActionResult<CartItems>> GetCartBySp(string id)
+        {
+
+            var cartuser = (from s in _context.CtGhs
+                            join h in _context.Giohangs on s.MaGh equals h.MaGh
+                            join x in _context.Sanphams on s.MaSp equals x.MaSp
+                            join l in _context.Hinhanhs on x.MaSp equals l.MaSp
+                            join k in _context.Khuyenmais on x.MaSp equals k.MaSp
+                            join co_size in _context.CoSizes on x.MaSp equals co_size.MaSp
+                            join size in _context.Sizes on co_size.MaSize equals size.MaSize
+                            join co_mau in _context.CoMaus on x.MaSp equals co_mau.MaSp
+                            join mau in _context.Maus on co_mau.Mamau equals mau.Mamau
+                            where x.MaSp == id
+                            select new CartItems()
+                            {
+                                MaSp = s.MaSp,
+                                MaGh = s.MaGh,
+                                MaKh = h.MaKh,
+                                TenSp = x.TenSp,
+                                HaBia = l.HaBia,
+                                GiaSp = x.GiaSp,
+                                Sl = s.Sl,
+                                Thoigian = k.Thoigian,
+                                Tile = k.Tile,
+                                Ma_Mau = mau.Mamau,
+                                Ten_Mau = mau.Tenmau,
+                                Ma_Size = size.MaSize,
+                                Ten_Size = size.TenSize,
+                            });
+            return await cartuser.SingleOrDefaultAsync();
         }
         [HttpGet("GetCTGiohang")]
         public async Task<ActionResult<CtGioHangDto>> GetCtGiohang(string id, string id1)
@@ -95,6 +138,8 @@ namespace Web_Api_Server.Controllers
             temp.MaGh = ctGh.MaGh;
             temp.MaSp = ctGh.MaSp;
             temp.Sl = ctGh.Sl;
+            temp.Mau = ctGh.Mau;
+            temp.Size = ctGh.Size;
             _context.CtGhs.Update(temp);
             await _context.SaveChangesAsync();
             return Ok();
@@ -113,6 +158,8 @@ namespace Web_Api_Server.Controllers
                 MaSp = request.MaSp,
                 MaGh = request.MaGh,
                 Sl = request.Sl,
+                Size = request.Size,
+                Mau = request.Mau,
             };
 
             await _context.CtGhs.AddAsync(ctgh);

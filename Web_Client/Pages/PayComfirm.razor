@@ -103,13 +103,12 @@
 
             if (!checkSignature)
             {
+                //// 
                 await sessionStorage.SetItemAsync<string>("vnpcheckcode_true", vnp_ResponseCode);
                 if (vnp_ResponseCode == "00")
                 {
-
                     //Thanh toán thành công
                     NavigationManager.NavigateTo("/Cart/Cart");
-                    toastService.ShowSuccess("Thanh toán thành công hóa đơn ", "Thông báo !");
                 }
                 else
                 {

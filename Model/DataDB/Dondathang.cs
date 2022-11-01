@@ -11,9 +11,11 @@ namespace Model.DataDB
         }
 
         public string MaDdh { get; set; } = null!;
+        public string MaKh { get; set; } = null!;
         public int TongDdh { get; set; }
         public string? Diachi { get; set; }
 
+        public virtual Khachhang MaKhNavigation { get; set; } = null!;
         public virtual ICollection<CtDdh> CtDdhs { get; set; }
     }
 }

@@ -7,6 +7,7 @@ namespace Model.DataDB
     {
         public Khachhang()
         {
+            Dondathangs = new HashSet<Dondathang>();
             Giohangs = new HashSet<Giohang>();
             Hoadons = new HashSet<Hoadon>();
         }
@@ -18,6 +19,7 @@ namespace Model.DataDB
         public string? DiachiKh { get; set; }
 
         public virtual Taikhoan? TenTkNavigation { get; set; }
+        public virtual ICollection<Dondathang> Dondathangs { get; set; }
         public virtual ICollection<Giohang> Giohangs { get; set; }
         public virtual ICollection<Hoadon> Hoadons { get; set; }
     }

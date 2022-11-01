@@ -56,7 +56,7 @@
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
     CtDonDatService CtDonDatService = new CtDonDatService();
 
-
+    Giohang giohang = new Giohang();
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
 
@@ -67,13 +67,18 @@
     private string Message { get; set; } = "";
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
+    private string id { get; set; } = "";
     protected override async Task OnInitializedAsync()
     {
 
         var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        id = "GH" + makhachhang;
+
         if (makhachhang != null)
         {
-            cartItems = await CartService.GetCartItems(makhachhang);
+            id = "GH" + makhachhang;
+            giohang = await gioHangService.GetDetail(id);
+            cartItems = await cTGioHangService.GetCartAllInUser(makhachhang);
             var result = await khachHangService.GetKhachHang(makhachhang);
             newkhachang.MaKh = result.MaKh;
             newkhachang.TenKh = result.TenKh;
@@ -83,8 +88,11 @@
         }
         else
         {
+
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-            cartItems = await CartService.GetCartItems(ma_khCreate);
+            id = "GH" + ma_khCreate;
+            giohang = await gioHangService.GetDetail(id);
+            cartItems = await cTGioHangService.GetCartAllInUser(ma_khCreate);
             var result = await khachHangService.GetKhachHang(ma_khCreate);
             newkhachang.MaKh = result.MaKh;
             newkhachang.TenKh = result.TenKh;
@@ -129,11 +137,11 @@
         string hashSecret = "TEPHMKQSDCNVKDFCAMUICRAJVMMXNQFF";
 
         PayLib pay = new PayLib();
-
+        
         pay.AddRequestData("vnp_Version", "2.0.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.0.0
         pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
         pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
-        pay.AddRequestData("vnp_Amount", (cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05) * 100).ToString()); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
+        pay.AddRequestData("vnp_Amount", ((giohang.Tongtien + (giohang.Tongtien * 0.02)) * 100 ).ToString());
         pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
         pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
         pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
@@ -145,13 +153,11 @@
         pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
 
         string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
-
         if (paying == false)
         {
-            await JSRuntime.InvokeVoidAsync("open", paymentUrl, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", paymentUrl, "_self");
             paying = true;
             var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
-           
         }
         else
         {

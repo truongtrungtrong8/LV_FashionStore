@@ -17,9 +17,15 @@ namespace Model
         public string TenSp { get; set; }
         public int GiaSp { get; set; }
         public string? HaBia { get; set; }
+        public int Id { get; set; }
+        public DateTime Thoigian { get; set; }
 
-        public virtual ICollection<Size> MaSizes { get; set; }
-        public virtual ICollection<Mau> Mamaus { get; set; }
+        public double Tile { get; set; }
+
+        public string Ma_Size { get; set; }
+        public string Ten_Size { get; set; }
+        public string Ma_Mau { get; set; }
+        public string Ten_Mau { get; set; }
     }
 
 

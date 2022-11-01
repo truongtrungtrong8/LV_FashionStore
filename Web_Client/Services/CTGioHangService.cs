@@ -25,10 +25,10 @@ namespace Web_Client.Services
             return result.IsSuccessStatusCode;
         }
         ///https://localhost:7118/api/CtGhs/GetCTGiohang?id=1
-        //public async Task<CTGioHangDto> GetCtGiohang(string id)
-        //{
-        //    return await Http.GetFromJsonAsync<CTGioHangDto>(baseUrl + "/GetCTGiohang?id=" + id);
-        //}
+        public async Task<CartItems> GetCartBySp(string id)
+        {
+            return await Http.GetFromJsonAsync<CartItems>(baseUrl + "/getCartBySP?id=" + id);
+        }
         //public async Task<CTGioHangDto> GetCtGiohangSP(string id)
         //{
         //    return await Http.GetFromJsonAsync<CTGioHangDto>(baseUrl + "/GetCTGiohangSanpham?id=" + id);

@@ -116,7 +116,7 @@
 
     }
 
-   
+
     public async void Register(ModalSize size, ModalPosition position)
     {
         var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
@@ -128,11 +128,27 @@
     }
     public async void Logout() 
     {
-        await sessionStorage.ClearAsync();
-        await localstorage.ClearAsync();
-        toastService.ShowWarning("Đăng xuất thành công !", "Hẹn gặp lại bạn !");
-        NavigationManager.NavigateTo("/",forceLoad: true);
-        StateHasChanged();
+        try
+        {
+            await sessionStorage.ClearAsync();
+            await localstorage.SetItemAsync<string>("1", "1");
+            await localstorage.SetItemAsync<string>("2", "2");
+            await localstorage.SetItemAsync<string>("3", "3");
+            var temp = await localstorage.GetItemAsync<string>("1");
+            var temp1 = temp;
+            await localstorage.ClearAsync();
+            var temp2 = await localstorage.GetItemAsync<string>("1");
+            var temp3 = temp;
+            toastService.ShowWarning("Đăng xuất thành công !", "Hẹn gặp lại bạn !");
+            NavigationManager.NavigateTo("/Cart/Cart");
+            NavigationManager.NavigateTo("/");
+            StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+        
 
     }
 

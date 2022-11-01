@@ -7,12 +7,12 @@ namespace Model.DataDB
     {
         public Mau()
         {
-            MaSps = new HashSet<Sanpham>();
+            CoMaus = new HashSet<CoMau>();
         }
 
         public string Mamau { get; set; } = null!;
         public string? Tenmau { get; set; }
 
-        public virtual ICollection<Sanpham> MaSps { get; set; }
+        public virtual ICollection<CoMau> CoMaus { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Model.DataDB
 
         public string MaGh { get; set; } = null!;
         public string MaKh { get; set; } = null!;
-        public int? Tongtien { get; set; }
+        public int Tongtien { get; set; }
         public DateTime? Ngaydat { get; set; }
 
         public virtual Khachhang MaKhNavigation { get; set; } = null!;

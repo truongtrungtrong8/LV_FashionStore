@@ -38,7 +38,8 @@ namespace Web_Api_Server.Controllers
                            {
                               MaDdh = s.MaDdh,
                               TongDdh = s.TongDdh,
-                              Diachi = s.Diachi,    
+                              Diachi = s.Diachi,
+                              MaKh = s.MaKh
                            });
             return await dondat.ToListAsync();
         }
@@ -102,7 +103,7 @@ namespace Web_Api_Server.Controllers
                 MaDdh = request.MaDdh,
                 TongDdh = request.TongDdh,
                 Diachi = request.Diachi,
-
+                MaKh = request.MaKh
             };
 
             await _context.Dondathangs.AddAsync(dondat);

@@ -7,12 +7,12 @@ namespace Model.DataDB
     {
         public Size()
         {
-            MaSps = new HashSet<Sanpham>();
+            CoSizes = new HashSet<CoSize>();
         }
 
         public string MaSize { get; set; } = null!;
         public string? TenSize { get; set; }
 
-        public virtual ICollection<Sanpham> MaSps { get; set; }
+        public virtual ICollection<CoSize> CoSizes { get; set; }
     }
 }
