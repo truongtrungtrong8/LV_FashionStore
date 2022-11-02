@@ -80,9 +80,7 @@
                     <strong class="text-dark mr-3">Sizes:</strong>
                    
                     <EditForm Model="cTGioHangDto">
-                        
                         <InputRadioGroup @bind-Value=@cTGioHangDto.Size @ref=checkSize>
-                            
                             @foreach(var item in sizeList)
                             {
                                 <div class="custom-control custom-radio custom-control-inline">
@@ -90,9 +88,7 @@
                                 <label class="custom-control-label" for="@item.MaSize"> @item.TenSize </label>
                                 </div>
                             }
-                            
                         </InputRadioGroup>
-                        
                     </EditForm>
                     @*<form>
                         <div class="custom-control custom-radio custom-control-inline">
@@ -119,7 +115,18 @@
                 </div>
                 <div class="d-flex mb-4">
                     <strong class="text-dark mr-3">Màu:</strong>
-                    <form>
+                    <EditForm Model="cTGioHangDto">
+                        <InputRadioGroup @bind-Value=@cTGioHangDto.Mau @ref=checkMau>
+                            @foreach (var item in mauList)
+                            {
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <InputRadio class="custom-control-input" id="@item.Mamau" Value="@item.Tenmau" />
+                                    <label class="custom-control-label" for="@item.Mamau"> @item.Tenmau </label>
+                                </div>
+                            }
+                        </InputRadioGroup>
+                    </EditForm>
+                  @*  <form>
                         <div class="custom-control custom-radio custom-control-inline">
                             <input type="radio" class="custom-control-input" id="color-1" name="color">
                             <label class="custom-control-label" for="color-1">Trắng</label>
@@ -136,7 +143,7 @@
                             <input type="radio" class="custom-control-input" id="color-4" name="color">
                             <label class="custom-control-label" for="color-4">Xanh</label>
                         </div>
-                    </form>
+                    </form>*@
                 </div>
                 
                 <div class="d-flex align-items-center mb-4 pt-2">
@@ -190,17 +197,19 @@
 @code {
     string urlimage = "https://localhost:7268";
     const string key = "CartItemCollection";
-    private InputNumber<int> Sl { get; set; }
     [Parameter]
     public string Id { get; set; }
     public InputRadioGroup<string> checkSize { get; set; }
+    public InputRadioGroup<string> checkMau { get; set; }
+    private InputNumber<int> Sl { get; set; }
+
     Sanpham_Model sanpham = new Sanpham_Model();
-    //private CartInUser cartItem = new CartInUser { Sl = 1 };
-    //public List<CartInUser> cartItems_List = new List<CartInUser>();
 
     private List<Size> sizeList = new List<Size>();
-    Size size = new Size();
     SizeService sizeService = new SizeService();
+
+    private List<Mau> mauList = new List<Mau>();
+    MauService mauService = new MauService();
 
     private CartItems cartItem = new CartItems { Sl = 1 };
     public List<CartItems> cartItems_List = new List<CartItems>();
@@ -239,14 +248,15 @@
             tonkho = await tonkhoService.GetTonkho(Id);
             sanpham = await sanphamService.GetProduct(Id);
             sizeList = await sizeService.GetListSize();
+            mauList = await mauService.GetListMau();
 
         }
         catch (Exception ex)
         {
-
             tonkho = null;
             sanpham = await sanphamService.GetProduct(Id);
             sizeList = await sizeService.GetListSize();
+            mauList = await mauService.GetListMau();
         }
     }
 
@@ -298,6 +308,7 @@
                                     cTGioHangDto.MaSp = edit.MaSp;
                                     cTGioHangDto.Sl = edit.Sl + Sl.Value;
                                     cTGioHangDto.Size = checkSize.Value;
+                                    cTGioHangDto.Mau = checkMau.Value;
                                     try
                                     {
                                         if (tonkho.Sl < Sl.Value)
@@ -328,6 +339,7 @@
                                 cTGioHangDto.MaSp = sanpham.MaSp;
                                 cTGioHangDto.Sl = Sl.Value;
                                 cTGioHangDto.Size = checkSize.Value;
+                                cTGioHangDto.Mau = checkMau.Value;
                                 try
                                 {
                                     if (tonkho.Sl < Sl.Value)
@@ -371,6 +383,7 @@
                                     cTGioHangDto.MaSp = edit.MaSp;
                                     cTGioHangDto.Sl = edit.Sl + Sl.Value;
                                     cTGioHangDto.Size = checkSize.Value;
+                                    cTGioHangDto.Mau = checkMau.Value;
                                     try
                                     {
                                         if (tonkho.Sl < Sl.Value)
@@ -401,6 +414,7 @@
                                 cTGioHangDto.MaSp = sanpham.MaSp;
                                 cTGioHangDto.Sl = Sl.Value;
                                 cTGioHangDto.Size = checkSize.Value;
+                                cTGioHangDto.Mau = checkMau.Value;
                                 try
                                 {
                                     if (tonkho.Sl < Sl.Value)
@@ -441,7 +455,7 @@
                         cTGioHangDto.MaSp = sanpham.MaSp;
                         cTGioHangDto.Sl = Sl.Value;
                         cTGioHangDto.Size = checkSize.Value;
-                        cTGioHangDto.Mau = "Do";
+                        cTGioHangDto.Mau = checkMau.Value;
                         try
                         {
                             if (tonkho.Sl < Sl.Value)
@@ -477,6 +491,7 @@
                         cTGioHangDto.MaSp = sanpham.MaSp;
                         cTGioHangDto.Sl = Sl.Value;
                         cTGioHangDto.Size = checkSize.Value;
+                        cTGioHangDto.Mau = checkMau.Value;
                         try
                         {
                             if (tonkho.Sl < Sl.Value)

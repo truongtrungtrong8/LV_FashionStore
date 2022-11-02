@@ -36,10 +36,7 @@ namespace Web_Api_Server.Controllers
                            join x in _context.Sanphams on s.MaSp equals x.MaSp
                            join l in _context.Hinhanhs on x.MaSp equals l.MaSp
                            join k in _context.Khuyenmais on x.MaSp equals k.MaSp
-                           join co_size in _context.CoSizes on x.MaSp equals co_size.MaSp
-                           join size in _context.Sizes on co_size.MaSize equals size.MaSize
-                           join co_mau in _context.CoMaus on x.MaSp equals co_mau.MaSp
-                           join mau in _context.Maus on co_mau.Mamau equals mau.Mamau
+                           
                            where s.MaGh == id
                            select new CartItems()
                            {
@@ -52,10 +49,8 @@ namespace Web_Api_Server.Controllers
                                Sl = s.Sl,
                                Thoigian = k.Thoigian,
                                Tile = k.Tile,
-                               Ma_Mau = mau.Mamau,
-                               Ten_Mau = mau.Tenmau,
-                               Ma_Size = size.MaSize,
-                               Ten_Size = size.TenSize,
+                               Ten_Mau = s.Mau,
+                               Ten_Size = s.Size
                            });
             return await cartuser.ToListAsync();
         }
@@ -69,10 +64,7 @@ namespace Web_Api_Server.Controllers
                             join x in _context.Sanphams on s.MaSp equals x.MaSp
                             join l in _context.Hinhanhs on x.MaSp equals l.MaSp
                             join k in _context.Khuyenmais on x.MaSp equals k.MaSp
-                            join co_size in _context.CoSizes on x.MaSp equals co_size.MaSp
-                            join size in _context.Sizes on co_size.MaSize equals size.MaSize
-                            join co_mau in _context.CoMaus on x.MaSp equals co_mau.MaSp
-                            join mau in _context.Maus on co_mau.Mamau equals mau.Mamau
+                            
                             where x.MaSp == id
                             select new CartItems()
                             {
@@ -85,10 +77,8 @@ namespace Web_Api_Server.Controllers
                                 Sl = s.Sl,
                                 Thoigian = k.Thoigian,
                                 Tile = k.Tile,
-                                Ma_Mau = mau.Mamau,
-                                Ten_Mau = mau.Tenmau,
-                                Ma_Size = size.MaSize,
-                                Ten_Size = size.TenSize,
+                                Ten_Mau = s.Mau,
+                                Ten_Size = s.Size
                             });
             return await cartuser.SingleOrDefaultAsync();
         }

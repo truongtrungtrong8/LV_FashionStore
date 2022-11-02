@@ -1,6 +1,6 @@
 ﻿@using Blazored.Toast.Configuration
 @inject IJSRuntime JS
-
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inherits LayoutComponentBase
 
 
@@ -13,16 +13,8 @@
     <!-- Navbar Start -->
     <NavBarMenu />
     <!-- Navbar End -->
-
-
     <!-- Carousel Start -->
-    <Carousel />
-    <!-- Carousel End -->
-
-
-    <!-- Featured Start -->
-  <Featured />
-    <!-- Featured End -->
+    
     @Body
 
 <!-- Vendor Start -->
@@ -139,8 +131,10 @@
                 ErrorIcon="fa fa-bug" />
 
 
- @code{
+@code{
     private IJSObjectReference module;
+    private string checkcart;
+    private string checkDDH;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

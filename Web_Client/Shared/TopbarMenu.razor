@@ -27,6 +27,11 @@
                         <button class="dropdown-item" type="button" @onclick="() => Login(ModalSize.Custom,ModalPosition.TopCenter)">Đăng nhập</button>
                         <button class="dropdown-item" type="button" @onclick="() => Register(ModalSize.Custom,ModalPosition.TopCenter)">Đăng ký</button>
                         <button class="dropdown-item" type="button" @onclick="Logout">Đăng xuất</button>
+                        @if(name != null || name1 != null)
+                        {
+                            <button class="dropdown-item" type="button" @onclick="DDH" >Đơn đặt hàng</button>
+                            <button class="dropdown-item" type="button" @onclick="HoaDon">Xem hóa đơn</button>
+                        }
                         
                     </div>
                 </div>
@@ -69,8 +74,8 @@
         <div class="col-lg-4 col-6 text-left">
             <form action="">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for products">
-                    <div class="input-group-append">
+                    <input type="text" class="form-control" placeholder="Search for products" hidden>
+                    <div class="input-group-append" hidden>
                         <span class="input-group-text bg-transparent text-primary">
                             <i class="fa fa-search"></i>
                         </span>
@@ -79,6 +84,7 @@
             </form>
         </div>
         @if(name != null) {
+            display = "block;";
             <div class="col-lg-4 col-6 text-right">
                 <p class="m-0">Chào bạn !</p>
                 <h5 class="m-0">@name</h5>
@@ -86,6 +92,7 @@
         }
         else if(name1 != null)
         {
+            display = "block;";
             <div class="col-lg-4 col-6 text-right">
                 <p class="m-0">Chào bạn !</p>
                 <h5 class="m-0">@name1</h5>
@@ -100,6 +107,7 @@
     private Modal modal { get; set; }
     private string name { get; set; }
     private string name1 { get; set; }
+    private string display = "none;";
     [CascadingParameter] public IModalService Modal { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -130,25 +138,18 @@
     {
         try
         {
+            display = "none;";
             await sessionStorage.ClearAsync();
-            await localstorage.SetItemAsync<string>("1", "1");
-            await localstorage.SetItemAsync<string>("2", "2");
-            await localstorage.SetItemAsync<string>("3", "3");
-            var temp = await localstorage.GetItemAsync<string>("1");
-            var temp1 = temp;
             await localstorage.ClearAsync();
-            var temp2 = await localstorage.GetItemAsync<string>("1");
-            var temp3 = temp;
+            NavigationManager.NavigateTo("/",forceLoad:true);
             toastService.ShowWarning("Đăng xuất thành công !", "Hẹn gặp lại bạn !");
-            NavigationManager.NavigateTo("/Cart/Cart");
-            NavigationManager.NavigateTo("/");
             StateHasChanged();
         }
         catch(Exception ex)
         {
             Console.WriteLine(ex);
         }
-        
+
 
     }
 
@@ -180,5 +181,13 @@
         {
             NavigationManager.NavigateTo("/Cart/Cart");
         }
+    }
+    private async void DDH()
+    {
+        NavigationManager.NavigateTo("/KhachHang/Index");
+    }
+    private async void HoaDon()
+    {
+        NavigationManager.NavigateTo("/Cart/Ivoice");
     }
 }

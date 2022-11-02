@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model.Dto
 {
-    public class CtDonDatDto
+    public class CtddhDtoList
     {
         public string MaDdh { get; set; } = null!;
         public string MaSp { get; set; } = null!;
@@ -15,5 +15,10 @@ namespace Model.Dto
 
         public string Mau { get; set; }
         public string Size { get; set; }
+        public string TenKH { get; set; }
+        public string Hinhanh { get; set; }
+        public string TenSP { get; set; }
+        public int TongTien { get; set; }
+        public string DiaChi { get; set; }
     }
 }

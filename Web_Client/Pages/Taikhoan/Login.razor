@@ -126,9 +126,10 @@
                                 }
                                 else
                                 {
+                                    
                                     await this.ModalInstance.CancelAsync();
+                                    NavigationManager.NavigateTo("/",forceLoad:true);
                                     toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
-                                    NavigationManager.NavigateTo("/", forceLoad: true);
                                 }
 
                             }

@@ -70,10 +70,7 @@
     private string id { get; set; } = "";
     protected override async Task OnInitializedAsync()
     {
-
         var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        id = "GH" + makhachhang;
-
         if (makhachhang != null)
         {
             id = "GH" + makhachhang;

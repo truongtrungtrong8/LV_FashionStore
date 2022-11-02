@@ -13,6 +13,7 @@
 @inject ICartService CartService
 @inject ISanphamService sanpham
 @using System.Security.Cryptography
+@layout Layout_Ivoice
 
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
 
@@ -94,6 +95,9 @@
                         <div class="d-none d-sm-block col-1">#</div>
                         <div class="col-9 col-sm-5">Tên sản phẩm</div>
                         <div class="d-none d-sm-block col-4 col-sm-2">Số lượng</div>
+                       
+                        <div class="d-none d-sm-block col-sm-2">Màu</div>
+                        <div class="d-none d-sm-block col-sm-2">Size</div>
                         <div class="d-none d-sm-block col-sm-2">Giá</div>
                         
                     </div>
@@ -101,13 +105,29 @@
                     <div class="text-95 text-secondary-d3">
                         @foreach(var item in cartItems.Select((value,i) => new {i, value}))
                         {
-                            <div class="row mb-2 mb-sm-0 py-25">
-                                <div class="d-none d-sm-block col-1">@(item.i + 1)</div>
-                                <div class="col-9 col-sm-5">@item.value.TenSp</div>
-                                <div class="d-none d-sm-block col-2">@item.value.Sl</div>
-                                <div class="d-none d-sm-block col-2 text-95">@sanpham.FormatVND(item.value.GiaSp) VND</div>
-                                
-                            </div>
+                            @if (item.value.Thoigian.Date == DateTime.Now.Date || item.value.Thoigian.Date < DateTime.Now.Date)
+                            {
+                                <div class="row mb-2 mb-sm-0 py-25">
+                                    <div class="d-none d-sm-block col-1">@(item.i + 1)</div>
+                                    <div class="col-9 col-sm-5">@item.value.TenSp</div>
+                                    <div class="d-none d-sm-block col-2">@item.value.Sl</div>
+                                    <div class="d-none d-sm-block col-2 text-95">@item.value.Ten_Mau</div>
+                                    <div class="d-none d-sm-block col-2 text-95">@item.value.Ten_Size</div>
+                                    <div class="d-none d-sm-block col-2 text-95">@sanpham.FormatVND(item.value.GiaSp) VND</div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row mb-2 mb-sm-0 py-25">
+                                    <div class="d-none d-sm-block col-1">@(item.i + 1)</div>
+                                    <div class="col-9 col-sm-5">@item.value.TenSp</div>
+                                    <div class="d-none d-sm-block col-2">@item.value.Sl</div>
+                                    <div class="d-none d-sm-block col-2 text-95">@item.value.Ten_Mau</div>
+                                    <div class="d-none d-sm-block col-2 text-95">@item.value.Ten_Size</div>
+                                    <div class="d-none d-sm-block col-2 text-95">@sanpham.FormatVND(item.value.GiaSp - (item.value.GiaSp*item.value.Tile)) VND</div>
+                                </div>
+                            }
+                           
                         }
                        
                     </div>
@@ -123,7 +143,7 @@
                                     Chưa VAT
                                 </div>
                                 <div class="col-5">
-                                    <span class="text-120 text-secondary-d1">@sanpham.FormatVND(@cartItems.Sum(item =>(item.GiaSp * item.Sl))) VND</span>
+                                    <span class="text-120 text-secondary-d1">@sanpham.FormatVND(giohang.Tongtien) VND</span>
                                 </div>
                             </div>
 
@@ -132,7 +152,7 @@
                                     VAT (2%)
                                 </div>
                                 <div class="col-5">
-                                    <span class="text-110 text-secondary-d1">@sanpham.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)*0.02).ToString())) VND</span>
+                                    <span class="text-110 text-secondary-d1">@sanpham.FormatVND(giohang.Tongtien*0.02) VND</span>
                                 </div>
                             </div>
 
@@ -141,7 +161,7 @@
                                     Tổng hóa đơn
                                 </div>
                                 <div class="col-5">
-                                    <span class="text-110 text-secondary-d1">@sanpham.FormatVND(int.Parse(@cartItems.Sum(item =>(item.GiaSp * item.Sl)+(item.GiaSp * item.Sl)*0.02).ToString())) VND</span>
+                                    <span class="text-110 text-secondary-d1">@sanpham.FormatVND(giohang.Tongtien - (giohang.Tongtien*0.02)) VND</span>
                                 </div>
                             </div>
                         </div>
@@ -151,7 +171,7 @@
 
                     <div>
                         <span class="text-secondary-d1 text-105">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi !</span>
-                        <a href="#" class="btn btn-info btn-bold px-4 float-right mt-3 mt-lg-0">Pay Now</a>
+                        <a @onclick="Close" class="btn btn-info btn-bold px-4 float-right mt-3 mt-lg-0">Ok</a>
                     </div>
                 </div>
             </div>
@@ -302,6 +322,9 @@ hr {
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
+    Giohang giohang = new Giohang();
+    GioHangService gioHangService = new GioHangService();
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -309,17 +332,31 @@ hr {
     {
         try
         {
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
             var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            string temp = "GH" + makhachhang;
-            cartItems = await cTGioHangService.GetCartAllInUser(temp);
-            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+            string temp = "GH" + ma_khLogin;
+            if(ma_khLogin != null)
+            {
+                cartItems = await cTGioHangService.GetCartAllInUser(temp);
+                khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+                giohang = await gioHangService.GetDetail(temp);
+            }
+            else
+            {
+                string temp1 = "GH" + ma_khCreate;
+                cartItems = await cTGioHangService.GetCartAllInUser(temp1);
+                khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+                giohang = await gioHangService.GetDetail(temp1);
+            }
         }
         catch (Exception ex)
         {
 
         }
 
+    }
+    private async void Close()
+    {
+      await ModalInstance.CloseAsync();
     }
 }

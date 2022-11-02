@@ -56,7 +56,7 @@
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
     CtDonDatService CtDonDatService = new CtDonDatService();
 
-
+    Giohang giohang = new Giohang();
     GioHangDto gioHangDto = new GioHangDto();
     CTGioHangDto cTGioHangDto = new CTGioHangDto();
 
@@ -73,10 +73,10 @@
         {
             var checkdisplay = await sessionStorage.GetItemAsync<string>("display");
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            cartItems = await CartService.GetCartItems(makhachhang);
-            
             if(makhachhang != null)
             {
+                string temp = "GH" + makhachhang;
+                cartItems = await cTGioHangService.GetCartAllInUser(temp);
                 var result = await khachHangService.GetKhachHang(makhachhang);
                 newkhachang.MaKh = result.MaKh;
                 newkhachang.TenKh = result.TenKh;
@@ -86,8 +86,11 @@
             }
             else
             {
+                
                 var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
                 var result = await khachHangService.GetKhachHang(ma_khCreate);
+                string temp = "GH" + ma_khCreate;
+                cartItems = await cTGioHangService.GetCartAllInUser(temp);
                 newkhachang.MaKh = result.MaKh;
                 newkhachang.TenKh = result.TenKh;
                 newkhachang.TenTk = result.TenTk;
@@ -129,6 +132,8 @@
             var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
             khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+            var id = "GH" + ma_khLogin;
+            giohang = await gioHangService.GetDetail(id);
             if(name_khLogin != null)
             {
                 try
@@ -138,11 +143,16 @@
                         mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
                         mail.To.Add("truongtrungtrong@gmail.com");
                         mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                        mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                        mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                        mail.Body += "<p>Thời gian: " + DateTime.Now;
-                        mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
-                        mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
+                        mail.Body += "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
+                        mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn";
+                        mail.Body += "Thời gian: " + DateTime.Now;
+                        
+                        foreach(var item in cartItems)
+                        {
+                            mail.Body +=item.TenSp +" --Màu: "+ item.Ten_Mau + " --Size: " + item.Ten_Size;
+                        }
+                        mail.Body += "Giá tổng sản phẩm: " + sanpham.FormatVND(giohang.Tongtien + (giohang.Tongtien * 0.02)) + " VND " + " trên " + cartItems.Count() + " sản phẩm ";
+                        mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString();
                         mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
                         mail.IsBodyHtml = true;
                         using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
@@ -151,7 +161,6 @@
                             smtp.EnableSsl = true;
                             smtp.Send(mail);
                             Message = "Mail Sent";
-
                         }
                     }
 
@@ -177,11 +186,15 @@
                     mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
                     mail.To.Add("truongtrungtrong@gmail.com");
                     mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                    mail.Body = "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn <p/>";
-                    mail.Body += "<p>Thời gian: " + DateTime.Now;
-                    mail.Body += "<p>Giá tổng sản phẩm: " + sanpham.FormatVND(int.Parse(@cartItems.Sum(item => (item.GiaSp * item.Sl) - (item.GiaSp * item.Sl) * 0.05).ToString())) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
-                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
+                    mail.Body += "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
+                    mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn";
+                    mail.Body += "Thời gian: " + DateTime.Now;
+                    foreach (var item in cartItems)
+                    {
+                        mail.Body += item.TenSp + " --Màu: " + item.Ten_Mau + " --Size: " + item.Ten_Size;
+                    }
+                    mail.Body += "Giá tổng sản phẩm: " + sanpham.FormatVND(giohang.Tongtien + (giohang.Tongtien * 0.02)) + " VND " + " trên " + cartItems.Count() + " sản phẩm ";
+                    mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString();
                     mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
                     mail.IsBodyHtml = true;
                     using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
@@ -192,6 +205,9 @@
                         Message = "Mail Sent";
                     }
                 }
+
+                NavigationManager.NavigateTo("/");
+                toastService.ShowSuccess("Mời bạn kiểm tra email truongtrungtrong@gmail.com ", "Thành công !");
             }
             catch (Exception ex)
             {
