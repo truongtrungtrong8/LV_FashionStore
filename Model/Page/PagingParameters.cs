@@ -23,6 +23,6 @@ namespace Models.Page
             }
         }
         public string? SearchTerm { get; set; } = null;
-        public string OrderBy { get; set; } = "name";
+        public string? OrderBy { get; set; } = null;
     }
 }

@@ -14,7 +14,7 @@ namespace Model.DataDB
         public string MaNv { get; set; } = null!;
         public string MaKh { get; set; } = null!;
         public DateTime? NgaylapHd { get; set; }
-        public int? TongHd { get; set; }
+        public int TongHd { get; set; }
         public string? DiachiHd { get; set; }
 
         public virtual Khachhang MaKhNavigation { get; set; } = null!;

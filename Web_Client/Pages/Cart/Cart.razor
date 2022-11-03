@@ -330,6 +330,7 @@
                 dondatDto.TongDdh = result_km.Tongtien;
                 dondatDto.Diachi = khachhang.DiachiKh;
                 dondatDto.MaKh = ma_khLogin; //khachhang
+                dondatDto.Thoigian = DateTime.Now;
                 await donDatService.CreateDonDat(dondatDto);
                 //chi tiet don dat hang
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;
@@ -384,6 +385,7 @@
                 dondatDto.TongDdh = result_km.Tongtien;
                 dondatDto.Diachi = khachhang.DiachiKh;
                 dondatDto.MaKh = ma_khCreate; //khachhang
+                dondatDto.Thoigian = DateTime.Now;
                 await donDatService.CreateDonDat(dondatDto);
                 //chi tiet don dat hang
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;

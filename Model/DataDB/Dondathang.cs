@@ -14,6 +14,7 @@ namespace Model.DataDB
         public string MaKh { get; set; } = null!;
         public int TongDdh { get; set; }
         public string? Diachi { get; set; }
+        public DateTime Thoigian { get; set; }
 
         public virtual Khachhang MaKhNavigation { get; set; } = null!;
         public virtual ICollection<CtDdh> CtDdhs { get; set; }

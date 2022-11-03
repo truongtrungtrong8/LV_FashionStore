@@ -24,6 +24,7 @@ namespace Model.DataDB
         public virtual DbSet<CtHd> CtHds { get; set; } = null!;
         public virtual DbSet<CtT> CtTs { get; set; } = null!;
         public virtual DbSet<Cuahang> Cuahangs { get; set; } = null!;
+        public virtual DbSet<DanhgiaSanpham> DanhgiaSanphams { get; set; } = null!;
         public virtual DbSet<Dondathang> Dondathangs { get; set; } = null!;
         public virtual DbSet<Donnhap> Donnhaps { get; set; } = null!;
         public virtual DbSet<Giohang> Giohangs { get; set; } = null!;
@@ -55,7 +56,7 @@ namespace Model.DataDB
         {
             modelBuilder.Entity<CoMau>(entity =>
             {
-                entity.HasKey(e => new { e.Mamau, e.MaSp });
+                entity.HasKey(e => new { e.Mamau, e.MaSp, e.Id });
 
                 entity.ToTable("CO_MAU");
 
@@ -69,9 +70,7 @@ namespace Model.DataDB
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("ID");
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.HasOne(d => d.MaSpNavigation)
                     .WithMany(p => p.CoMaus)
@@ -88,7 +87,7 @@ namespace Model.DataDB
 
             modelBuilder.Entity<CoSize>(entity =>
             {
-                entity.HasKey(e => new { e.MaSp, e.MaSize });
+                entity.HasKey(e => new { e.MaSp, e.MaSize, e.Id });
 
                 entity.ToTable("CO_SIZE");
 
@@ -102,9 +101,7 @@ namespace Model.DataDB
                     .IsUnicode(false)
                     .HasColumnName("MA_SIZE");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("ID");
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.HasOne(d => d.MaSizeNavigation)
                     .WithMany(p => p.CoSizes)
@@ -330,6 +327,37 @@ namespace Model.DataDB
                     .HasColumnName("TEN_CH");
             });
 
+            modelBuilder.Entity<DanhgiaSanpham>(entity =>
+            {
+                entity.HasKey(e => new { e.MaSp, e.Id })
+                    .HasName("PK_DANHGIA");
+
+                entity.ToTable("DANHGIA_SANPHAM");
+
+                entity.Property(e => e.MaSp)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("MA_SP");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("id");
+
+                entity.Property(e => e.DanhGia).HasMaxLength(999);
+
+                entity.Property(e => e.NgayDanhGia).HasColumnType("datetime");
+
+                entity.Property(e => e.TenKh)
+                    .HasMaxLength(100)
+                    .HasColumnName("Ten_Kh");
+
+                entity.HasOne(d => d.MaSpNavigation)
+                    .WithMany(p => p.DanhgiaSanphams)
+                    .HasForeignKey(d => d.MaSp)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DANHGIA_SANPHAM");
+            });
+
             modelBuilder.Entity<Dondathang>(entity =>
             {
                 entity.HasKey(e => e.MaDdh);
@@ -349,6 +377,8 @@ namespace Model.DataDB
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_KH");
+
+                entity.Property(e => e.Thoigian).HasColumnType("datetime");
 
                 entity.Property(e => e.TongDdh).HasColumnName("TONG_DDH");
 

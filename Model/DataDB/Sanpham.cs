@@ -14,6 +14,7 @@ namespace Model.DataDB
             CtGhs = new HashSet<CtGh>();
             CtHds = new HashSet<CtHd>();
             CtTs = new HashSet<CtT>();
+            DanhgiaSanphams = new HashSet<DanhgiaSanpham>();
             Hinhanhs = new HashSet<Hinhanh>();
             Khuyenmais = new HashSet<Khuyenmai>();
             Tonkhos = new HashSet<Tonkho>();
@@ -37,6 +38,7 @@ namespace Model.DataDB
         public virtual ICollection<CtGh> CtGhs { get; set; }
         public virtual ICollection<CtHd> CtHds { get; set; }
         public virtual ICollection<CtT> CtTs { get; set; }
+        public virtual ICollection<DanhgiaSanpham> DanhgiaSanphams { get; set; }
         public virtual ICollection<Hinhanh> Hinhanhs { get; set; }
         public virtual ICollection<Khuyenmai> Khuyenmais { get; set; }
         public virtual ICollection<Tonkho> Tonkhos { get; set; }

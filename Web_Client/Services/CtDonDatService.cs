@@ -17,6 +17,10 @@ namespace Web_Client.Services
         {
             return await Http.GetFromJsonAsync<List<CtddhDtoList>>(urldefault + "/getList?id=" + id);
         }
+        public async Task<List<CtddhDtoList>> GetListByKh(string id)
+        {
+            return await Http.GetFromJsonAsync<List<CtddhDtoList>>(urldefault + "/getListByKh?id=" + id);
+        }
         //https://localhost:7118/api/CtDdhs/id?id=DDH3&id1=SP06
         public async Task<bool> DeleteDDH(string id,string id1)
         {

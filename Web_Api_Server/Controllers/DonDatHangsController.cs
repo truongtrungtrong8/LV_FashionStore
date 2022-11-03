@@ -39,10 +39,28 @@ namespace Web_Api_Server.Controllers
                               MaDdh = s.MaDdh,
                               TongDdh = s.TongDdh,
                               Diachi = s.Diachi,
-                              MaKh = s.MaKh
+                              MaKh = s.MaKh,
+                              Thoigian = s.Thoigian
                            });
             return await dondat.ToListAsync();
         }
+
+        [HttpGet("getListByKh")]
+        public async Task<ActionResult<IEnumerable<DonDatDto>>> GetListByKh(string id)
+        {
+            var dondat = (from d in _context.Dondathangs
+                          where d.MaKh == id
+                          select new DonDatDto()
+                          {
+                              MaDdh = d.MaDdh,
+                              MaKh = d.MaKh,
+                              TongDdh = d.TongDdh,
+                              Diachi = d.Diachi,
+                              Thoigian = d.Thoigian
+                          });
+            return await dondat.ToListAsync();
+        }
+
 
         // GET: api/DonDatHangs/5
         [HttpGet("{id}")]
@@ -103,7 +121,8 @@ namespace Web_Api_Server.Controllers
                 MaDdh = request.MaDdh,
                 TongDdh = request.TongDdh,
                 Diachi = request.Diachi,
-                MaKh = request.MaKh
+                MaKh = request.MaKh,
+                Thoigian = request.Thoigian
             };
 
             await _context.Dondathangs.AddAsync(dondat);

@@ -13,7 +13,14 @@ namespace Web_Client.Services
             var result = await Http.PostAsJsonAsync(urldefault, request);
             return result.IsSuccessStatusCode;
         }
-
+        public async Task<List<DonDatDto>> GetListByKH(string id)
+        {
+            return await Http.GetFromJsonAsync<List<DonDatDto>>(urldefault + "/getListByKh?id=" + id);
+        }
+        public async Task<Dondathang> GetDonDatByDD(string id)
+        {
+            return await Http.GetFromJsonAsync<Dondathang>(urldefault + "/" +id);
+        }
         public async Task<List<DonDatDto>> GetCountDonDat()
         {
             return await Http.GetFromJsonAsync<List<DonDatDto>>(urldefault + "/countDonDat");

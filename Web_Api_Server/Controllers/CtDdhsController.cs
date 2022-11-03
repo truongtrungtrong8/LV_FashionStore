@@ -29,6 +29,31 @@ namespace Web_Api_Server.Controllers
                         join k in _context.Khachhangs on d.MaKh equals k.MaKh
                         join s in _context.Sanphams on c.MaSp equals s.MaSp
                         join h in _context.Hinhanhs on s.MaSp equals h.MaSp
+                        where d.MaDdh == id
+                        select new CtddhDtoList()
+                        {
+                            TenKH = k.TenKh,
+                            MaSp = c.MaSp,
+                            MaDdh = c.MaDdh,
+                            Sl = c.Sl,
+                            Dg = c.Dg,
+                            Mau = c.Mau,
+                            Size = c.Size,
+                            TenSP = s.TenSp,
+                            Hinhanh = h.HaBia,
+                            TongTien = d.TongDdh,
+                            DiaChi = d.Diachi
+                        }).ToListAsync();
+            return await list;
+        }
+        [HttpGet("getListByKh")]
+        public async Task<ActionResult<IEnumerable<CtddhDtoList>>> GetListByKh(string id)
+        {
+            var list = (from c in _context.CtDdhs
+                        join d in _context.Dondathangs on c.MaDdh equals d.MaDdh
+                        join k in _context.Khachhangs on d.MaKh equals k.MaKh
+                        join s in _context.Sanphams on c.MaSp equals s.MaSp
+                        join h in _context.Hinhanhs on s.MaSp equals h.MaSp
                         where d.MaKh == id
                         select new CtddhDtoList()
                         {
