@@ -56,7 +56,7 @@ namespace Web_Api_Server.Controllers
                               MaKh = d.MaKh,
                               TongDdh = d.TongDdh,
                               Diachi = d.Diachi,
-                              Thoigian = d.Thoigian
+                              Thoigian = d.Thoigian,
                           });
             return await dondat.ToListAsync();
         }

@@ -17,6 +17,7 @@ namespace Model.DataDB
         public string? TenKh { get; set; }
         public string? SdtKh { get; set; }
         public string? DiachiKh { get; set; }
+        public string? EmailKh { get; set; }
 
         public virtual Taikhoan? TenTkNavigation { get; set; }
         public virtual ICollection<Dondathang> Dondathangs { get; set; }

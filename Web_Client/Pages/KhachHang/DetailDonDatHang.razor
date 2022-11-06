@@ -15,7 +15,20 @@
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
 
-
+<!-- Breadcrumb Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="#">Trang chủ</a>
+                <a class="breadcrumb-item text-dark" href="#">Cá nhân</a>
+                <a class="breadcrumb-item text-dark" href="#">Đơn đặt hàng</a>
+                <span class="breadcrumb-item active">Chi tiết đơn đặt hàng</span>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
 <div class="container-fluid">
     <div class="row px-xl-5">
         <div class="col-lg-12 table-responsive mb-5">
@@ -28,6 +41,8 @@
                         <th>Màu - Size</th>
                         <th>Tổng tiền</th>
                         <th>Địa chỉ</th>
+                        <th>Đánh giá sản phẩm</th>
+                        <th></th>
                     </tr>
                 </thead>
                 @foreach (var item in listCtDdh)
@@ -40,6 +55,16 @@
                             <td class="align-middle">@item.Mau - @item.Size</td>
                             <td class="align-middle">@sanphamService.FormatVND(item.TongTien) VND</td>
                             <td class="align-middle">@item.DiaChi</td>
+                            <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
+                            @if(item.DanhGia == 0)
+                            {
+                                <td class ="align-middle" style="color:red;">chưa đánh giá</td>
+                            }
+                            else
+                            {
+                                <td class ="align-middle" style="color:dodgerblue;">đã đánh giá</td>
+                            }
+                                
                         </tr>
                     </tbody>
                 }
@@ -88,15 +113,15 @@
     private string name;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if(name_khLogin != null)
         {
-            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             listCtDdh = await CtDonDatService.GetList(Id);
             listDonDat = await donDatService.GetListByKH(makhachhang);
             name = name_khLogin;
         }
-        catch (Exception ex)
+        else
         {
             var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
@@ -108,18 +133,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (name_khLogin != null)
         {
-            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
             listCtDdh = await CtDonDatService.GetList(Id);
+            listDonDat = await donDatService.GetListByKH(makhachhang);
             name = name_khLogin;
         }
-        catch (Exception ex)
+        else
         {
             var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
             listCtDdh = await CtDonDatService.GetList(Id);
+            listDonDat = await donDatService.GetListByKH(ma_khCreate);
             name = name_khCreate;
         }
     }
@@ -144,5 +171,16 @@
     private async Task Detail(string id)
     {
         NavigationManager.NavigateTo("DetailDonDatHang/" + id);
+    }
+    private async Task Review(string id, string id1, ModalSize size, ModalPosition position)
+    {
+        await sessionStorage.SetItemAsync<string>("maDDH", id1);
+        await sessionStorage.SetItemAsync<string>("maSP", id);
+        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<FormReview>("Viết đánh giá của bạn", options);
     }
 }

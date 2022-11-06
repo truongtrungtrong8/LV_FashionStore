@@ -68,6 +68,7 @@ namespace Web_Api_Server.Controllers
             temp.TenTk = khachhang.TenTk;
             temp.SdtKh = khachhang.SdtKh;
             temp.DiachiKh = khachhang.DiachiKh;
+            temp.EmailKh = khachhang.Email_Kh;
 
             _context.Khachhangs.Update(temp);
             await _context.SaveChangesAsync();

@@ -1,0 +1,269 @@
+﻿@page "/Cart/BuyNow"
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Client.Pages.Cart
+@using Web_Client.Services
+@inject IJSRuntime JS
+@layout MainLayout
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localstorage
+@inject ICartService CartService
+@inject ISanphamService sanphamService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+
+
+    <!-- Breadcrumb Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Trang chủ</a>
+                    <a class="breadcrumb-item text-dark" href="#">Cá nhân</a>
+                    <span class="breadcrumb-item active">Thanh toán</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+
+    <!-- Checkout Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Billing Address</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="row">
+                        <EditForm Model="newkhachhang">
+                        <div class="col-md-6 form-group">
+                            <label>Tên khách hàng</label>
+                            <InputText class="form-control" type="text" placeholder="Nguyen Van A" @bind-Value="newkhachhang.TenKh"></InputText>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Địa chỉ giao hàng</label>
+                            <InputText class="form-control" type="text" placeholder="số 1, đường A, phường/xã, quận/huyện, tỉnh/TP" @bind-Value="newkhachhang.DiachiKh"></InputText>
+                        </div>
+                         <div class="col-md-6 form-group">
+                            <label>Số điện thoại khách hàng</label>
+                            <InputText class="form-control" type="text" placeholder="0866822111" @bind-Value="newkhachhang.SdtKh"></InputText>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>E-mail khách hàng</label>
+                            <InputText class="form-control" type="text" placeholder="0866822111" @bind-Value="newkhachhang.Email_Kh"></InputText>
+                        </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="border-bottom">
+                        <h6 class="mb-3">Products</h6>
+                        <div class="d-flex justify-content-between">
+                            <p>Product Name 1</p>
+                            <p>$150</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>Product Name 2</p>
+                            <p>$150</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>Product Name 3</p>
+                            <p>$150</p>
+                        </div>
+                    </div>
+                    <div class="border-bottom pt-3 pb-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Subtotal</h6>
+                            <h6>$150</h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h6 class="font-weight-medium">Shipping</h6>
+                            <h6 class="font-weight-medium">$10</h6>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5>Total</h5>
+                            <h5>$160</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
+                    <div class="bg-light p-30">
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="paypal">
+                                <label class="custom-control-label" for="paypal">Paypal</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="directcheck">
+                                <label class="custom-control-label" for="directcheck">Direct Check</label>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
+                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Checkout End -->
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    public InputRadioGroup<string> checkSize { get; set; }
+    public InputRadioGroup<string> checkMau { get; set; }
+    private InputNumber<int> Sl { get; set; }
+
+
+    Sanpham_Model sanpham = new Sanpham_Model();
+
+    private List<Size> sizeList = new List<Size>();
+    SizeService sizeService = new SizeService();
+
+    private List<Mau> mauList = new List<Mau>();
+    MauService mauService = new MauService();
+
+    private CartItems cartItem = new CartItems { Sl = 1 };
+    public List<CartItems> cartItems_List = new List<CartItems>();
+    public int countCart { get; set; }
+    public int MaGh { get; set; }
+
+
+    private int currentEditionId = 1;
+    private string name { get; set; }
+    GioHangDto gioHangDto = new GioHangDto();
+    CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
+    List<CtGh> list_ctgiohang = new List<CtGh>();
+    List<Giohang> giohangList = new List<Giohang>();
+
+    GioHangService gioHangService = new GioHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
+
+    Khachhang khachhang = new Khachhang();
+    KhachHangService khachHangService = new KhachHangService();
+    List<Khachhang> khachhangs = new List<Khachhang>();
+    KhachHangDto newkhachhang = new KhachHangDto();
+
+    TonkhoDto tonkho = new TonkhoDto();
+    TonkhoService tonkhoService = new TonkhoService();
+
+    DanhGiaDto danhGia = new DanhGiaDto();
+    List<DanhGiaDto> danhgiaList = new List<DanhGiaDto>();
+    DanhGiaService danhGiaService = new DanhGiaService();
+
+    DonDatDto dondatDto = new DonDatDto();
+    List<DonDatDto> listDonDat = new List<DonDatDto>();
+    DonDatService donDatService = new DonDatService();
+    CtDonDatDto ctDonDatDto = new CtDonDatDto();
+    CtDonDatService CtDonDatService = new CtDonDatService();
+
+    private int countReviewByPro { get; set; }
+
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    private string name_khLogin;
+    private string ma_khLogin;
+    private string name_khCreate;
+    private string ma_khCreate;
+
+    private int CountDonDat { get; set; }
+    private int MaDonDat { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            listDonDat = await donDatService.GetCountDonDat();
+            CountDonDat = listDonDat.Count;
+            MaDonDat = CountDonDat + 1;
+            name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+            name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+
+            ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            //Check thong tin khach hang
+            if (ma_khLogin != null)
+            {
+                var result = await khachHangService.GetKhachHang(ma_khLogin);
+                newkhachhang.MaKh = result.MaKh;
+                newkhachhang.TenKh = result.TenKh;
+                newkhachhang.TenTk = result.TenTk;
+                newkhachhang.SdtKh = result.SdtKh;
+                newkhachhang.DiachiKh = result.DiachiKh;
+                await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
+            }
+            else
+            {
+                var result = await khachHangService.GetKhachHang(ma_khCreate);
+                newkhachhang.MaKh = result.MaKh;
+                newkhachhang.TenKh = result.TenKh;
+                newkhachhang.TenTk = result.TenTk;
+                newkhachhang.SdtKh = result.SdtKh;
+                newkhachhang.DiachiKh = result.DiachiKh;
+                await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
+            }
+        }
+        
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        listDonDat = await donDatService.GetCountDonDat();
+        CountDonDat = listDonDat.Count;
+        MaDonDat = CountDonDat + 1;
+        name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+        name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+
+        ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        //Check thong tin khach hang
+        if (ma_khLogin != null)
+            {
+                var result = await khachHangService.GetKhachHang(ma_khLogin);
+                newkhachhang.MaKh = result.MaKh;
+                newkhachhang.TenKh = result.TenKh;
+                newkhachhang.TenTk = result.TenTk;
+                newkhachhang.SdtKh = result.SdtKh;
+                newkhachhang.DiachiKh = result.DiachiKh;
+                await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
+            }
+            else
+            {
+                var result = await khachHangService.GetKhachHang(ma_khCreate);
+                newkhachhang.MaKh = result.MaKh;
+                newkhachhang.TenKh = result.TenKh;
+                newkhachhang.TenTk = result.TenTk;
+                newkhachhang.SdtKh = result.SdtKh;
+                newkhachhang.DiachiKh = result.DiachiKh;
+                await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
+            }
+    }
+    private async Task EditKhInBuyNow()
+    {
+        //Edit thong tin khach hang
+        if (ma_khLogin != null)
+        {
+            await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
+        }
+        else
+        {
+            await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
+        }
+    }
+}

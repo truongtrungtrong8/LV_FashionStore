@@ -579,6 +579,10 @@ namespace Model.DataDB
                     .HasMaxLength(500)
                     .HasColumnName("DIACHI_KH");
 
+                entity.Property(e => e.EmailKh)
+                    .HasMaxLength(100)
+                    .HasColumnName("Email_Kh");
+
                 entity.Property(e => e.SdtKh)
                     .HasMaxLength(10)
                     .IsUnicode(false)

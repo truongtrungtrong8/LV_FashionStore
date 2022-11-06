@@ -15,7 +15,19 @@
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
 
-
+<!-- Breadcrumb Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="#">Trang chủ</a>
+                <a class="breadcrumb-item text-dark" href="#">Sản phẩm</a>
+                <span class="breadcrumb-item active">Giỏ hàng</span>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
 
 @if (!orderPlaced)
 {
@@ -309,6 +321,7 @@
             options.PositionCustomClass = "my-custom-position";
         Modal.Show<Ivoice>("Hóa đơn của bạn ",options);
     }
+
     private async Task AddDonDat()
     {
         var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
@@ -338,6 +351,7 @@
                 ctDonDatDto.Sl = getCTGH.Sl;
                 ctDonDatDto.Mau = item.Ten_Mau;
                 ctDonDatDto.Size = item.Ten_Size;
+                ctDonDatDto.DanhGia = 0;
                 if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
                     ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
                 else
@@ -356,7 +370,7 @@
                         tonkho.Sl = result.Sl - getCTGH.Sl;
                         //if(sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
                         tonkho.Dg = (result.Sl - getCTGH.Sl) * sanpham.GiaSp;
-                            //tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+                        //tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
                         await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
                     }
                 }
@@ -391,8 +405,9 @@
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;
                 ctDonDatDto.MaSp = item.MaSp;
                 ctDonDatDto.Sl = getCTGH.Sl;
-                cTGioHangDto.Mau = item.Ten_Mau;
-                cTGioHangDto.Size = item.Ten_Size;
+                ctDonDatDto.Mau = item.Ten_Mau;
+                ctDonDatDto.Size = item.Ten_Size;
+                ctDonDatDto.DanhGia = 0;
                 if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
                     ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
                 else

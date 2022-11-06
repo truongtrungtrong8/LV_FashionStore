@@ -91,6 +91,21 @@
     private PagingParameters paging = new PagingParameters();
     [CascadingParameter] public IModalService Modal { get; set; } = default!;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                sanphamList = await sanphamService.GetAllProducts();
+                await AddTonkho();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         try

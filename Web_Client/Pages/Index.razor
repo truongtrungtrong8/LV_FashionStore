@@ -2,16 +2,18 @@
 @using Model
 @using Model.DataDB
 @using Model.PageIndex
+@using System.Security.Cryptography
+@using System.Text
 @using Web_Client.Pages.Taikhoan
 @using Web_Client.Services
 @inject IJSRuntime JS
 @layout MainLayout
 @using System.Globalization
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager
 
 
-
-    <!-- Carousel Start -->
+<!-- Carousel Start -->
     <Carousel />
     <!-- Carousel End -->
     <!-- Featured Start -->
@@ -39,7 +41,7 @@
                                             <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
                                             <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                             <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                            <a class="btn btn-outline-dark btn-square" href="/Detail/@item.MaSp"><i class="fa fa-search"></i></a>
+                                            <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-search"></i></a>
                                         </div>
                                     </div>
                                     <div class="text-center py-4">
@@ -65,7 +67,7 @@
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                                <a class="btn btn-outline-dark btn-square" href="/Detail/@item.MaSp"><i class="fa fa-search"></i></a>
+                                                <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-search"></i></a>
                                             </div>
                                     </div>
                                   <div class="text-center py-4">
@@ -91,7 +93,7 @@
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                                <a class="btn btn-outline-dark btn-square" href="/Detail/@item.MaSp"><i class="fa fa-search"></i></a>
+                                                <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-search"></i></a>
                                             </div>
                                     </div>
                                     <div class="text-center py-4">
@@ -148,12 +150,12 @@
     {
         try
         {
-           await GetProducts();
+            await GetProducts();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.ToString());
         }
-        
+
     }
     private async Task SelectedPage(int page)
     {
@@ -172,4 +174,5 @@
         paging.SearchTerm = search;
         await GetProducts();
     }
+    
 }

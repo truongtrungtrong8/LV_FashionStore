@@ -20,5 +20,6 @@ namespace Model.Dto
         public string TenSP { get; set; }
         public int TongTien { get; set; }
         public string DiaChi { get; set; }
+        public int DanhGia { get; set; }
     }
 }

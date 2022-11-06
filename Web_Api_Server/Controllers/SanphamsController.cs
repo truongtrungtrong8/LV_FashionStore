@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Office2010.Excel;
@@ -154,6 +156,21 @@ namespace Web_Api_Server.Controllers
 
             return sanpham;
         }
+        [HttpGet("getMD5")]
+        public string GetMD5(string str)
+        {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] fromData = Encoding.UTF8.GetBytes(str);
+            byte[] targetData = md5.ComputeHash(fromData);
+            string byte2String = null;
+
+            for (int i = 0; i < targetData.Length; i++)
+            {
+                byte2String += targetData[i].ToString("x2");
+
+            }
+            return byte2String;
+        }
         [HttpGet("getExcel")]
         public async Task<ActionResult<SanphamEdit>> GetSanphamExcel(string id)
         {
@@ -253,5 +270,6 @@ namespace Web_Api_Server.Controllers
             return (_context.Sanphams?.Any(e => e.MaSp == id)).GetValueOrDefault();
         }
         
+
     }
 }

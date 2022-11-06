@@ -13,5 +13,6 @@ namespace Model.Dto
         public string? TenKh { get; set; }
         public string? SdtKh { get; set; }
         public string? DiachiKh { get; set; }
+        public string? Email_Kh { get; set; }
     }
 }

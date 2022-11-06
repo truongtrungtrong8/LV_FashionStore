@@ -8,7 +8,7 @@ namespace Model.DataDB
         public int Id { get; set; }
         public string? TenKh { get; set; }
         public string? DanhGia { get; set; }
-        public DateTime? NgayDanhGia { get; set; }
+        public DateTime NgayDanhGia { get; set; }
         public int BinhChon { get; set; }
         public string MaSp { get; set; } = null!;
 

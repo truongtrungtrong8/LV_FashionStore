@@ -16,6 +16,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredToast();
 
+
 //Add Blazor Modal
 builder.Services.AddBlazoredModal();
 

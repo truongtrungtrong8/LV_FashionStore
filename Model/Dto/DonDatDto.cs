@@ -13,5 +13,6 @@ namespace Model.Dto
         public string? Diachi { get; set; }
         public string MaKh { get; set; } = null!;
         public DateTime Thoigian { get; set; }
+
     }
 }

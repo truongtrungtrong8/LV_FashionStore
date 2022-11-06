@@ -16,6 +16,7 @@ namespace Web_Api_Server.Controllers
         {
             _context = context;
         }
+
         [HttpGet("getListByProduct")]
         public async Task<ActionResult<IEnumerable<DanhGiaDto>>> GetListDanhGia(string id)
         {
@@ -56,7 +57,7 @@ namespace Web_Api_Server.Controllers
         }
         //
         [HttpPost]
-        public async Task<ActionResult<DanhgiaSanpham>> PostLoaiSp([FromBody] DanhGiaDto review)
+        public async Task<ActionResult<DanhgiaSanpham>> PostReview([FromBody] DanhGiaDto review)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -73,7 +74,7 @@ namespace Web_Api_Server.Controllers
             return CreatedAtAction("GetLoaiSp", new { id = review.Id }, review);
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteReview(string id)
         {
             var review = await _context.DanhgiaSanphams.FindAsync(id);
             if (review == null)

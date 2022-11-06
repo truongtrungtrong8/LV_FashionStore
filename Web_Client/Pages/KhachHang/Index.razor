@@ -9,13 +9,24 @@
 @inject ISanphamService sanphamService
 @layout MainLayout
 @inject IJSRuntime JS
-@inject IJSRuntime JSRuntime
 @using System.Net.Mail
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
 
-
+<!-- Breadcrumb Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="#">Trang chủ</a>
+                <a class="breadcrumb-item text-dark" href="#">Cá nhân</a>
+                <span class="breadcrumb-item active">Đơn đặt hàng</span>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
 <div class="container-fluid">
     <div class="row px-xl-5">
         <div class="col-lg-12 table-responsive mb-5">
@@ -49,7 +60,7 @@
         </div>
     </div>
 </div>
-<marquee style="position:absolute;top:70%" scrollamount="5">Bạn có thể hủy đơn hàng trong vòng 1 ngày kể từ ngày đặt hàng. Cảm ơn bạn !</marquee>
+<marquee style="position:absolute;top:24%" scrollamount="5">Bạn có thể hủy đơn hàng trong vòng 1 ngày kể từ ngày đặt hàng. Cảm ơn bạn !</marquee>
 
 @code {
     string urlimage = "https://localhost:7268";
@@ -69,6 +80,7 @@
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
     List<CtddhDtoList> listCtDdh = new List<CtddhDtoList>();
     CtDonDatService CtDonDatService = new CtDonDatService();
+    CtDdh chitietDDH = new CtDdh();
 
     Giohang giohang = new Giohang();
     GioHangDto gioHangDto = new GioHangDto();
@@ -91,16 +103,15 @@
     {
         if(firstRender)
         {
-            try
+            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if(name_khLogin != null)
             {
-                var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-                var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
                 listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
                 listDonDat = await donDatService.GetListByKH(makhachhang);
-
                 name = name_khLogin;
             }
-            catch (Exception ex)
+            else
             {
                 var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
                 var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
@@ -109,24 +120,24 @@
                 name = name_khCreate;
             }
         }
-        
+
     }
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (name_khLogin != null)
         {
-            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            listCtDdh = await CtDonDatService.GetList(makhachhang);
+            listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
             listDonDat = await donDatService.GetListByKH(makhachhang);
             name = name_khLogin;
         }
-        catch(Exception ex)
+        else
         {
             var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-            listCtDdh = await CtDonDatService.GetList(ma_khCreate);
+            listCtDdh = await CtDonDatService.GetListByKh(ma_khCreate);
             listDonDat = await donDatService.GetListByKH(ma_khCreate);
             name = name_khCreate;
         }
@@ -162,12 +173,16 @@
             {
                 Console.WriteLine(ex);
             }
-            
+
         }
-        
+
     }
     private async Task Detail(string id)
     {
         NavigationManager.NavigateTo("Khachhang/DetailDonDatHang/" + id);
+    }
+    private async Task CheckDanhGia()
+    {
+        
     }
 }
