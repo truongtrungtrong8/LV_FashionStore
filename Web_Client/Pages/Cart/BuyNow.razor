@@ -2,14 +2,14 @@
 @using Model
 @using Model.DataDB
 @using Model.Dto
+@using Model.Pay
+@using System.Net.Mail
 @using Web_Client.Pages.Cart
 @using Web_Client.Services
-@inject IJSRuntime JS
+@inject IJSRuntime JSRuntime
 @layout MainLayout
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ILocalStorageService localstorage
-@inject ICartService CartService
-@inject ISanphamService sanphamService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IToastService toastService
 
@@ -36,84 +36,88 @@
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Billing Address</span></h5>
                 <div class="bg-light p-30 mb-5">
                     <div class="row">
-                        <EditForm Model="newkhachhang">
                         <div class="col-md-6 form-group">
+                            <EditForm Model="newkhachhang">
                             <label>Tên khách hàng</label>
                             <InputText class="form-control" type="text" placeholder="Nguyen Van A" @bind-Value="newkhachhang.TenKh"></InputText>
+                            </EditForm>
                         </div>
                         <div class="col-md-6 form-group">
+                        <EditForm Model="newkhachhang">
                             <label>Địa chỉ giao hàng</label>
                             <InputText class="form-control" type="text" placeholder="số 1, đường A, phường/xã, quận/huyện, tỉnh/TP" @bind-Value="newkhachhang.DiachiKh"></InputText>
-                        </div>
-                         <div class="col-md-6 form-group">
-                            <label>Số điện thoại khách hàng</label>
-                            <InputText class="form-control" type="text" placeholder="0866822111" @bind-Value="newkhachhang.SdtKh"></InputText>
+                        </EditForm>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label>E-mail khách hàng</label>
-                            <InputText class="form-control" type="text" placeholder="0866822111" @bind-Value="newkhachhang.Email_Kh"></InputText>
-                        </div>
+                        <EditForm Model="newkhachhang">
+                            <label>Số điện thoại khách hàng</label>
+                            <InputText class="form-control" type="text" placeholder="0866822111" @bind-Value="newkhachhang.SdtKh"></InputText>
                         </EditForm>
+                        </div>
+                        <div class="col-md-6 form-group">
+                        <EditForm Model="newkhachhang">
+                            <label>E-mail khách hàng</label>
+                            <InputText class="form-control" type="text" placeholder="emailexample@gmail.com" @bind-Value="newkhachhang.Email_Kh"></InputText>
+                        </EditForm>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4">
-                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total</span></h5>
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Thông tin đơn hàng</span></h5>
                 <div class="bg-light p-30 mb-5">
                     <div class="border-bottom">
-                        <h6 class="mb-3">Products</h6>
+                        <h6 class="mb-3">Sản phẩm</h6>
                         <div class="d-flex justify-content-between">
-                            <p>Product Name 1</p>
-                            <p>$150</p>
+                            <p>@sanpham.TenSp</p>
+                            @if(sanpham.Thoigian.Date <= DateTime.Now.Date)
+                            {
+                                <p>@sanphamService.FormatVND(sanpham.GiaSp) VND</p>
+                            }
+                            else
+                            {
+                                <p>@sanphamService.FormatVND(sanpham.GiaSp - (sanpham.GiaSp*sanpham.Tile))</p>
+                            }
+                            
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <p>Product Name 2</p>
-                            <p>$150</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>Product Name 3</p>
-                            <p>$150</p>
-                        </div>
+                        
                     </div>
                     <div class="border-bottom pt-3 pb-2">
                         <div class="d-flex justify-content-between mb-3">
-                            <h6>Subtotal</h6>
-                            <h6>$150</h6>
+                            <h6>Chưa VAT</h6>
+                            <h6>@sanphamService.FormatVND(giasp*sl) VND</h6>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <h6 class="font-weight-medium">Shipping</h6>
-                            <h6 class="font-weight-medium">$10</h6>
+                            <h6 class="font-weight-medium">VAT</h6>
+                            <h6 class="font-weight-medium">2%</h6>
                         </div>
                     </div>
                     <div class="pt-2">
                         <div class="d-flex justify-content-between mt-2">
-                            <h5>Total</h5>
-                            <h5>$160</h5>
+                            <h5>Tổng tiền</h5>
+                            <h5>@sanphamService.FormatVND((giasp*sl)+(giasp * 0.02 * sl)) VND</h5>
                         </div>
                     </div>
                 </div>
                 <div class="mb-5">
                     <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
                     <div class="bg-light p-30">
+                        <EditForm Model="checkbox">
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="paypal">
-                                <label class="custom-control-label" for="paypal">Paypal</label>
+                                <InputCheckbox type="checkbox" class="custom-control-input" id="paypal" name="payment" @bind-Value=checkbox.prepay></InputCheckbox>
+                                <label class="custom-control-label" for="paypal">Thanh toán trước</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="directcheck">
-                                <label class="custom-control-label" for="directcheck">Direct Check</label>
+                                <InputCheckbox type="checkbox" class="custom-control-input" id="paylater" name="paylater" @bind-Value=checkbox.paylater></InputCheckbox>
+                                <label class="custom-control-label" for="paylater">Thanh toán khi nhận hàng</label>
                             </div>
                         </div>
-                        <div class="form-group mb-4">
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
-                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
-                            </div>
-                        </div>
-                        <button class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button>
+                        </EditForm>
+                        
+                        <button class="btn btn-block btn-primary font-weight-bold py-3" @onclick="@(() => EditKhInBuyNow())">Đặt hàng ngay</button>
                     </div>
                 </div>
             </div>
@@ -129,6 +133,11 @@
     public InputRadioGroup<string> checkMau { get; set; }
     private InputNumber<int> Sl { get; set; }
 
+    private CheckBox checkbox = new()
+        {
+            paylater = false,
+            prepay = false
+        };
 
     Sanpham_Model sanpham = new Sanpham_Model();
 
@@ -173,6 +182,10 @@
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
     CtDonDatService CtDonDatService = new CtDonDatService();
 
+    SanphamService sanphamService = new SanphamService();
+
+    public UserIP userIP { get; set; }
+
     private int countReviewByPro { get; set; }
 
 
@@ -186,10 +199,18 @@
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
 
+    private int sl;
+    private int giasp;
+    private string masp;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        masp = await sessionStorage.GetItemAsync<string>("masp");
+        sl = await sessionStorage.GetItemAsync<int>("sl");
+        giasp = await sessionStorage.GetItemAsync<int>("giasp");
         if(firstRender)
         {
+            sanpham = await sanphamService.GetProduct(masp);
             listDonDat = await donDatService.GetCountDonDat();
             CountDonDat = listDonDat.Count;
             MaDonDat = CountDonDat + 1;
@@ -207,6 +228,7 @@
                 newkhachhang.TenTk = result.TenTk;
                 newkhachhang.SdtKh = result.SdtKh;
                 newkhachhang.DiachiKh = result.DiachiKh;
+                newkhachhang.Email_Kh = result.EmailKh;
                 await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
             }
             else
@@ -217,13 +239,20 @@
                 newkhachhang.TenTk = result.TenTk;
                 newkhachhang.SdtKh = result.SdtKh;
                 newkhachhang.DiachiKh = result.DiachiKh;
+                newkhachhang.Email_Kh = result.EmailKh;
                 await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
             }
         }
-        
+
     }
     protected override async Task OnInitializedAsync()
     {
+
+        masp = await sessionStorage.GetItemAsync<string>("masp");
+        sl = await sessionStorage.GetItemAsync<int>("sl");
+        giasp = await sessionStorage.GetItemAsync<int>("giasp");
+
+        sanpham = await sanphamService.GetProduct(masp);
         listDonDat = await donDatService.GetCountDonDat();
         CountDonDat = listDonDat.Count;
         MaDonDat = CountDonDat + 1;
@@ -234,25 +263,25 @@
         ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
         //Check thong tin khach hang
         if (ma_khLogin != null)
-            {
-                var result = await khachHangService.GetKhachHang(ma_khLogin);
-                newkhachhang.MaKh = result.MaKh;
-                newkhachhang.TenKh = result.TenKh;
-                newkhachhang.TenTk = result.TenTk;
-                newkhachhang.SdtKh = result.SdtKh;
-                newkhachhang.DiachiKh = result.DiachiKh;
-                await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
-            }
-            else
-            {
-                var result = await khachHangService.GetKhachHang(ma_khCreate);
-                newkhachhang.MaKh = result.MaKh;
-                newkhachhang.TenKh = result.TenKh;
-                newkhachhang.TenTk = result.TenTk;
-                newkhachhang.SdtKh = result.SdtKh;
-                newkhachhang.DiachiKh = result.DiachiKh;
-                await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
-            }
+        {
+            var result = await khachHangService.GetKhachHang(ma_khLogin);
+            newkhachhang.MaKh = result.MaKh;
+            newkhachhang.TenKh = result.TenKh;
+            newkhachhang.TenTk = result.TenTk;
+            newkhachhang.SdtKh = result.SdtKh;
+            newkhachhang.DiachiKh = result.DiachiKh;
+            await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
+        }
+        else
+        {
+            var result = await khachHangService.GetKhachHang(ma_khCreate);
+            newkhachhang.MaKh = result.MaKh;
+            newkhachhang.TenKh = result.TenKh;
+            newkhachhang.TenTk = result.TenTk;
+            newkhachhang.SdtKh = result.SdtKh;
+            newkhachhang.DiachiKh = result.DiachiKh;
+            await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
+        }
     }
     private async Task EditKhInBuyNow()
     {
@@ -260,10 +289,153 @@
         if (ma_khLogin != null)
         {
             await khachHangService.EditKhachhang(ma_khLogin, newkhachhang);
+            if (checkbox.paylater == true)
+            {
+                SendMail();
+            }
+            if(checkbox.prepay == true)
+            {
+                Payment();
+            }
         }
         else
         {
             await khachHangService.EditKhachhang(ma_khCreate, newkhachhang);
+            if (checkbox.paylater == true)
+            {
+                SendMail();
+            }
+            if (checkbox.prepay == true)
+            {
+                await Payment();
+            }
+        }
+
+
+    }
+
+
+    ////// Pay
+    bool paying = false;
+    public async Task Payment()
+    {
+        string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        string returnUrl = "https://localhost:7155/Cart/PayComfirm";
+        string tmnCode = "M4SI0GQK";
+        string hashSecret = "TEPHMKQSDCNVKDFCAMUICRAJVMMXNQFF";
+
+        PayLib pay = new PayLib();
+
+        pay.AddRequestData("vnp_Version", "2.0.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.0.0
+        pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
+        pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
+        pay.AddRequestData("vnp_Amount", (((giasp*sl) + (giasp * 0.02 * sl)) * 100).ToString());
+        pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
+        pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
+        pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
+        pay.AddRequestData("vnp_IpAddr", GetIp()); //Địa chỉ IP của khách hàng thực hiện giao dịch
+        pay.AddRequestData("vnp_Locale", "vn"); //Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
+        pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang"); //Thông tin mô tả nội dung thanh toán
+        pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
+        pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
+        pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
+
+        string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
+        if (paying == false)
+        {
+            await JSRuntime.InvokeVoidAsync("open", paymentUrl, "_self");
+            paying = true;
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Bạn đang thanh toán! ");
+        }
+
+    }
+    public string GetIp()
+    {
+        userIP = new UserIP();
+        return userIP.IPAddress;
+    }
+
+    //SendMail
+    private async void SendMail()
+    {
+        string checksendmail = "ok";
+        await sessionStorage.SetItemAsync<string>("checksendmail", checksendmail);
+        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var mausp = await sessionStorage.GetItemAsync<string>("mau");
+        var size = await sessionStorage.GetItemAsync<string>("size");
+        khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+        if (name_khLogin != null)
+        {
+            try
+            {
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                    mail.To.Add(khachhang.EmailKh);
+                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
+                    mail.Body += "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh +"<br>";
+                    mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn" + "<br>";
+                    mail.Body += "Thời gian: " + DateTime.Now +"<br>";
+                    mail.Body += sanpham.TenSp + " --Màu: " + mausp + " --Size: " + size;
+                    mail.Body += "Giá tổng sản phẩm: " + sanphamService.FormatVND((giasp * sl) - (giasp * 0.02)) + " VND " + " trên " + 1 + " sản phẩm "  + "<br>";
+                    mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() +"<br>";
+                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                    mail.IsBodyHtml = true;
+                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    {
+                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                    }
+                }
+                await sessionStorage.SetItemAsync<string>("emailkh", khachhang.EmailKh);
+                NavigationManager.NavigateTo("/Detail/"+sanphamService.EndCodeMd5(masp));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        else
+        {
+            var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+            try
+            {
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                    mail.To.Add(khachhang.EmailKh);
+                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
+                    mail.Body += "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh + "<br>";
+                    mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn" + "<br>";
+                    mail.Body += "Thời gian: " + DateTime.Now + "<br>";
+                    mail.Body += sanpham.TenSp + " --Màu: " + mausp + " --Size: " + size + "<br>";
+                    mail.Body += "Giá tổng sản phẩm: " + sanphamService.FormatVND((giasp * sl) - (giasp * 0.02)) + " VND " + " trên " + 1 + " sản phẩm " + "<br>";
+                    mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "<br>";
+                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                    mail.IsBodyHtml = true;
+                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    {
+                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                    }
+                }
+                await sessionStorage.SetItemAsync<string>("emailkh", khachhang.EmailKh);
+                NavigationManager.NavigateTo("/Detail/"+sanphamService.EndCodeMd5(masp));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
+   
 }

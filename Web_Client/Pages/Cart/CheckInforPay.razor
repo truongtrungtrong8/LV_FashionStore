@@ -18,16 +18,20 @@
 <EditForm Model="newkhachang" style="width:400px">
     <form class="forms-sample">
         <div class="form-group">
-            <label for="exampleInputUsername1">Họ và tên</label>
-            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.TenKh"></InputText>
+            <label for="example">Họ và tên</label>
+            <InputText class="form-control" placeholder="Nguyen Van A" @bind-Value="newkhachang.TenKh"></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputEmail1">Số điện thoại</label>
-            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.SdtKh"></InputText>
+            <label for="example">Số điện thoại</label>
+            <InputText class="form-control" placeholder="08666822xxx" @bind-Value="newkhachang.SdtKh"></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputPassword1">Địa chỉ</label>
-            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.DiachiKh"></InputText>
+            <label for="example">Địa chỉ</label>
+            <InputText class="form-control" placeholder="số A, đường A, phường/xã, quận/huyện, tỉnh/TP" @bind-Value="newkhachang.DiachiKh"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="example">E-mail khách hàng</label>
+            <InputText class="form-control" placeholder="example@gmail.com" @bind-Value="newkhachang.Email_Kh"></InputText>
         </div>
         
     </form>
@@ -82,6 +86,7 @@
             newkhachang.TenTk = result.TenTk;
             newkhachang.SdtKh = result.SdtKh;
             newkhachang.DiachiKh = result.DiachiKh;
+            newkhachang.Email_Kh = result.EmailKh;
         }
         else
         {
@@ -96,11 +101,12 @@
             newkhachang.TenTk = result.TenTk;
             newkhachang.SdtKh = result.SdtKh;
             newkhachang.DiachiKh = result.DiachiKh;
+            newkhachang.Email_Kh = result.EmailKh;
         }
     }
     private async void Submit()
     {
-       
+
         var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
         if (makhachhang != null)
         {
@@ -122,7 +128,7 @@
         await sessionStorage.SetItemAsync<string>("display", display);
         NavigationManager.NavigateTo("/Cart/Cart");
         await this.ModalInstance.CancelAsync();
-        
+
     }
     ////// Pay
     bool paying = false;
@@ -134,11 +140,11 @@
         string hashSecret = "TEPHMKQSDCNVKDFCAMUICRAJVMMXNQFF";
 
         PayLib pay = new PayLib();
-        
+
         pay.AddRequestData("vnp_Version", "2.0.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.0.0
         pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
         pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
-        pay.AddRequestData("vnp_Amount", ((giohang.Tongtien + (giohang.Tongtien * 0.02)) * 100 ).ToString());
+        pay.AddRequestData("vnp_Amount", Convert.ToString(Convert.ToInt64(giohang.Tongtien)*100));
         pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
         pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
         pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND

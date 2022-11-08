@@ -61,12 +61,12 @@ namespace Web_Client.Services
         }
         public string DeCodeMd5(string cipher)
         {
-            string key = "A!9HHhi%XjjYY4YP2@Nob009X";
+            string key = "FMfcgzGpGnNqxJxTgDZrrrzGjkpqcLKpFMfcgzGpGnNqxJxTgDZrrrzGjkpqcLKp1234567890!!!!####$$$$";
             using (var md5 = new MD5CryptoServiceProvider())
             {
                 using (var tdes = new TripleDESCryptoServiceProvider())
                 {
-                    tdes.Key = md5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                    tdes.Key = md5.ComputeHash(Encoding.UTF8.GetBytes(key));
                     tdes.Mode = CipherMode.ECB;
                     tdes.Padding = PaddingMode.PKCS7;
 
@@ -74,7 +74,7 @@ namespace Web_Client.Services
                     {
                         byte[] cipherBytes = Convert.FromBase64String(cipher);
                         byte[] bytes = transform.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
-                        return UTF8Encoding.UTF8.GetString(bytes);
+                        return Encoding.UTF8.GetString(bytes);
                     }
                 }
             }
@@ -82,18 +82,18 @@ namespace Web_Client.Services
 
         public string EndCodeMd5(string text)
         {
-            string key = "A!9HHhi%XjjYY4YP2@Nob009X";
+            string key = "FMfcgzGpGnNqxJxTgDZrrrzGjkpqcLKpFMfcgzGpGnNqxJxTgDZrrrzGjkpqcLKp1234567890!!!!####$$$$";
             using (var md5 = new MD5CryptoServiceProvider())
             {
                 using (var tdes = new TripleDESCryptoServiceProvider())
                 {
-                    tdes.Key = md5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                    tdes.Key = md5.ComputeHash(Encoding.UTF8.GetBytes(key));
                     tdes.Mode = CipherMode.ECB;
                     tdes.Padding = PaddingMode.PKCS7;
 
                     using (var transform = tdes.CreateEncryptor())
                     {
-                        byte[] textBytes = UTF8Encoding.UTF8.GetBytes(text);
+                        byte[] textBytes = Encoding.UTF8.GetBytes(text);
                         byte[] bytes = transform.TransformFinalBlock(textBytes, 0, textBytes.Length);
                         return Convert.ToBase64String(bytes, 0, bytes.Length);
                     }

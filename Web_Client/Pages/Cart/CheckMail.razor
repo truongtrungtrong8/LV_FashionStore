@@ -5,8 +5,6 @@
 @using Model.Pay
 @using Web_Client.Pages.Taikhoan
 @using Web_Client.Services
-@inject ICartService CartService
-@inject ISanphamService sanpham
 @layout LayoutCart
 @inject IJSRuntime JS
 @inject IJSRuntime JSRuntime
@@ -18,16 +16,20 @@
 <EditForm Model="newkhachang" style="width:400px">
     <form class="forms-sample">
         <div class="form-group">
-            <label for="exampleInputUsername1">Họ và tên</label>
-            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.TenKh"></InputText>
+            <label for="example">Họ và tên</label>
+            <InputText class="form-control" placeholder="Nguyen Van A" @bind-Value="newkhachang.TenKh"></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputEmail1">Số điện thoại</label>
-            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.SdtKh"></InputText>
+            <label for="example">Số điện thoại</label>
+            <InputText class="form-control" placeholder="08666822xxx" @bind-Value="newkhachang.SdtKh"></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputPassword1">Địa chỉ</label>
-            <InputText class="form-control" placeholder="" @bind-Value="newkhachang.DiachiKh"></InputText>
+            <label for="example">Địa chỉ</label>
+            <InputText class="form-control" placeholder="số A, đường A, phường/xã, quận/huyện, tỉnh/TP" @bind-Value="newkhachang.DiachiKh"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="example">E-mail khách hàng</label>
+            <InputText class="form-control" placeholder="example@gmail.com" @bind-Value="newkhachang.Email_Kh"></InputText>
         </div>
 
     </form>
@@ -50,11 +52,14 @@
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
 
+    Dondathang dondat = new Dondathang();
     DonDatDto dondatDto = new DonDatDto();
     List<DonDatDto> listDonDat = new List<DonDatDto>();
     DonDatService donDatService = new DonDatService();
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
+    List<CtddhDtoList> listCtDdh = new List<CtddhDtoList>();
     CtDonDatService CtDonDatService = new CtDonDatService();
+    CtDdh chitietDDH = new CtDdh();
 
     Giohang giohang = new Giohang();
     GioHangDto gioHangDto = new GioHangDto();
@@ -62,10 +67,54 @@
 
     GioHangService gioHangService = new GioHangService();
     CTGioHangService cTGioHangService = new CTGioHangService();
+    TonkhoDto tonkho = new TonkhoDto();
+    TonkhoService tonkhoService = new TonkhoService();
+
+    SanphamService sanphamService = new SanphamService();
+
     int temp;
     private string Message { get; set; } = "";
+    private int CountDonDat { get; set; }
+    private int MaDonDat { get; set; }
 
 
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if (name_khLogin != null)
+            {
+                listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
+                listDonDat = await donDatService.GetListByKH(makhachhang);
+                //
+                string temp = "GH" + makhachhang;
+                cartItems = await cTGioHangService.GetCartAllInUser(temp);
+                giohang = await gioHangService.GetDetail(temp);
+            }
+            else
+            {
+                var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                listCtDdh = await CtDonDatService.GetListByKh(ma_khCreate);
+                listDonDat = await donDatService.GetListByKH(ma_khCreate);
+                //
+                string tempCreate = "GH" + ma_khCreate;
+                cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
+                giohang = await gioHangService.GetDetail(tempCreate);
+            }
+            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
+            if (getvnpcheck == "00")
+            {
+                await sessionStorage.RemoveItemAsync("vnpcheckcode_true");
+                toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
+                await AddDonDat();
+            }
+        }
+
+    }
     protected override async Task OnInitializedAsync()
 
     {
@@ -83,10 +132,11 @@
                 newkhachang.TenTk = result.TenTk;
                 newkhachang.SdtKh = result.SdtKh;
                 newkhachang.DiachiKh = result.DiachiKh;
+                newkhachang.Email_Kh = result.EmailKh;
             }
             else
             {
-                
+
                 var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
                 var result = await khachHangService.GetKhachHang(ma_khCreate);
                 string temp = "GH" + ma_khCreate;
@@ -96,8 +146,9 @@
                 newkhachang.TenTk = result.TenTk;
                 newkhachang.SdtKh = result.SdtKh;
                 newkhachang.DiachiKh = result.DiachiKh;
+                newkhachang.Email_Kh = result.EmailKh;
             }
-           
+
         }
         catch (Exception ex)
         {
@@ -125,54 +176,54 @@
             await this.ModalInstance.CancelAsync();
             SendMail();
         }
-        
+
     }
     private async void SendMail()
     {
-            var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-            var id = "GH" + ma_khLogin;
-            giohang = await gioHangService.GetDetail(id);
-            if(name_khLogin != null)
+        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+        var id = "GH" + ma_khLogin;
+        giohang = await gioHangService.GetDetail(id);
+        if(name_khLogin != null)
+        {
+            try
             {
-                try
+                using (MailMessage mail = new MailMessage())
                 {
-                    using (MailMessage mail = new MailMessage())
-                    {
-                        mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
-                        mail.To.Add("truongtrungtrong@gmail.com");
-                        mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                        mail.Body += "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                        mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn";
-                        mail.Body += "Thời gian: " + DateTime.Now;
-                        
-                        foreach(var item in cartItems)
-                        {
-                            mail.Body +=item.TenSp +" --Màu: "+ item.Ten_Mau + " --Size: " + item.Ten_Size;
-                        }
-                        mail.Body += "Giá tổng sản phẩm: " + sanpham.FormatVND(giohang.Tongtien + (giohang.Tongtien * 0.02)) + " VND " + " trên " + cartItems.Count() + " sản phẩm ";
-                        mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString();
-                        mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
-                        mail.IsBodyHtml = true;
-                        using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
-                        {
-                            smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
-                            smtp.EnableSsl = true;
-                            smtp.Send(mail);
-                            Message = "Mail Sent";
-                        }
-                    }
+                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                    mail.To.Add("truongtrungtrong@gmail.com");
+                    mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
+                    mail.Body += "<p>Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh + "</p>";
+                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn"+"</p>";
+                    mail.Body += "<p>Thời gian: " + DateTime.Now+"</p>";
 
-                    NavigationManager.NavigateTo("/");
-                    toastService.ShowSuccess("Mời bạn kiểm tra email truongtrungtrong@gmail.com ", "Thành công !");
+                    foreach(var item in cartItems)
+                    {
+                        mail.Body +="<p>" + item.TenSp +" --Màu: "+ item.Ten_Mau + " --Size: " + item.Ten_Size+"</p>";
+                    }
+                    mail.Body += "<p>Giá tổng sản phẩm: " + sanphamService.FormatVND(giohang.Tongtien) + " VND " + " trên " + cartItems.Count() + " sản phẩm "+"</p>";
+                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString()+"</p>";
+                    mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                    mail.IsBodyHtml = true;
+                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    {
+                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt");
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                        Message = "Mail Sent";
+                    }
                 }
-                catch (Exception ex)
-                {
-                    throw;
-                    Message = ex.Message;
-                }
+                await AddDonDat();
+                NavigationManager.NavigateTo("/KhachHang/Index");
+                toastService.ShowSuccess("Mời bạn kiểm tra email "+khachhang.EmailKh, "Thành công !");
             }
+            catch (Exception ex)
+            {
+                throw;
+                Message = ex.Message;
+            }
+        }
 
         else
         {
@@ -186,15 +237,16 @@
                     mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
                     mail.To.Add("truongtrungtrong@gmail.com");
                     mail.Subject = "Xác nhận đặt sản phẩm của chúng tôi !";
-                    mail.Body += "Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh;
-                    mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn";
-                    mail.Body += "Thời gian: " + DateTime.Now;
+                    mail.Body += "<p>Cửa hàng thời trang MultiShop - Online Shop xin chào " + khachhang.TenKh + "</p>";
+                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn" + "</p>";
+                    mail.Body += "<p>Thời gian: " + DateTime.Now + "</p>";
+
                     foreach (var item in cartItems)
                     {
-                        mail.Body += item.TenSp + " --Màu: " + item.Ten_Mau + " --Size: " + item.Ten_Size;
+                        mail.Body += "<p>" + item.TenSp + " --Màu: " + item.Ten_Mau + " --Size: " + item.Ten_Size + "</p>";
                     }
-                    mail.Body += "Giá tổng sản phẩm: " + sanpham.FormatVND(giohang.Tongtien + (giohang.Tongtien * 0.02)) + " VND " + " trên " + cartItems.Count() + " sản phẩm ";
-                    mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString();
+                    mail.Body += "<p>Giá tổng sản phẩm: " + sanphamService.FormatVND(giohang.Tongtien) + " VND " + " trên " + cartItems.Count() + " sản phẩm " + "</p>";
+                    mail.Body += "<p>Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "</p>";
                     mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
                     mail.IsBodyHtml = true;
                     using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
@@ -205,9 +257,9 @@
                         Message = "Mail Sent";
                     }
                 }
-
-                NavigationManager.NavigateTo("/");
-                toastService.ShowSuccess("Mời bạn kiểm tra email truongtrungtrong@gmail.com ", "Thành công !");
+                await AddDonDat();
+                NavigationManager.NavigateTo("/KhachHang/Index");
+                toastService.ShowSuccess("Mời bạn kiểm tra email " + khachhang.EmailKh, "Thành công !");
             }
             catch (Exception ex)
             {
@@ -215,5 +267,164 @@
                 Message = ex.Message;
             }
         }
+    }
+
+    private async Task AddDonDat()
+    {
+        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+        var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+
+        if (ma_khLogin != null)
+        {
+            var id = "GH" + ma_khLogin;
+            foreach (var item in cartItems)
+            {
+                ///check khuyen mai
+                var result_km = await gioHangService.GetDetail(id);
+                var sanpham = await sanphamService.GetProduct(item.MaSp);
+                var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+                khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+                dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                dondatDto.TongDdh = result_km.Tongtien;
+                dondatDto.Diachi = khachhang.DiachiKh;
+                dondatDto.MaKh = ma_khLogin; //khachhang
+                dondatDto.Thoigian = DateTime.Now;
+                await donDatService.CreateDonDat(dondatDto);
+                //chi tiet don dat hang
+                ctDonDatDto.MaDdh = dondatDto.MaDdh;
+                ctDonDatDto.MaSp = item.MaSp;
+                ctDonDatDto.Sl = getCTGH.Sl;
+                ctDonDatDto.Mau = item.Ten_Mau;
+                ctDonDatDto.Size = item.Ten_Size;
+                ctDonDatDto.DanhGia = 0;
+                if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
+                else
+                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+                await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+                await DeleteItemByDDH(item.MaSp, id);
+                ///Tonkho
+                try
+                {
+                    sanpham = await sanphamService.GetProduct(item.MaSp);
+                    tonkho = await tonkhoService.GetTonkho(item.MaSp);
+                    if (tonkho != null)
+                    {
+                        var result = await tonkhoService.GetTonkho(item.MaSp);
+                        tonkho.MaSp = result.MaSp;
+                        tonkho.MaCh = result.MaCh;
+                        tonkho.Sl = result.Sl - getCTGH.Sl;
+                        //if(sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                        tonkho.Dg = (result.Sl - getCTGH.Sl) * sanpham.GiaSp;
+                        //tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+                        await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tonkho.MaSp = item.MaSp;
+                    tonkho.MaCh = "CH01";
+                    tonkho.Sl = sanpham.Sl - item.Sl;
+                    tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+                    await tonkhoService.CreateTonkho(tonkho);
+                }
+            }
+
+        }
+        else if (ma_khCreate != null)
+        {
+            var id = "GH" + ma_khCreate;
+            foreach (var item in cartItems)
+            {
+                ///check khuyen mai
+                var result_km = await gioHangService.GetDetail(id);
+                var sanpham = await sanphamService.GetProduct(item.MaSp);
+                var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+                khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+                dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                dondatDto.TongDdh = result_km.Tongtien;
+                dondatDto.Diachi = khachhang.DiachiKh;
+                dondatDto.MaKh = ma_khCreate; //khachhang
+                dondatDto.Thoigian = DateTime.Now;
+                await donDatService.CreateDonDat(dondatDto);
+                //chi tiet don dat hang
+                ctDonDatDto.MaDdh = dondatDto.MaDdh;
+                ctDonDatDto.MaSp = item.MaSp;
+                ctDonDatDto.Sl = getCTGH.Sl;
+                ctDonDatDto.Mau = item.Ten_Mau;
+                ctDonDatDto.Size = item.Ten_Size;
+                ctDonDatDto.DanhGia = 0;
+                if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
+                else
+                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+                await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+                await DeleteItemByDDH(item.MaSp, id);
+                ///Tonkho
+                try
+                {
+                    sanpham = await sanphamService.GetProduct(item.MaSp);
+                    tonkho = await tonkhoService.GetTonkho(item.MaSp);
+                    if (tonkho != null)
+                    {
+                        var result = await tonkhoService.GetTonkho(item.MaSp);
+                        tonkho.MaSp = result.MaSp;
+                        tonkho.MaCh = result.MaCh;
+                        tonkho.Sl = result.Sl - getCTGH.Sl;
+                        if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+                            tonkho.Dg = (result.Sl - getCTGH.Sl) * sanpham.GiaSp;
+                        else
+                            tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+                        await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tonkho.MaSp = item.MaSp;
+                    tonkho.MaCh = "CH01";
+                    tonkho.Sl = sanpham.Sl - item.Sl;
+                    tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+                    await tonkhoService.CreateTonkho(tonkho);
+                }
+            }
+
+        }
+
+
+    }
+    private async Task DeleteItemByDDH(string id, string id1)
+    {
+        try
+        {
+            var result = await gioHangService.GetDetail(id1);
+            var sanpham = await sanphamService.GetProduct(id);
+            var getCTGH = await cTGioHangService.GetID(id, id1);//loi
+            if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+            {
+                gioHangDto.MaGh = id1;
+                gioHangDto.MaKh = result.MaKh;
+                gioHangDto.Ngaydat = DateTime.Now;
+                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - (sanpham.GiaSp * getCTGH.Sl) - (sanpham.GiaSp * getCTGH.Sl * 0.02));
+                await gioHangService.Edit(id1, gioHangDto);
+            }
+            else
+            {
+                gioHangDto.MaGh = id1;
+                gioHangDto.MaKh = result.MaKh;
+                gioHangDto.Ngaydat = DateTime.Now;
+                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) * 0.02);
+                await gioHangService.Edit(id1, gioHangDto);
+            }
+            await cTGioHangService.DeleteCart(id, id1);
+            cartItems = await cTGioHangService.GetCartAllInUser(id1);
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
     }
 }

@@ -122,27 +122,48 @@
                     <div class="input-group quantity mr-3" style="width: 130px;">
                         <EditForm Model="cTGioHangDto">
 
-                            <InputNumber id="quantity" @bind-Value="@cTGioHangDto.Sl" @ref=Sl
+                            <InputNumber id="quantity" @bind-Value="@cTGioHangDto.Sl" @ref=Sl min = "0" max = "@tonkho.Sl"
                                          class="form-control bg-secondary border-0 text-center" style="width: 70px" />
 
                         </EditForm>
                     </div>
-                    
-                     <div class="input-group quantity mr-3" style="width: 155px;">
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-primary px-3" @onclick="AddToCart">
-                                <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
-                            </button>
+                    @if(tonkho.Sl == 0 || tonkho.Sl < Sl.Value)
+                    {
+                        <div class="input-group quantity mr-3" style="width: 30%;">
+                            <div class="input-group-btn">
+                                <button type="button" disabled class="btn btn-primary px-3" @onclick="AddToCart">
+                                    <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
+                                </button>
+                            </div>
                         </div>
-                     </div>
 
-                    <div class="input-group quantity mr-3" style="width: 145px;">
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-primary px-3" @onclick="CheckBuyNow">
-                                <i class="fa fa-shopping-cart mr-1"></i> Mua Ngay
-                            </button>
+                        <div class="input-group quantity mr-3" style="width: 25%;">
+                            <div class="input-group-btn">
+                                <button type="button" disabled class="btn btn-primary px-3" @onclick="CheckBuyNow">
+                                    <i class="fa fa-shopping-cart mr-1"></i> Mua Ngay
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="input-group quantity mr-3" style="width: 30%;">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-primary px-3" @onclick="AddToCart">
+                                    <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="input-group quantity mr-3" style="width: 25%;">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-primary px-3" @onclick="CheckBuyNow">
+                                    <i class="fa fa-shopping-cart mr-1"></i> Mua Ngay
+                                </button>
+                            </div>
+                        </div>
+                    }
+
                 </div>
                 <div class="d-flex pt-2">
                     @if(tonkho == null)
@@ -275,6 +296,7 @@
     public string deCode { get; set; }
     [Parameter]
     public string Id { get; set; }
+    private string display ;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -297,7 +319,6 @@
             sanpham = await sanphamService.GetProduct(deCode);
             sizeList = await sizeService.GetListSize();
             mauList = await mauService.GetListMau();
-
         }
         catch (Exception ex)
         {
@@ -307,6 +328,25 @@
             sanpham = await sanphamService.GetProduct(deCode);
             sizeList = await sizeService.GetListSize();
             mauList = await mauService.GetListMau();
+        }
+        var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode");
+        var checksendmail = await sessionStorage.GetItemAsync<string>("checksendmail");
+        var emailkh = await sessionStorage.GetItemAsync<string>("emailkh");
+        if(firstRender)
+        {
+            if(getvnpcheck == "00")
+            {
+                await sessionStorage.RemoveItemAsync("vnpcheckcode");
+                await BuyNow();
+                toastService.ShowSuccess("Thanh toán thành công !", "Thành công");
+            }
+            if(checksendmail == "ok")
+            {
+                await sessionStorage.RemoveItemAsync("checksendmail");
+                await BuyNow();
+                toastService.ShowSuccess("Mời bạn kiểm tra email "+ emailkh, "Thành công");
+                await sessionStorage.RemoveItemAsync("emailkh");
+            }
         }
     }
 
@@ -336,7 +376,6 @@
             mauList = await mauService.GetListMau();
         }
     }
-
 
     private async Task AddToCart()
     {
@@ -370,7 +409,7 @@
                                 gioHangDto.MaGh = result.MaGh;
                                 gioHangDto.Ngaydat = result.Ngaydat;
                                 gioHangDto.MaKh = result.MaKh;
-                                gioHangDto.Tongtien = result.Tongtien + (Sl.Value * sanpham.GiaSp);
+                                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + (Sl.Value * sanpham.GiaSp) + (Sl.Value * sanpham.GiaSp)*0.02);
                                 await gioHangService.Edit(tempGH, gioHangDto);
                                 try
                                 {
@@ -445,7 +484,7 @@
                                 gioHangDto.MaGh = result.MaGh;
                                 gioHangDto.Ngaydat = result.Ngaydat;
                                 gioHangDto.MaKh = result.MaKh;
-                                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value));
+                                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value)*0.02);
                                 await gioHangService.Edit(tempGH, gioHangDto);
                                 try
                                 {
@@ -522,7 +561,7 @@
                             gioHangDto.MaGh = "GH" + ma_khLogin;
                             gioHangDto.Ngaydat = DateTime.Now;
                             gioHangDto.MaKh = ma_khLogin;
-                            gioHangDto.Tongtien = sanpham.GiaSp * Sl.Value;
+                            gioHangDto.Tongtien = Convert.ToInt32((sanpham.GiaSp * Sl.Value) + (sanpham.GiaSp * Sl.Value)*0.02);
                             await gioHangService.Create(gioHangDto);
                             //////Chi tiet gio hang them moi
                             cTGioHangDto.MaGh = gioHangDto.MaGh;
@@ -558,7 +597,7 @@
                             gioHangDto.MaGh = "GH" + ma_khLogin;
                             gioHangDto.Ngaydat = DateTime.Now;
                             gioHangDto.MaKh = ma_khLogin;
-                            gioHangDto.Tongtien = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value);
+                            gioHangDto.Tongtien = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value)*0.02);
                             await gioHangService.Create(gioHangDto);
                             //////Chi tiet gio hang them moi
                             cTGioHangDto.MaGh = gioHangDto.MaGh;
@@ -607,7 +646,7 @@
                                 gioHangDto.MaGh = result.MaGh;
                                 gioHangDto.Ngaydat = result.Ngaydat;
                                 gioHangDto.MaKh = result.MaKh;
-                                gioHangDto.Tongtien = result.Tongtien + (Sl.Value * sanpham.GiaSp);
+                                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + (Sl.Value * sanpham.GiaSp) + (Sl.Value * sanpham.GiaSp) * 0.02);
                                 await gioHangService.Edit(tempGH, gioHangDto);
                                 try
                                 {
@@ -678,7 +717,7 @@
                                 gioHangDto.MaGh = result.MaGh;
                                 gioHangDto.Ngaydat = result.Ngaydat;
                                 gioHangDto.MaKh = result.MaKh;
-                                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value));
+                                gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value)*0.02);
                                 await gioHangService.Edit(tempGH, gioHangDto);
                                 try
                                 {
@@ -751,7 +790,7 @@
                             gioHangDto.MaGh = "GH" + ma_khCreate;
                             gioHangDto.Ngaydat = DateTime.Now;
                             gioHangDto.MaKh = ma_khCreate;
-                            gioHangDto.Tongtien = sanpham.GiaSp * Sl.Value;
+                            gioHangDto.Tongtien = Convert.ToInt32(sanpham.GiaSp * Sl.Value + (sanpham.GiaSp * Sl.Value)*0.02);
                             await gioHangService.Create(gioHangDto);
                             //////Chi tiet gio hang them moi
                             cTGioHangDto.MaGh = gioHangDto.MaGh;
@@ -785,7 +824,7 @@
                             gioHangDto.MaGh = "GH" + ma_khCreate;
                             gioHangDto.Ngaydat = DateTime.Now;
                             gioHangDto.MaKh = ma_khCreate;
-                            gioHangDto.Tongtien = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value);
+                            gioHangDto.Tongtien = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * Sl.Value)*0.02);
                             await gioHangService.Create(gioHangDto);
                             //////Chi tiet gio hang them moi
                             cTGioHangDto.MaGh = gioHangDto.MaGh;
@@ -830,28 +869,56 @@
     }
     private async Task BuyNow()
     {
+        int getSl = await sessionStorage.GetItemAsync<int>("sl");
+        var getmau = await sessionStorage.GetItemAsync<string>("mau");
+        var getsize = await sessionStorage.GetItemAsync<string>("size");
+        var temp = ("DDH" + MaDonDat).ToString();
+        Dondathang check = new Dondathang();
         if(ma_khLogin != null)
         {
             khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-            dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+            //check ID don dat hang
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if(check != null)
+                {
+                    dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch(Exception ex)
+            {
+                dondatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
             dondatDto.MaKh = ma_khLogin;
-            if (sanpham.Thoigian.Date <= DateTime.Now.Date)
-                dondatDto.TongDdh = Convert.ToInt32(sanphamService.FormatVND(sanpham.GiaSp * Sl.Value));
+            if (sanpham.Thoigian.Date < DateTime.Now.Date || sanpham.Thoigian.Date == DateTime.Now.Date)
+                dondatDto.TongDdh = Convert.ToInt32((sanpham.GiaSp * getSl) + (sanpham.GiaSp*0.02*getSl));
             else
-                dondatDto.TongDdh = Convert.ToInt32(sanphamService.FormatVND((sanpham.GiaSp -(sanpham.GiaSp*sanpham.Tile)) * Sl.Value));
+                dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
             dondatDto.Diachi = khachhang.DiachiKh;
             dondatDto.Thoigian = DateTime.Now;
             await donDatService.CreateDonDat(dondatDto);
             //chi tiet don dat
-            ctDonDatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if(check != null)
+                {
+                    ctDonDatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch(Exception ex)
+            {
+                ctDonDatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
             ctDonDatDto.MaSp = deCode;
-            ctDonDatDto.Sl = Sl.Value;
+            ctDonDatDto.Sl = getSl;
             if(sanpham.Thoigian.Date <= DateTime.Now.Date)
-                ctDonDatDto.Dg = Convert.ToInt32(sanphamService.FormatVND(sanpham.GiaSp * Sl.Value));
+                ctDonDatDto.Dg = Convert.ToInt32(sanpham.GiaSp * getSl);
             else
-                ctDonDatDto.Dg = Convert.ToInt32(sanphamService.FormatVND((sanpham.GiaSp -(sanpham.GiaSp*sanpham.Tile)) * Sl.Value));
-            ctDonDatDto.Mau = checkMau.Value;
-            ctDonDatDto.Size = checkSize.Value;
+                ctDonDatDto.Dg = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp*sanpham.Tile)) * getSl);
+            ctDonDatDto.Mau = getmau;
+            ctDonDatDto.Size = getsize;
             ctDonDatDto.DanhGia = 0;
             await CtDonDatService.CreateCtdonDat(ctDonDatDto);
             //Ton kho
@@ -864,8 +931,8 @@
                     var result = await tonkhoService.GetTonkho(deCode);
                     tonkho.MaSp = result.MaSp;
                     tonkho.MaCh = result.MaCh;
-                    tonkho.Sl = result.Sl - Sl.Value;
-                    tonkho.Dg = (result.Sl - Sl.Value) * sanpham.GiaSp;
+                    tonkho.Sl = result.Sl - getSl;
+                    tonkho.Dg = (result.Sl - getSl) * sanpham.GiaSp;
                     await tonkhoService.EditTonkho(deCode, result.MaCh, tonkho);
                 }
             }
@@ -873,33 +940,55 @@
             {
                 tonkho.MaSp = deCode;
                 tonkho.MaCh = "CH01";
-                tonkho.Sl = sanpham.Sl - Sl.Value;
-                tonkho.Dg = (sanpham.Sl - Sl.Value) * sanpham.GiaSp;
+                tonkho.Sl = sanpham.Sl - getSl;
+                tonkho.Dg = (sanpham.Sl - getSl) * sanpham.GiaSp;
                 await tonkhoService.CreateTonkho(tonkho);
             }
         }
         else
         {
             khachhang = await khachHangService.GetKhachHang(ma_khCreate);
-            dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if (check != null)
+                {
+                    dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                dondatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
             dondatDto.MaKh = ma_khCreate;
             if (sanpham.Thoigian.Date <= DateTime.Now.Date)
-                dondatDto.TongDdh = Convert.ToInt32(sanphamService.FormatVND(sanpham.GiaSp * Sl.Value));
+                dondatDto.TongDdh = Convert.ToInt32((sanpham.GiaSp * getSl) + (sanpham.GiaSp * 0.02 * getSl));
             else
-                dondatDto.TongDdh = Convert.ToInt32(sanphamService.FormatVND((sanpham.GiaSp -(sanpham.GiaSp*sanpham.Tile)) * Sl.Value));
+                dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
             dondatDto.Diachi = khachhang.DiachiKh;
             dondatDto.Thoigian = DateTime.Now;
             await donDatService.CreateDonDat(dondatDto);
             //chi tiet don dat
-            ctDonDatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if (check != null)
+                {
+                    ctDonDatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                ctDonDatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
             ctDonDatDto.MaSp = deCode;
-            ctDonDatDto.Sl = Sl.Value;
+            ctDonDatDto.Sl = getSl;
             if(sanpham.Thoigian.Date <= DateTime.Now.Date)
-                ctDonDatDto.Dg = Convert.ToInt32(sanphamService.FormatVND(sanpham.GiaSp * Sl.Value));
+                ctDonDatDto.Dg = Convert.ToInt32(sanpham.GiaSp * getSl);
             else
-                ctDonDatDto.Dg = Convert.ToInt32(sanphamService.FormatVND((sanpham.GiaSp -(sanpham.GiaSp*sanpham.Tile)) * Sl.Value));
-            ctDonDatDto.Mau = checkMau.Value;
-            ctDonDatDto.Size = checkSize.Value;
+                ctDonDatDto.Dg = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl);
+            ctDonDatDto.Mau = getmau;
+            ctDonDatDto.Size = getsize;
             ctDonDatDto.DanhGia = 0;
             await CtDonDatService.CreateCtdonDat(ctDonDatDto);
             //Ton kho
@@ -912,8 +1001,8 @@
                     var result = await tonkhoService.GetTonkho(deCode);
                     tonkho.MaSp = result.MaSp;
                     tonkho.MaCh = result.MaCh;
-                    tonkho.Sl = result.Sl - Sl.Value;
-                    tonkho.Dg = (result.Sl - Sl.Value) * sanpham.GiaSp;
+                    tonkho.Sl = result.Sl - getSl;
+                    tonkho.Dg = (result.Sl - getSl) * sanpham.GiaSp;
                     await tonkhoService.EditTonkho(deCode, result.MaCh, tonkho);
                 }
             }
@@ -921,18 +1010,42 @@
             {
                 tonkho.MaSp = deCode;
                 tonkho.MaCh = "CH01";
-                tonkho.Sl = sanpham.Sl - Sl.Value;
-                tonkho.Dg = (sanpham.Sl - Sl.Value) * sanpham.GiaSp;
+                tonkho.Sl = sanpham.Sl - getSl;
+                tonkho.Dg = (sanpham.Sl - getSl) * sanpham.GiaSp;
                 await tonkhoService.CreateTonkho(tonkho);
             }
         }
     }  
     private async Task CheckBuyNow()
     {
-        await sessionStorage.SetItemAsync<string>("masp", deCode);
-        await sessionStorage.SetItemAsync<int>("sl", Sl.Value);
-        int giasp = 0;
-
+        if(Sl.Value > tonkho.Sl)
+        {
+            toastService.ShowWarning("Sản phẩm trong cửa hàng không đủ", "Mua không thành công");
+        }
+        if (name_khLogin == null && name_khCreate == null)
+        {
+            toastService.ShowWarning("Không thể mua sản phẩm", "Bạn chưa đăng nhập");
+        }
+        else if(name_khLogin != null || name_khCreate != null)
+        {
+            await sessionStorage.SetItemAsync<string>("masp", deCode);
+            await sessionStorage.SetItemAsync<int>("sl", Sl.Value);
+            int giasp = 0;
+            if (sanpham.Thoigian.Date <= DateTime.Now.Date)
+            {
+                giasp = sanpham.GiaSp;
+                await sessionStorage.SetItemAsync<int>("giasp", giasp);
+            }
+            else
+            {
+                giasp = Convert.ToInt32(sanpham.GiaSp - sanpham.GiaSp * sanpham.Tile);
+                await sessionStorage.SetItemAsync<int>("giasp", giasp);
+            }
+            await sessionStorage.SetItemAsync<string>("mau", checkMau.Value);
+            await sessionStorage.SetItemAsync<string>("size", checkSize.Value);
+            NavigationManager.NavigateTo("/Cart/BuyNow");
+        }
+        
     }
     
     

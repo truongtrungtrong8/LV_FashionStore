@@ -1,4 +1,4 @@
-﻿@page "/Paycomfirm"
+﻿@page "/Cart/Paycomfirm"
 @using Model.Pay
 @using Web_Client.Services
 @using Microsoft.Extensions.Configuration
@@ -8,7 +8,7 @@
 @inject IToastService toastService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @code {
-
+    SanphamService sanphamService = new SanphamService();
     PayLib pay = new PayLib();
 
     string orderId; //mã hóa đơn
@@ -104,22 +104,23 @@
             if (!checkSignature)
             {
                 //// 
-                await sessionStorage.SetItemAsync<string>("vnpcheckcode_true", vnp_ResponseCode);
+                var id1 = await sessionStorage.GetItemAsync<string>("masp");
+                var id2 = sanphamService.EndCodeMd5(id1);
+                await sessionStorage.SetItemAsync<string>("vnpcheckcode", vnp_ResponseCode);
                 if (vnp_ResponseCode == "00")
                 {
                     //Thanh toán thành công
-                    NavigationManager.NavigateTo("/KhachHang/Index");
+                    NavigationManager.NavigateTo("/Detail/"+id2);
                 }
                 else
                 {
 
-                    NavigationManager.NavigateTo("/Cart/Cart");
+                    //Thanh toán không thành công. Mã lỗi: vnp_ResponseCode
                     toastService.ShowWarning("Có lỗi xảy ra trong quá trình xử lý hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId + " | Mã lỗi: " + vnp_ResponseCode, "");
                 }
             }
             else
             {
-                NavigationManager.NavigateTo("/Cart/Cart");
                 toastService.ShowError("Không thành công mã là: " + vnp_ResponseCode, "");
 
             }

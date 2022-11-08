@@ -105,7 +105,6 @@
         danhgia.MaSp = maSP;
         await danhGiaService.CreateReview(danhgia);
         NavigationManager.NavigateTo("KhachHang/Index");
-        NavigationManager.NavigateTo("/KhachHang/FormReview");
         toastService.ShowSuccess("Cảm ơn bạn đã đánh giá sản phẩm", "Thành công !");
     }
 }
