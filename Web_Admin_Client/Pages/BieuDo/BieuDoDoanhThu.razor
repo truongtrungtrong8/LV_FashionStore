@@ -1,0 +1,295 @@
+﻿@page "/BieuDo/doanhthu"
+@layout MainLayout
+@using System.Globalization
+@using Model.DataDB
+@using Model.Dto
+@using Radzen.Blazor
+@using Web_Admin_Client.Service
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager;
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-sm-12 my-5">
+                <RadzenChart>
+                    <RadzenColumnSeries Data="@chartThang" CategoryProperty="Thang" Title="Tháng" LineType="LineType.Dashed" ValueProperty="TongTien">
+                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                    </RadzenColumnSeries>
+                    <RadzenColumnOptions Radius="5" Width="20" />
+                    <RadzenCategoryAxis Padding="20" />
+                    <RadzenValueAxis Formatter="@FormatAsVND">
+                        <RadzenGridLines Visible="true" />
+                        <RadzenAxisTitle Text="Doanh Thu (VND)" />
+                    </RadzenValueAxis>
+                </RadzenChart>
+
+                <RadzenChart>
+                    <RadzenLineSeries Smooth="@smooth" Data="@chartThang" CategoryProperty="Thang" Title="Tháng" LineType="LineType.Dashed" ValueProperty="TongTien">
+                        <RadzenMarkers MarkerType="MarkerType.Square" />
+                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                    </RadzenLineSeries>
+                    @*<RadzenLineSeries Smooth="@smooth" Data="@revenue2020" CategoryProperty="Date" Title="2020" ValueProperty="Revenue">
+                        <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                    </RadzenLineSeries>*@
+                    @*<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />*@
+                    <RadzenValueAxis Formatter="@FormatAsVND">
+                        <RadzenGridLines Visible="true" />
+                        <RadzenAxisTitle Text="Doanh Thu (VND)" />
+                    </RadzenValueAxis>
+                </RadzenChart>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private ElementReference mouseMoveElement;
+    private DotNetObjectReference<BieuDoDoanhThu>? selfReference;
+    bool smooth = false;
+    private DonDatDto dondathang = new DonDatDto();
+    List<DonDatDto> dondatList = new List<DonDatDto>();
+    DondathangService dondatService = new DondathangService();
+    DoanhThuThang doanhThuThang = new DoanhThuThang();
+    List<DoanhThuThang> doanhThuThangs = new List<DoanhThuThang>();
+    DoanhThuNam doanhThuNam = new DoanhThuNam();
+    List<DoanhThuNam> doanhThuNams = new List<DoanhThuNam>();
+    DoanhThuQuy doanhThuQuy = new DoanhThuQuy();
+    List<DoanhThuQuy> doanhThuQuys = new List<DoanhThuQuy>();
+    DoanhThuService doanhThuService = new DoanhThuService();
+
+    private bool showDataLabels = false;
+    private DonDatDto[]? temp;
+    private DoanhThuNam[]? chartNam;
+    private DoanhThuThang[]? chartThang;
+    private DoanhThuQuy[]? chartQuy;
+
+    private string message = "Move the mouse in the box";
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            //dondatList = await dondatService.GetListAll();
+            //await CreateDoanhThuThang1();
+            //await CreateDoanhThuThang2();
+            //await CreateDoanhThuThang3();
+            //await CreateDoanhThuThang4();
+            //await CreateDoanhThuThang5();
+            //await CreateDoanhThuThang6();
+            //await CreateDoanhThuThang7();
+            //await CreateDoanhThuThang8();
+            //await CreateDoanhThuThang9();
+            //await CreateDoanhThuThang10();
+            //await CreateDoanhThuThang11();
+            //await CreateDoanhThuThang12();
+            chartThang = await doanhThuService.GetDoanhThuThang();
+            
+        }
+    }
+    protected override async void OnInitialized()
+    {
+        //dondatList = await dondatService.GetListAll();
+        //await CreateDoanhThuThang1();
+        //await CreateDoanhThuThang2();
+        //await CreateDoanhThuThang3();
+        //await CreateDoanhThuThang4();
+        //await CreateDoanhThuThang5();
+        //await CreateDoanhThuThang6();
+        //await CreateDoanhThuThang7();
+        //await CreateDoanhThuThang8();
+        //await CreateDoanhThuThang9();
+        //await CreateDoanhThuThang10();
+        //await CreateDoanhThuThang11();
+        //await CreateDoanhThuThang12();
+        chartThang = await doanhThuService.GetDoanhThuThang();
+        
+    }
+    string FormatAsVND(object value)
+    {
+        return ((double)value).ToString("#,###", CultureInfo.CreateSpecificCulture("vi-VN"));
+    }
+    private async Task CreateDoanhThuThang1()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(1);
+        if(thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_1();
+            doanhThuThang.Thang = 1;
+            await doanhThuService.EditByMonth(1, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang2()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(2);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_2();
+            doanhThuThang.Thang = 2;
+            await doanhThuService.EditByMonth(2, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang3()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(3);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_3();
+            doanhThuThang.Thang = 3;
+            await doanhThuService.EditByMonth(3, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang4()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(4);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_4();
+            doanhThuThang.Thang = 4;
+            await doanhThuService.EditByMonth(4, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang5()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(5);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_5();
+            doanhThuThang.Thang = 5;
+            await doanhThuService.EditByMonth(5, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang6()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(6);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_6();
+            doanhThuThang.Thang = 6;
+            await doanhThuService.EditByMonth(6, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang7()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(7);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_7();
+            doanhThuThang.Thang = 7;
+            await doanhThuService.EditByMonth(7, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang8()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(8);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_8();
+            doanhThuThang.Thang = 8;
+            await doanhThuService.EditByMonth(8, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang9()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(9);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_9();
+            doanhThuThang.Thang = 9;
+            await doanhThuService.EditByMonth(9, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang10()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(10);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_10();
+            doanhThuThang.Thang = 10;
+            await doanhThuService.EditByMonth(10, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang11()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(11);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_11();
+            doanhThuThang.Thang = 11;
+            await doanhThuService.EditByMonth(11, doanhThuThang);
+        }
+    }
+    private async Task CreateDoanhThuThang12()
+    {
+        var thang = await doanhThuService.GetDoanhThuThangByID(12);
+        if (thang != null)
+        {
+            doanhThuThang.TongTien = PriceMonth_12();
+            doanhThuThang.Thang = 12;
+            await doanhThuService.EditByMonth(12, doanhThuThang);
+        }
+    }
+    public int PriceMonth_1()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 1).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_2()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 2).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_3()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 3).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_4()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 4).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_5()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 5).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_6()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 6).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_7()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 7).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_8()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 8).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_9()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 9).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_10()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 10).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_11()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 11).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    public int PriceMonth_12()
+    {
+        var pri = dondatList.Where(temp => temp.Thoigian.Month == 12).Sum(temp => temp.TongDdh);
+        return pri;
+    }
+    
+}

@@ -25,6 +25,10 @@ namespace Web_Client.Services
         {
             return await Http.GetFromJsonAsync<List<DonDatDto>>(urldefault + "/countDonDat");
         }
+        public async Task<List<Dondathang>> GetListAll()
+        {
+            return await Http.GetFromJsonAsync<List<Dondathang>>(urldefault);
+        }
         public async Task<bool> Delete_DD(string id)
         {
             var result = await Http.DeleteAsync(urldefault + "/" + id);

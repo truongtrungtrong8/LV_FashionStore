@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
+using Radzen;
 using Tewr.Blazor.FileReader;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,10 @@ option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection
 builder.Services.AddScoped<SessionTemp>();
 builder.Services.AddBlazoredModal();
 builder.Services.AddFileReaderService();
-
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<TooltipService>();
+builder.Services.AddScoped<ContextMenuService>();
 
 builder.Services.AddHttpContextAccessor();
 

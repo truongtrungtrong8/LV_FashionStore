@@ -16,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddServerSideBlazor();
 
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(

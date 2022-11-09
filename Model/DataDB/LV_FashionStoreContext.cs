@@ -25,6 +25,9 @@ namespace Model.DataDB
         public virtual DbSet<CtT> CtTs { get; set; } = null!;
         public virtual DbSet<Cuahang> Cuahangs { get; set; } = null!;
         public virtual DbSet<DanhgiaSanpham> DanhgiaSanphams { get; set; } = null!;
+        public virtual DbSet<DoanhThuNam> DoanhThuNams { get; set; } = null!;
+        public virtual DbSet<DoanhThuQuy> DoanhThuQuies { get; set; } = null!;
+        public virtual DbSet<DoanhThuThang> DoanhThuThangs { get; set; } = null!;
         public virtual DbSet<Dondathang> Dondathangs { get; set; } = null!;
         public virtual DbSet<Donnhap> Donnhaps { get; set; } = null!;
         public virtual DbSet<Giohang> Giohangs { get; set; } = null!;
@@ -356,6 +359,36 @@ namespace Model.DataDB
                     .HasForeignKey(d => d.MaSp)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DANHGIA_SANPHAM");
+            });
+
+            modelBuilder.Entity<DoanhThuNam>(entity =>
+            {
+                entity.HasKey(e => e.Nam)
+                    .HasName("PK__DoanhThu__C7D111C21062ED59");
+
+                entity.ToTable("DoanhThuNam");
+
+                entity.Property(e => e.Nam).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<DoanhThuQuy>(entity =>
+            {
+                entity.HasKey(e => e.Quy)
+                    .HasName("PK__DoanhThu__CAB23CCD860C202C");
+
+                entity.ToTable("DoanhThuQuy");
+
+                entity.Property(e => e.Quy).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<DoanhThuThang>(entity =>
+            {
+                entity.HasKey(e => e.Thang)
+                    .HasName("PK__DoanhThu__2DD4F54A25C93CDE");
+
+                entity.ToTable("DoanhThuThang");
+
+                entity.Property(e => e.Thang).ValueGeneratedNever();
             });
 
             modelBuilder.Entity<Dondathang>(entity =>

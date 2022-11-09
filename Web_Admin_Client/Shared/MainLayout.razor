@@ -5,7 +5,8 @@
 @using Model
 @inject SessionTemp sessionLogin
 @using Blazored.Toast.Configuration
-
+@using Radzen.Blazor
+@inject NavigationManager NavigationManager;
 
     <div class="container-scroller">
 @*      <div class="row p-0 m-0 proBanner" id="proBanner">
@@ -205,6 +206,12 @@
                 <i class="mdi mdi-table-large menu-icon"></i>
               </a>
             </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/BieuDo/doanhthu">
+                        <span class="menu-title">Biểu đồ doanh thu</span>
+                        <i class="mdi mdi-table-large menu-icon"></i>
+                    </a>
+                </li>
             <li class="nav-item">
               <a class="nav-link" href="/Sanpham/Index">
                 <span class="menu-title">Sản phẩm</span>
@@ -328,6 +335,11 @@
                 WarningIcon="fa fa-exclamation-triangle"
                 WarningClass="warning-toast-override"
                 ErrorIcon="fa fa-bug" />
+
+<RadzenDialog/>
+<RadzenNotification/>
+<RadzenContextMenu/>
+<RadzenTooltip/>
 
    
 @code{
