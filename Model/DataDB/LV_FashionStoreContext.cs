@@ -363,22 +363,26 @@ namespace Model.DataDB
 
             modelBuilder.Entity<DoanhThuNam>(entity =>
             {
-                entity.HasKey(e => e.Nam)
-                    .HasName("PK__DoanhThu__C7D111C21062ED59");
+                entity.HasKey(e => new { e.Thang, e.Nam, e.Id })
+                    .HasName("PK__DoanhThu__179BF0BA37873977");
 
                 entity.ToTable("DoanhThuNam");
 
-                entity.Property(e => e.Nam).ValueGeneratedNever();
+                entity.Property(e => e.Thang).HasMaxLength(50);
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<DoanhThuQuy>(entity =>
             {
-                entity.HasKey(e => e.Quy)
-                    .HasName("PK__DoanhThu__CAB23CCD860C202C");
+                entity.HasKey(e => new { e.Id, e.Quy, e.Nam })
+                    .HasName("PK__DoanhThu__3D781EDA15690DD0");
 
                 entity.ToTable("DoanhThuQuy");
 
-                entity.Property(e => e.Quy).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Quy).HasMaxLength(50);
             });
 
             modelBuilder.Entity<DoanhThuThang>(entity =>

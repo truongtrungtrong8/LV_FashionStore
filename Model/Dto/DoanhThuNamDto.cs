@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Model.DataDB
+namespace Model.Dto
 {
-    public partial class DoanhThuNam
+    public class DoanhThuNamDto
     {
         public string Thang { get; set; } = null!;
         public int Nam { get; set; }
         public int DoanhThu { get; set; }
-        public int Id { get; set; }
     }
 }
