@@ -11,6 +11,7 @@ using Model.Dto;
 using Models.Page;
 using Newtonsoft.Json;
 using NuGet.Protocol;
+using Web_Api_Server.Repositoreies;
 
 namespace Web_Api_Server.Controllers
 {
@@ -44,6 +45,20 @@ namespace Web_Api_Server.Controllers
                             });
             return await taikhoan.ToListAsync();
         }
+        [HttpGet("getTkbyID")]
+        public async Task<ActionResult<IEnumerable<TaikhoanDto>>> GetTaikhoanByID(string id)
+        {
+            var taikhoan = (from t in _context.Taikhoans
+                            where t.TrangThai == id
+                            select new TaikhoanDto()
+                            {
+                                TenTk = t.TenTk,
+                                Matkhau = t.Matkhau,
+                                Quyensd = t.Quyensd,
+                                TrangThai = t.TrangThai,
+                            }).ToListAsync();
+            return await taikhoan;
+        }
 
 
         [HttpGet("pageTaikhoan")]
@@ -55,7 +70,7 @@ namespace Web_Api_Server.Controllers
                                 TenTk = t.TenTk,
                                 Matkhau = t.Matkhau,
                                 Quyensd = t.Quyensd,
-                            }).AsQueryable();
+                            }).Search(paging.SearchTerm).AsQueryable();
             var result = PagedList<TaikhoanDto>.ToPagedList(taikhoan, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;
@@ -109,6 +124,7 @@ namespace Web_Api_Server.Controllers
                 TenTk = taikhoan.TenTk,
                 Matkhau = taikhoan.Matkhau,
                 Quyensd = taikhoan.Quyensd,
+                TrangThai = taikhoan.TrangThai,
             };
             await _context.Taikhoans.AddAsync(temp);
             await _context.SaveChangesAsync();

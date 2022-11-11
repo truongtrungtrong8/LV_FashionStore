@@ -31,6 +31,10 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<NhanvienDto>(urldefault + "/" + id);
         }
+        public async Task<NhanvienDto> GetNhanvienByTk(string id)
+        {
+            return await Http.GetFromJsonAsync<NhanvienDto>(urldefault + "/getNhanvienByTk?id=" + id);
+        }
         public async Task<NhanvienDto> GetNhanviens()
         {
             return await Http.GetFromJsonAsync<NhanvienDto>(urldefault);

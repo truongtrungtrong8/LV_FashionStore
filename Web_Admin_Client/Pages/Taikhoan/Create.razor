@@ -18,12 +18,16 @@
             <InputText class="form-control" placeholder="" @bind-Value="taikhoan.TenTk" @ref=tentaikhoan></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputPassword1">Giá sản phẩm</label>
+            <label for="exampleInputPassword1">Mật khẩu</label>
             <InputText class="form-control" placeholder="" @bind-Value="taikhoan.Matkhau" @ref=matkhau></InputText>
         </div>
         <div class="form-group">
             <label for="exampleInputConfirmPassword1">Quyền sử dụng</label>
-            <InputText class="form-control" placeholder="" @bind-Value="taikhoan.Quyensd" @ref=quyensd></InputText>
+            <InputSelect class="form-select" placeholder="" @bind-Value="taikhoan.Quyensd" @ref=quyensd>
+                <option value="admin">admin</option>
+                <option value="user">user</option>
+            </InputSelect>
+            @*<InputText class="form-control" placeholder="" @bind-Value="taikhoan.Quyensd" @ref=quyensd></InputText>*@
         </div>
         
     <button type="button" class="btn btn-gradient-primary" @onclick="Create_Sanpham" style="margin-left:19%">Lưu</button>
@@ -42,7 +46,7 @@
     TaiKhoanService taikhoanService = new TaiKhoanService();
     private InputText tentaikhoan;
     private InputText matkhau;
-    private InputText quyensd;
+    private InputSelect<string> quyensd;
     private int Quantily_Pro { get; set; }
     private int Ma_Pro { get; set; }
 
@@ -53,14 +57,17 @@
 
     private async void Create_Sanpham()
     {
-
         taikhoan.TenTk = tentaikhoan.Value;
         taikhoan.Matkhau = GetMD5(matkhau.Value);
-        taikhoan.Quyensd = quyensd.Value;
+        if (quyensd.Value == null)
+            taikhoan.Quyensd = "admin";
+        else
+            taikhoan.Quyensd = quyensd.Value;
+        taikhoan.TrangThai = "no";
         await taikhoanService.CreateTaikhoan(taikhoan);
+        NavigationManager.NavigateTo("/NhanVien/Index");
         NavigationManager.NavigateTo("/Taikhoan/Index");
         toastService.ShowSuccess("Thêm tài khoản thành công", "Thành công !");
-
     }
     private async void Close()
     {

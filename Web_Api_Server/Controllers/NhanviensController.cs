@@ -71,7 +71,26 @@ namespace Web_Api_Server.Controllers
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;
         }
-
+        //getNhanvienByTK
+        [HttpGet("getNhanvienByTk")]
+        public async Task<ActionResult<NhanvienDto>> GetNhanvienByTK(string id)
+        {
+            var nhanvien = (from n in _context.Nhanviens
+                            where n.TenTk == id
+                            select new NhanvienDto()
+                            {
+                                MaNv = n.MaNv,
+                                TenTk = n.TenTk,
+                                MaCh = n.MaCh,
+                                HtenNv = n.HtenNv,
+                                GtNv = n.GtNv,
+                                NsNv = n.NsNv,
+                                DcNv = n.DcNv,
+                                ChucvuNv = n.ChucvuNv,
+                                LuongNv = n.LuongNv,
+                            }).SingleOrDefault();
+            return nhanvien;
+        }
         // GET: api/Nhanviens/5
         [HttpGet("{id}")]
         public async Task<ActionResult<NhanvienDto>> GetNhanvien(string id)

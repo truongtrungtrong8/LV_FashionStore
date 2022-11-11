@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace Web_Api_Server.Controllers
             return await image.ToListAsync();
         }
         [HttpGet("getImage")]
-        public async Task<ActionResult<Images_Model>> GetHinhanhInProduct(string id)
+        public async Task<ActionResult<IEnumerable<Images_Model>>> GetHinhanhInProduct(string id)
         {
             var image = (from h in _context.Hinhanhs
                          where h.MaSp == id
@@ -57,8 +58,40 @@ namespace Web_Api_Server.Controllers
                              HaBia = h.HaBia,
                              Ha1 = h.Ha1,
                              Ha2 = h.Ha2
-                         }).SingleOrDefault();
-            return image;
+                         }).ToListAsync();
+            return await image;
+        }
+        [HttpGet("getImageBySP")]
+        public async Task<ActionResult<ImageDto>> GetHinhanh(string id)
+        {
+            var image = (from h in _context.Hinhanhs
+                         where h.MaSp == id
+                         select new ImageDto()
+                         {
+                             MaHa = h.MaHa,
+                             MaSp = h.MaSp,
+                             HaBia = h.HaBia,
+                             Ha1 = h.Ha1,
+                             Ha2 = h.Ha2
+                         }).SingleOrDefaultAsync();
+            return await image;
+        }
+        [HttpGet("getImageByImage")]
+        public async Task<ActionResult<IEnumerable<Images_Model>>> GetHinhanhByImage(string id)
+        {
+            var image = (from h in _context.Hinhanhs
+                         join s in _context.Sanphams on h.MaSp equals s.MaSp
+                         where h.HaBia == id
+                         select new Images_Model()
+                         {
+                             MaHa = h.MaHa,
+                             TenSp = s.TenSp,
+                             MaSp = h.MaSp,
+                             HaBia = h.HaBia,
+                             Ha1 = h.Ha1,
+                             Ha2 = h.Ha2
+                         }).ToListAsync();
+            return await image;
         }
 
         // GET: api/Hinhanhs/5
@@ -98,32 +131,24 @@ namespace Web_Api_Server.Controllers
         // PUT: api/Hinhanhs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHinhanh(int id, Hinhanh hinhanh)
+        public async Task<IActionResult> PutHinhanh(int id, [FromBody] ImageDto hinhanh)
         {
             if (id != hinhanh.MaHa)
             {
                 return BadRequest();
             }
-
-            _context.Entry(hinhanh).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!HinhanhExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var temp = await _context.Hinhanhs.FindAsync(id);
+            if (temp == null)
+                return NotFound(id);
+            temp.MaHa = hinhanh.MaHa;
+            temp.MaSp = hinhanh.MaSp;
+            temp.HaBia = hinhanh.HaBia;
+            temp.Ha1 = hinhanh.Ha1;
+            temp.Ha2 = hinhanh.Ha2;
+            temp.Ha3 = hinhanh.Ha3;
+            _context.Hinhanhs.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/Hinhanhs

@@ -11,5 +11,6 @@ namespace Model.Dto
         public string TenTk { get; set; } = null!;
         public string? Matkhau { get; set; }
         public string? Quyensd { get; set; }
+        public string? TrangThai { get; set; }
     }
 }

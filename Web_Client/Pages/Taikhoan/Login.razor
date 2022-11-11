@@ -177,23 +177,8 @@
         {
             toastService.ShowError("Lỗi !", "Nhập lại thông tin !");
         }
-
     }
 
-
-    public void ForgetPassword()
-    {
-        //this.ModalInstance.CancelAsync();
-        //Thread.Sleep(500);
-        //Modal.Show<Register>("Đăng ký tài khoản mới");
-    }
-
-    public void Register()
-    {
-        //this.ModalInstance.CancelAsync();
-        //Thread.Sleep(500);
-        //this.Modal.Show<Register>("Đăng ký tài khoản mới");
-    }
 
     public async Task<bool> CheckKhachhang(string phone)
     {
@@ -221,7 +206,6 @@
         for (int i = 0; i < targetData.Length; i++)
         {
             byte2String += targetData[i].ToString("x2");
-
         }
         return byte2String;
     }

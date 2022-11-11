@@ -12,31 +12,38 @@
     <form class="forms-sample">
 
         <div class="form-group">
-            <label for="exampleInputEmail1">Họ tên nhân viên</label>
-            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.HtenNv" @ref=tennv></InputText>
+            <label for="example">Họ tên nhân viên</label>
+            <InputText class="form-control" placeholder="Nguyễn Văn A" @bind-Value="nhanvien.HtenNv" @ref=tennv></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputPassword1">Giới tính</label>
-            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.GtNv" @ref=gioitinh></InputText>
+            <label for="example1">Giới tính</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="nhanvien.GtNv" @ref=gioitinh>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+            </InputSelect>
         </div>
         <div class="form-group">
-            <label for="exampleInputPassword1">Ngày sinh</label>
+            <label for="example">Ngày sinh</label>
             <InputDate class="form-control" placeholder="" @bind-Value="@_ngaysinh" format-value="yyyy-MM-dd"></InputDate>
         </div>
         <div class="form-group">
-            <label for="exampleInputConfirmPassword1">Lương nhân viên</label>
+            <label for="example">Lương nhân viên</label>
             <InputNumber class="form-control" placeholder="" @bind-Value="nhanvien.LuongNv" @ref=luongnv></InputNumber>
         </div>
         <div class="form-group">
-            <label for="exampleInputUsername1">Chức vụ</label>
-            <InputText class="form-control" placeholder="" @bind-Value="nhanvien.ChucvuNv" @ref=chucvu></InputText>
+            <label for="example">Chức vụ</label>
+            <InputSelect class="form-select" placeholder="" @bind-Value="nhanvien.ChucvuNv" @ref=chucvunv>
+                <option value="nhân viên">Nhân viên</option>
+                <option value="quản lý">Quản lý</option>
+            </InputSelect>
         </div>
         <div class="form-group">
-            <label for="exampleInputConfirmPassword1">Địa chỉ nhân viên</label>
+            <label for="example">Địa chỉ nhân viên</label>
             <InputText class="form-control" placeholder="" @bind-Value="nhanvien.DcNv" @ref=diachi></InputText>
         </div>
         <div class="form-group">
-            <label for="exampleInputConfirmPassword1">Tài khoản nhân viên</label>
+            <label for="example">Tài khoản nhân viên</label>
             <InputSelect class="form-select" placeholder="" @bind-Value="nhanvien.TenTk" @ref=newtaikhoan>
                 @foreach (var item in taikhoan)
                 {
@@ -45,7 +52,7 @@
             </InputSelect>
         </div>
         <div class="form-group">
-            <label for="exampleInputConfirmPassword1">Nơi làm việc</label>
+            <label for="example">Nơi làm việc</label>
             <InputSelect class="form-select" placeholder="" @bind-Value="nhanvien.MaCh" @ref=newcuahang>
                 @foreach (var item in cuahang)
                 {
@@ -71,20 +78,31 @@
     [Parameter]
     public string id { get; set; }
     private NhanvienDto nhanvien = new NhanvienDto();
+    private NhanvienDto nhanvienCheck = new NhanvienDto();
     private List<Nhanvien> nhanvienCount = new List<Nhanvien>();
-    private List<Taikhoan> taikhoan = new List<Taikhoan>();
+    private List<Nhanvien> nhanvienList = new List<Nhanvien>();
+    NhanvienService nhanvienService = new NhanvienService();
+
+    private List<TaikhoanDto> taikhoan = new List<TaikhoanDto>();
     TaiKhoanService taiKhoanService = new TaiKhoanService();
+
     private List<Cuahang> cuahang = new List<Cuahang>();
     CuahangService cuahangService = new CuahangService();
 
-    NhanvienService nhanvienService = new NhanvienService();
+    Khachhang khachhang = new Khachhang();
+    List<Khachhang> khachhangList = new List<Khachhang>();
+    KhachHangService khachHangService = new KhachHangService();
+
     private InputText tennv;
     private InputText chucvu;
     private InputText diachi;
-    private InputText gioitinh;
     private InputNumber<int> luongnv;
     private InputSelect<string> newcuahang;
     private InputSelect<string> newtaikhoan;
+    private InputSelect<string> chucvunv;
+    private InputSelect<string> gioitinh;
+
+
     private DateTime ngaysinh;
     public DateTime _ngaysinh {
         get { return ngaysinh; }
@@ -98,35 +116,53 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _ngaysinh = DateTime.Now;
-        taikhoan = await taiKhoanService.GetListTaikhoan();
+
+        taikhoan = await taiKhoanService.GetListTaikhoanById("no");
         cuahang = await cuahangService.GetListCuahang();
+
         count = cuahang.Count;
         nhanvienCount = await nhanvienService.GetCountNhanvien();
         Quantily_NV = nhanvienCount.Count;
         Ma_NV = Quantily_NV + 1;
         idnv = ("NV" + Ma_NV).ToString();
+        _ngaysinh = DateTime.Now;
     }
 
     private async void Create_Sanpham()
     {
+        int countListTK;
+        countListTK = taikhoan.Count();
         try
         {
             nhanvien = await nhanvienService.GetNhanvien(idnv);
             if (nhanvien != null)
             {
-
                 nhanvien.MaNv = ("NV" + (Ma_NV + 2)).ToString();
                 nhanvien.HtenNv = tennv.Value;
                 nhanvien.DcNv = diachi.Value;
                 nhanvien.GtNv = gioitinh.Value;
                 nhanvien.LuongNv = luongnv.Value;
-                nhanvien.TenTk = newtaikhoan.Value;
+                if(countListTK == 1)
+                {
+                    foreach(var item in taikhoan)
+                    {
+                        nhanvien.TenTk = item.TenTk;
+                    }
+                }
+                else
+                {
+                    nhanvien.TenTk = newtaikhoan.Value;
+                }
+                
                 nhanvien.MaCh = "CH01";
-                nhanvien.ChucvuNv = chucvu.Value;
+                if (chucvunv.Value == null)
+                    nhanvien.ChucvuNv = "nhân viên";
+                else 
+                    nhanvien.ChucvuNv = chucvunv.Value;
                 nhanvien.NsNv = _ngaysinh;
                 await nhanvienService.CreateNhanvien(nhanvien);
-                NavigationManager.NavigateTo("/Nhanvien/Index", forceLoad: true);
+                NavigationManager.NavigateTo("/Taikhoan/Index");
+                NavigationManager.NavigateTo("/Nhanvien/Index");
                 toastService.ShowSuccess("Thêm thành công", "Thành công !");
             }
         }
@@ -137,12 +173,26 @@
                 nhanvien.DcNv = diachi.Value;
                 nhanvien.GtNv = gioitinh.Value;
                 nhanvien.LuongNv = luongnv.Value;
-                nhanvien.TenTk = newtaikhoan.Value;
+                if (countListTK == 1)
+                {
+                    foreach (var item in taikhoan)
+                    {
+                        nhanvien.TenTk = item.TenTk;
+                    }
+                }
+                else
+                {
+                    nhanvien.TenTk = newtaikhoan.Value;
+                }
                 nhanvien.MaCh = newcuahang.Value;
-                nhanvien.ChucvuNv = chucvu.Value;
+                if (chucvunv.Value == null)
+                    nhanvien.ChucvuNv = "nhân viên";
+                else 
+                    nhanvien.ChucvuNv = chucvunv.Value;
                 nhanvien.NsNv = _ngaysinh;
                 await nhanvienService.CreateNhanvien(nhanvien);
-                NavigationManager.NavigateTo("/Nhanvien/Index", forceLoad: true);
+                NavigationManager.NavigateTo("/Taikhoan/Index");
+                NavigationManager.NavigateTo("/Nhanvien/Index");
                 toastService.ShowSuccess("Thêm thành công", "Thành công !");
        }
        

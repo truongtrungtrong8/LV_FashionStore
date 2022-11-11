@@ -6,7 +6,7 @@
 @using Web_Admin_Client.Service
 @inject NavigationManager NavigationManager
 @inject IToastService toastService
-
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <EditForm Model="sanphamdto">
     <form class="forms-sample">
@@ -75,6 +75,8 @@
     private int Quantily_Pro { get; set; }
     private int Ma_Pro { get; set; }
 
+    ImageDto image = new ImageDto();
+    private HinhanhService hinhanhService = new HinhanhService();
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +91,7 @@
     private async void Create_Sanpham(ModalSize size, ModalPosition position)
     {
         sanphamdto.MaSp = ("SP" + Ma_Pro).ToString();
+        await sessionStorage.SetItemAsync<string>("getmasp", ("SP" + Ma_Pro).ToString());
         sanphamdto.TenSp = tensanpham.Value;
         sanphamdto.GiaSp = giasanpham.Value;
         sanphamdto.Baohanh = baohanh.Value;
@@ -96,6 +99,10 @@
         sanphamdto.MaHsx = hangsx.Value;
         await sanphamService.CreateSanpham(sanphamdto);
         ModalInstance.CloseAsync();
+        ///Create hinh anh
+        image.MaSp = ("SP" + Ma_Pro).ToString();
+        image.HaBia = "chua co";
+        await hinhanhService.AddImage(image);
         var options = new ModalOptions { Size = size, Position = position };
             options.SizeCustomClass = "my-custom-size-image";
             options.PositionCustomClass = "my-custom-position-image";

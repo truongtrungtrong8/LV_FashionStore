@@ -8,12 +8,15 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq.Dynamic.Core;
 using System.Security.Cryptography;
+using Model.DataDB;
+using Model.Dto;
 
 namespace Web_Api_Server.Repositoreies
 {
     public static class Search_Temp
     {
      
+        //Search san pham
         public static IQueryable<Sanpham_Model> Search(this IQueryable<Sanpham_Model> products, string search)
         {
 
@@ -31,8 +34,42 @@ namespace Web_Api_Server.Repositoreies
             return productsTemp.AsQueryable();
             
         }
-        
+        //Search tai khoan
+        public static IQueryable<TaikhoanDto> Search(this IQueryable<TaikhoanDto> taikhoans, string search)
+        {
 
+            if (string.IsNullOrWhiteSpace(search))
+                return taikhoans;
+            var taikhoansTemp = new List<TaikhoanDto>();
+            foreach (var taikhoan in taikhoans)
+            {
+                var lowerCaseSearchTerm = ConvertToUnSign3(search.Trim().ToLower());
+                if (ConvertToUnSign3(taikhoan.TenTk.ToLower()).Contains(lowerCaseSearchTerm) == true)
+                {
+                    taikhoansTemp.Add(taikhoan);
+                }
+            }
+            return taikhoansTemp.AsQueryable();
+
+        }
+        //search khach hang
+        public static IQueryable<Khachhang> Search(this IQueryable<Khachhang> khachhangs, string search)
+        {
+
+            if (string.IsNullOrWhiteSpace(search))
+                return khachhangs;
+            var khachhangsTemp = new List<Khachhang>();
+            foreach (var khachhang in khachhangs)
+            {
+                var lowerCaseSearchTerm = ConvertToUnSign3(search.Trim().ToLower());
+                if (ConvertToUnSign3(khachhang.TenKh.ToLower()).Contains(lowerCaseSearchTerm) == true)
+                {
+                    khachhangsTemp.Add(khachhang);
+                }
+            }
+            return khachhangsTemp.AsQueryable();
+
+        }
         public static string ConvertToUnSign3(string s)
         {
             Regex regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");

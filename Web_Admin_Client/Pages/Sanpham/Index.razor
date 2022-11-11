@@ -24,15 +24,15 @@
                     <Sort OnSortChanged="SortChanged" />
             <button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false"> Thêm sản phẩm mới !</button>
                 <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
-                    <a class="dropdown-item" @onclick="() => Submit(ModalSize.Custom,ModalPosition.Custom)">
+                    <a class="dropdown-item" @onclick="() => Submit(ModalSize.Custom,ModalPosition.Custom)" style="cursor:pointer">
                       <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Nhập bằng Form
                     </a>
                 <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" @onclick="() => ImportExcel(ModalSize.Custom,ModalPosition.Custom)">
+                    <a class="dropdown-item" @onclick="() => ImportExcel(ModalSize.Custom,ModalPosition.Custom)" style="cursor:pointer">
                     <i class="mdi mdi-package-up me-2 text-success"></i> Nhập bằng File Excel
                 </a>
                 <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" @onclick="() => CreateDocument()">
+                <a class="dropdown-item" @onclick="() => CreateDocument()" style="cursor:pointer">
                     <i class="mdi mdi-package-down me-2 text-success"></i> Xuất dữ liệu
                     </a>
                 </div>
@@ -61,7 +61,7 @@
                                             <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                             </a>
                                             <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
-                                                <a class="dropdown-item" @onclick="() => Edit_SP(item.MaSp,ModalSize.Custom,ModalPosition.Custom)">
+                                                <a class="dropdown-item" @onclick="() => Edit_SP(item.MaSp,ModalSize.Custom,ModalPosition.Custom)" style="cursor:pointer">
                                                     <i class="mdi mdi-tooltip-edit me-2 text-success"></i> Chỉnh sửa
                                                 </a>
                                                 <div class="dropdown-divider"></div>

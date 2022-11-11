@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model.DataDB;
 using Model.Dto;
+using Models.Page;
+using Newtonsoft.Json;
+using Web_Api_Server.Repositoreies;
 
 namespace Web_Api_Server.Controllers
 {
@@ -27,12 +30,18 @@ namespace Web_Api_Server.Controllers
         {
             return await _context.Khachhangs.ToListAsync();
         }
-
+        [HttpGet("pageKhachhang")]
+        public async Task<ActionResult<IEnumerable<Khachhang>>> GetKhachhangPage([FromQuery] PagingParameters paging)
+        {
+            var khachhang = _context.Khachhangs.Search(paging.SearchTerm).AsQueryable();
+            var result = PagedList<Khachhang>.ToPagedList(khachhang, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
+        }
         // GET: api/Khachhangs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Khachhang>> GetKhachhang(string id)
         {
-
             if (_context.Khachhangs == null)
             {
                 return NotFound();

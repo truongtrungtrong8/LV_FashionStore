@@ -148,6 +148,7 @@
                 {
                     acc.TenTk = phone.Value;
                     acc.Matkhau = GetMD5(passwordOne.Value);
+                    acc.TrangThai = "ok";
                     try
                     {
                         var account = await accountService.AddATaiKhoan(acc);

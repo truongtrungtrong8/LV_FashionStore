@@ -874,6 +874,10 @@ namespace Model.DataDB
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("QUYENSD");
+
+                entity.Property(e => e.TrangThai)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<Thongsosp>(entity =>

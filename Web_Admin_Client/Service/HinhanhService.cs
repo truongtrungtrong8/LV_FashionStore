@@ -21,7 +21,10 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<List<Images_Model>>(urldefault);
         }
-
+        public async Task<List<Images_Model>> GetImageByImage(string id)
+        {
+            return await Http.GetFromJsonAsync<List<Images_Model>>(urldefault + "/getImageByImage?id=" + id);
+        }
 
         public async Task<bool> AddImage(ImageDto request)
         {
@@ -31,6 +34,10 @@ namespace Web_Admin_Client.Service
         public async Task<Images_Model> GetProductByImage(string id)
         {
             return await Http.GetFromJsonAsync<Images_Model>(urldefault + "/getImage?id=" + id);
+        }
+        public async Task<ImageDto> GetImageByID(string id)
+        {
+            return await Http.GetFromJsonAsync<ImageDto>(urldefault + "/getImageBySP?id=" + id);
         }
 
         public async Task<PagingResponse<Images_Model>> GetListPageImage(PagingParameters paging)
@@ -58,6 +65,12 @@ namespace Web_Admin_Client.Service
         public async Task<bool> DeleteHinhanh(string id)
         {
             var result = await Http.DeleteAsync(urldefault + "/" + id);
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> EditImages(int id, ImageDto request)
+        {
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id, request);
             return result.IsSuccessStatusCode;
         }
     }
