@@ -1,0 +1,67 @@
+﻿@page "/Sanpham/Delete/{id}"
+@inject IJSRuntime JS
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager;
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+
+
+<EditForm Model="sanphamdto">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="example">Tên sản phẩm</label>
+            <InputText class="form-control" placeholder="" @bind-Value="sanphamdto.TenSp"></InputText>
+        </div>
+    </form>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Xóa</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Hủy</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    private SanphamEdit sanphamdto = new SanphamEdit();
+    SanphamService sanphamService = new SanphamService();
+    List<LoaiDto> loaisp = new List<LoaiDto>();
+    LoaiSpService loaiSpService = new LoaiSpService();
+    List<HangsxDto> hsx = new List<HangsxDto>();
+    HsxService hsxService = new HsxService();
+    TonkhoService tonkhoService = new TonkhoService();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    ImageDto image = new ImageDto();
+    HinhanhService hinhanhService = new HinhanhService();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var id_sp = await sessionStorage.GetItemAsync<string>("sp_id_delete");
+        var result = await sanphamService.GetProduct(id_sp);
+        sanphamdto.TenSp = result.TenSp;
+        sanphamdto.MaSp = result.MaSp;
+        sanphamdto.Mota = result.Mota;
+        sanphamdto.GiaSp = result.GiaSp;
+        sanphamdto.MaHsx = result.MaHsx;
+        sanphamdto.MaLoai = result.MaLoai;
+        sanphamdto.Baohanh = result.Baohanh;
+        sanphamdto.TinhTrang = "ngung kinh doanh";
+    }
+    private async void Submit()
+    {
+        var id_sp = await sessionStorage.GetItemAsync<string>("sp_id_delete");
+        var result = await hinhanhService.GetImageByID(id_sp);
+        await sanphamService.EditSanpham(id_sp, sanphamdto);
+        await tonkhoService.DeleteTonkho(id_sp, "CH01");
+        await hinhanhService.DeleteHinhanh(result.MaHa);
+        NavigationManager.NavigateTo("/Tonkho/Index");
+        NavigationManager.NavigateTo("/Sanpham/Index");
+        toastService.ShowSuccess("Xóa thành công", "Thành công !");
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}

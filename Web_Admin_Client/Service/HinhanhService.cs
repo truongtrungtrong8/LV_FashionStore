@@ -62,7 +62,7 @@ namespace Web_Admin_Client.Service
 
         }
 
-        public async Task<bool> DeleteHinhanh(string id)
+        public async Task<bool> DeleteHinhanh(int id)
         {
             var result = await Http.DeleteAsync(urldefault + "/" + id);
             return result.IsSuccessStatusCode;

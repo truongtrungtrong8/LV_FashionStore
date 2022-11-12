@@ -822,6 +822,10 @@ namespace Model.DataDB
                     .HasMaxLength(200)
                     .HasColumnName("TEN_SP");
 
+                entity.Property(e => e.TinhTrang)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.HasOne(d => d.MaHsxNavigation)
                     .WithMany(p => p.Sanphams)
                     .HasForeignKey(d => d.MaHsx)

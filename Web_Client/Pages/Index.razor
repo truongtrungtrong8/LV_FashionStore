@@ -38,10 +38,10 @@
                                     <h6 style="color: red;position: absolute;top: 2px;">Đã hết thời gian khuyến mãi </h6>
                                         <img class="img-fluid w-100" src="@urlimage/images/@item.HaBia" alt="">
                                         <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
+                                            <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-shopping-cart"></i></a>
                                             <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                             <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                            <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-search"></i></a>
+                                            <a class="btn btn-outline-dark btn-square" @*href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"*@><i class="fa fa-search"></i></a>
                                         </div>
                                     </div>
                                     <div class="text-center py-4">
@@ -64,7 +64,7 @@
                                         <h6 style="color: red;position: absolute;top: 2px;">Đã hết thời gian khuyến mãi </h6>
                                         <img class="img-fluid w-100" src="@urlimage/images/@item.HaBia" alt="">
                                             <div class="product-action">
-                                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
+                                                <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-shopping-cart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-search"></i></a>
@@ -90,7 +90,7 @@
                                             <h6 style="color: red;position: absolute;top: 2px;">Khuyến mãi còn @(item.Thoigian.DayOfYear - DateTime.Now.DayOfYear) ngày đến @item.Thoigian.Day/@item.Thoigian.Month/@item.Thoigian.Year </h6>
                                             <img class="img-fluid w-100" src="@urlimage/images/@item.HaBia" alt="">
                                             <div class="product-action">
-                                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
+                                                <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-shopping-cart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
                                                 <a class="btn btn-outline-dark btn-square" href="/Detail/@sanphamservice.EndCodeMd5(item.MaSp)"><i class="fa fa-search"></i></a>

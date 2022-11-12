@@ -40,7 +40,7 @@ namespace Web_Api_Server.Controllers
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
                            join k in _context.Khuyenmais on s.MaSp equals k.MaSp
-                           
+                           where s.TinhTrang == "con ban"
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -57,7 +57,8 @@ namespace Web_Api_Server.Controllers
                                Baohanh = s.Baohanh,
                                Mota = s.Mota,
                                Tile = k.Tile,
-                               Thoigian = k.Thoigian
+                               Thoigian = k.Thoigian,
+                               TinhTrang = s.TinhTrang
                            });
             return await sanpham.ToListAsync();
         }
@@ -75,6 +76,7 @@ namespace Web_Api_Server.Controllers
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
                            join k in _context.Khuyenmais on s.MaSp equals k.MaSp
+                           where s.TinhTrang == "con ban"
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -106,6 +108,7 @@ namespace Web_Api_Server.Controllers
                            join hsx in _context.Hxs on s.MaHsx equals hsx.MaHsx
                            join l in _context.LoaiSps on s.MaLoai equals l.MaLoai
                            join k in _context.Khuyenmais on s.MaSp equals k.MaSp
+                           where s.TinhTrang == "con ban"
                            select new Sanpham_Model()
                            {
                                MaSp = s.MaSp,
@@ -189,7 +192,8 @@ namespace Web_Api_Server.Controllers
                                Mota = s.Mota,
                                MaHsx = hsx.MaHsx,
                                Baohanh = s.Baohanh,
-                               Sl = s.Sl
+                               Sl = s.Sl,
+                               TinhTrang = s.TinhTrang
                            }).SingleOrDefault();
 
             return sanpham;
@@ -216,7 +220,7 @@ namespace Web_Api_Server.Controllers
             temp.MaLoai = sanpham.MaLoai;
             temp.Baohanh = sanpham.Baohanh;
             temp.Sl = sanpham.Sl;
-
+            temp.TinhTrang = sanpham.TinhTrang;
             _context.Sanphams.Update(temp);
             await _context.SaveChangesAsync();
             return Ok();
@@ -239,7 +243,9 @@ namespace Web_Api_Server.Controllers
                 MaHsx = sanpham.MaHsx,
                 MaLoai = sanpham.MaLoai,
                 Baohanh = sanpham.Baohanh,
-                Sl = sanpham.Sl
+                Sl = sanpham.Sl,
+                TinhTrang = sanpham.TinhTrang
+                
         };
             await _context.Sanphams.AddAsync(temp);
             await _context.SaveChangesAsync();
@@ -259,7 +265,6 @@ namespace Web_Api_Server.Controllers
             {
                 return NotFound();
             }
-
             _context.Sanphams.Remove(sanpham);
             await _context.SaveChangesAsync();
 

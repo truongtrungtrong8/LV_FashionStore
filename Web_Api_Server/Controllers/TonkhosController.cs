@@ -124,9 +124,9 @@ namespace Web_Api_Server.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLoaiSp(string id)
+        public async Task<IActionResult> DeleteTonkho(string id, string id1)
         {
-            var tonkho = await _context.Tonkhos.FindAsync(id);
+            var tonkho = await _context.Tonkhos.FindAsync(id,id1);
             if (tonkho == null)
             {
                 return NotFound();

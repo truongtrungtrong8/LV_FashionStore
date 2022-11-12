@@ -1,9 +1,11 @@
-﻿@using Web_Client.Pages
+﻿@using Model
+@using Web_Client.Pages
 @using Web_Client.Pages.Cart
 @using Web_Client.Pages.Sanpham
 @using Web_Client.Pages.Taikhoan
 @using Blazored.Toast
 @using Blazored.Toast.Configuration;
+@using Web_Client.Services
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject Blazored.LocalStorage.ILocalStorageService localstorage
 @inject IToastService toastService
@@ -61,7 +63,7 @@
                         </a>
                         <button type="button" class="btn px-0 ml-3">
                             <i class="fas fa-shopping-cart text-primary" @onclick=" () => CartShow(ModalSize.Custom,ModalPosition.Custom)"></i>
-                            <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
+                            <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">@countCart</span>
                         </button>
                     </div>
                 </div>
@@ -75,6 +77,41 @@
     private string name { get; set; }
     private string name1 { get; set; }
     [CascadingParameter] public IModalService Modal { get; set; }
+    private int countCart;
+
+    public List<CartItems> cartItems = new List<CartItems>();
+    CTGioHangService cTGioHangService = new CTGioHangService();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+            try
+            {
+                var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+                name = await sessionStorage.GetItemAsync<string>("ten_kh");
+                name1 = await sessionStorage.GetItemAsync<string>("ten_kh1");
+                if (makhachhang != null)
+                {
+                    string temp = "GH" + makhachhang;
+                    cartItems = await cTGioHangService.GetCartAllInUser(temp);
+                    StateHasChanged();
+                    countCart = cartItems.Count;
+
+                }
+                else
+                {
+                    var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                    string tempCreate = "GH" + ma_khCreate;
+                    cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
+                    StateHasChanged();
+                    countCart = cartItems.Count;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+        }
+    }
 
 
     public async void CartShow(ModalSize size, ModalPosition position)

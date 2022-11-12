@@ -34,6 +34,14 @@
     private List<IBrowserFile> loadedFiles = new();
     private int maxFileUpload = 1; //multipleFile
     string filePath = "";
+    ImageDto image = new ImageDto();
+    private HinhanhService hinhanhService = new HinhanhService();
+
+    KhuyenMaiDto khuyenMai = new KhuyenMaiDto();
+    KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
+
+    TonkhoDto tonkho = new TonkhoDto();
+    TonkhoService tonkhoService = new TonkhoService();
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -71,6 +79,7 @@
                             if (col == 6) emp.Baohanh = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
                             if (col == 7) emp.Sl = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
                             if (col == 8) emp.Mota = worksheet.Cells[row, col].Value.ToString();
+                            if (col == 9) emp.TinhTrang = worksheet.Cells[row, col].Value.ToString();
 
                         }
                         table.Add(emp);
@@ -92,6 +101,7 @@
                             sanphamdto.Baohanh = item.Baohanh;
                             sanphamdto.Mota = item.Mota;
                             sanphamdto.Sl = item.Sl;
+                            sanphamdto.TinhTrang = item.TinhTrang;
                             await sanphamService.EditSanpham(item.MaSp, sanphamdto);
                         }
                     }
@@ -105,7 +115,23 @@
                         sanphamdto.Baohanh = item.Baohanh;
                         sanphamdto.Mota = item.Mota;
                         sanphamdto.Sl = item.Sl;
+                        sanphamdto.TinhTrang = item.TinhTrang;
                         await sanphamService.CreateSanpham(sanphamdto);
+                        //create hinh anh
+                        image.MaSp = item.MaSp;
+                        image.HaBia = "chua co";
+                        await hinhanhService.AddImage(image);
+                        //create khuyen mai
+                        khuyenMai.MaSp = item.MaSp;
+                        khuyenMai.Tile = 0;
+                        khuyenMai.Thoigian = DateTime.Now;
+                        await khuyenMaiService.CreateKhuyenMai(khuyenMai);
+                        //create ton kho
+                        tonkho.MaCh = "CH01";
+                        tonkho.MaSp = item.MaSp;
+                        tonkho.Sl = item.Sl;
+                        tonkho.Dg = item.Sl * item.GiaSp;
+                        await tonkhoService.CreateTonkho(tonkho);
                     }
                 }
                 toastService.ShowSuccess("Thêm thành công", "Thành công !");

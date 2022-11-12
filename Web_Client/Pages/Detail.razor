@@ -301,79 +301,56 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        deCode = sanphamService.DeCodeMd5(Id);
-        listDonDat = await donDatService.GetCountDonDat();
-        CountDonDat = listDonDat.Count;
-        MaDonDat = CountDonDat + 1;
-        name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
-        name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-
-        ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-        ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-
-        try
-        {
-            danhgiaList = await danhGiaService.GetListDanhGiaByPro(deCode);
-            countReviewByPro = danhgiaList.Count();
-            tonkho = await tonkhoService.GetTonkho(deCode);
-            sanpham = await sanphamService.GetProduct(deCode);
-            sizeList = await sizeService.GetListSize();
-            mauList = await mauService.GetListMau();
-        }
-        catch (Exception ex)
-        {
-            tonkho = null;
-            danhgiaList = await danhGiaService.GetListDanhGiaByPro(deCode);
-            countReviewByPro = danhgiaList.Count();
-            sanpham = await sanphamService.GetProduct(deCode);
-            sizeList = await sizeService.GetListSize();
-            mauList = await mauService.GetListMau();
-        }
-        var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode");
-        var checksendmail = await sessionStorage.GetItemAsync<string>("checksendmail");
-        var emailkh = await sessionStorage.GetItemAsync<string>("emailkh");
         if(firstRender)
         {
-            if(getvnpcheck == "00")
+            name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+            name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+            ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode");
+            var checksendmail = await sessionStorage.GetItemAsync<string>("checksendmail");
+            var emailkh = await sessionStorage.GetItemAsync<string>("emailkh");
+            if (getvnpcheck == "00")
             {
                 await sessionStorage.RemoveItemAsync("vnpcheckcode");
                 await BuyNow();
                 toastService.ShowSuccess("Thanh toán thành công !", "Thành công");
             }
-            if(checksendmail == "ok")
+            if (checksendmail == "ok")
             {
                 await sessionStorage.RemoveItemAsync("checksendmail");
                 await BuyNow();
-                toastService.ShowSuccess("Mời bạn kiểm tra email "+ emailkh, "Thành công");
+                toastService.ShowSuccess("Mời bạn kiểm tra email " + emailkh, "Thành công");
                 await sessionStorage.RemoveItemAsync("emailkh");
             }
         }
     }
-
     protected override async Task OnInitializedAsync()
     {
-        deCode = sanphamService.DeCodeMd5(Id);
         try
         {
-            //giohangList = await gioHangService.GetList();
-            //countCart = giohangList.Count;
-            //MaGh = countCart + 1;
-            danhgiaList = await danhGiaService.GetListDanhGiaByPro(deCode);
-            countReviewByPro = danhgiaList.Count();
-            tonkho = await tonkhoService.GetTonkho(deCode);
+            listDonDat = await donDatService.GetCountDonDat();
+            CountDonDat = listDonDat.Count;
+            MaDonDat = CountDonDat + 1;
+            deCode = sanphamService.DeCodeMd5(Id);
             sanpham = await sanphamService.GetProduct(deCode);
+            danhgiaList = await danhGiaService.GetListDanhGiaByPro(deCode);
             sizeList = await sizeService.GetListSize();
             mauList = await mauService.GetListMau();
-
+            countReviewByPro = danhgiaList.Count();
+            try
+            {
+                tonkho = await tonkhoService.GetTonkho(deCode);
+            }
+            catch (Exception ex)
+            {
+                tonkho = null;
+            }
         }
         catch (Exception ex)
         {
-            tonkho = null;
-            danhgiaList = await danhGiaService.GetListDanhGiaByPro(deCode);
-            countReviewByPro = danhgiaList.Count();
-            sanpham = await sanphamService.GetProduct(deCode);
-            sizeList = await sizeService.GetListSize();
-            mauList = await mauService.GetListMau();
+            toastService.ShowWarning("Bạn không thể truy cập", "Cảnh báo !");
+            NavigationManager.NavigateTo("/");
         }
     }
 
@@ -431,6 +408,10 @@
                                             else if (tonkho.Sl == 0)
                                             {
                                                 toastService.ShowError("Sản phẩm đã hết", "Sản phẩm này đã hết hàng");
+                                            }
+                                            else if(edit.Sl + Sl.Value > tonkho.Sl)
+                                            {
+                                                toastService.ShowWarning("Sản phẩm đã có trong giỏ hàng của bạn", "Mời bạn kiểm tra giỏ hàng");
                                             }
                                             else if (tonkho.Sl >= Sl.Value)
                                             {

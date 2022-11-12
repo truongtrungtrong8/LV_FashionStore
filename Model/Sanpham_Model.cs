@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
-   
+
     public class Sanpham_Model
     {
         public string MaSp { get; set; } = null!;
@@ -31,6 +31,8 @@ namespace Model
         public string? Tenloai { get; set; }
         public int Sl { get; set; }
         public DateTime Thoigian { get; set; }
+
+        public string? TinhTrang {get; set;}
 
         public double Tile { get; set; }
         public List<CartItems> Variants { get; set; } = new List<CartItems>();

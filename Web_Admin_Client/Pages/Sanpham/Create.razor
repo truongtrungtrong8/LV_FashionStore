@@ -17,11 +17,15 @@
         </div>
         <div class="form-group">
             <label for="exampleInputPassword1">Giá sản phẩm</label>
-            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.GiaSp" @ref=giasanpham></InputNumber>
+            <InputNumber type="@typegia" class="form-control" placeholder="3500000 = 3.500.000 VND" @bind-Value="sanphamdto.GiaSp" @ref=giasanpham></InputNumber>
         </div>
         <div class="form-group">
             <label for="exampleInputConfirmPassword1">Bảo hành</label>
-            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Baohanh" @ref=baohanh></InputNumber>
+            <InputNumber class="form-control" placeholder="1-2-3.." @bind-Value="sanphamdto.Baohanh" @ref=baohanh></InputNumber>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Số lượng</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Sl" @ref=soluong></InputNumber>
         </div>
         <div class="form-group">
             <label for="exampleInputConfirmPassword1">Mô tả sản phẩm</label>
@@ -58,7 +62,7 @@
     {
         await this.ModalInstance.CancelAsync();
     }
-
+    private string typegia = "3000000 = 3.000.000 VND";
     private SanphamEdit sanphamdto = new SanphamEdit();
     SanphamService sanphamService = new SanphamService();
     private List<Sanpham> sanphams = new List<Sanpham>();
@@ -70,6 +74,7 @@
     private InputText tensanpham;
     private InputNumber<int> giasanpham;
     private InputNumber<int> baohanh;
+    private InputNumber<int> soluong;
     private InputSelect<string> loaisanpham;
     private InputSelect<string> hangsx;
     private int Quantily_Pro { get; set; }
@@ -77,6 +82,13 @@
 
     ImageDto image = new ImageDto();
     private HinhanhService hinhanhService = new HinhanhService();
+
+    KhuyenMaiDto khuyenMai = new KhuyenMaiDto();
+    KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
+
+    TonkhoDto tonkho = new TonkhoDto();
+    TonkhoService tonkhoService = new TonkhoService();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,10 +107,35 @@
         sanphamdto.TenSp = tensanpham.Value;
         sanphamdto.GiaSp = giasanpham.Value;
         sanphamdto.Baohanh = baohanh.Value;
-        sanphamdto.MaLoai = loaisanpham.Value;
-        sanphamdto.MaHsx = hangsx.Value;
+        sanphamdto.TinhTrang = "con ban";
+        if(loaisanpham.Value == null)
+        {
+            var check = loaisp[0];
+            sanphamdto.MaLoai = check.MaLoai;
+        }
+        else
+            sanphamdto.MaLoai = loaisanpham.Value;
+        if(hangsx.Value == null)
+        {
+            var check = hsx[0];
+            sanphamdto.MaHsx = check.MaHsx;
+        }
+        else
+            sanphamdto.MaHsx = hangsx.Value;
+        sanphamdto.Sl = soluong.Value;
         await sanphamService.CreateSanpham(sanphamdto);
-        ModalInstance.CloseAsync();
+        await ModalInstance.CloseAsync();
+        //Create khuyen mai
+        khuyenMai.MaSp = ("SP" + Ma_Pro).ToString();
+        khuyenMai.Tile = 0;
+        khuyenMai.Thoigian = DateTime.Now;
+        await khuyenMaiService.CreateKhuyenMai(khuyenMai);
+        //create ton kho
+        tonkho.MaCh = "CH01";
+        tonkho.MaSp = ("SP" + Ma_Pro).ToString();
+        tonkho.Sl = soluong.Value;
+        tonkho.Dg = soluong.Value * giasanpham.Value;
+        await tonkhoService.CreateTonkho(tonkho);
         ///Create hinh anh
         image.MaSp = ("SP" + Ma_Pro).ToString();
         image.HaBia = "chua co";

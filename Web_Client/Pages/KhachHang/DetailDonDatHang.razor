@@ -113,43 +113,47 @@
     private string name;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if(name_khLogin != null)
+        if(firstRender)
         {
-            listCtDdh = await CtDonDatService.GetList(Id);
-            listDonDat = await donDatService.GetListByKH(makhachhang);
-            name = name_khLogin;
-        }
-        else
-        {
-            var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
-            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-            listCtDdh = await CtDonDatService.GetList(Id);
-            listDonDat = await donDatService.GetListByKH(ma_khCreate);
-            name = name_khCreate;
+            var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+            var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if (name_khLogin != null)
+            {
+                listCtDdh = await CtDonDatService.GetList(Id);
+                listDonDat = await donDatService.GetListByKH(makhachhang);
+                name = name_khLogin;
+            }
+            else
+            {
+                var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                listCtDdh = await CtDonDatService.GetList(Id);
+                listDonDat = await donDatService.GetListByKH(ma_khCreate);
+                name = name_khCreate;
+            }
+            StateHasChanged();
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if (name_khLogin != null)
-        {
-            listCtDdh = await CtDonDatService.GetList(Id);
-            listDonDat = await donDatService.GetListByKH(makhachhang);
-            name = name_khLogin;
-        }
-        else
-        {
-            var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
-            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-            listCtDdh = await CtDonDatService.GetList(Id);
-            listDonDat = await donDatService.GetListByKH(ma_khCreate);
-            name = name_khCreate;
-        }
-    }
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+    //    var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+    //    if (name_khLogin != null)
+    //    {
+    //        listCtDdh = await CtDonDatService.GetList(Id);
+    //        listDonDat = await donDatService.GetListByKH(makhachhang);
+    //        name = name_khLogin;
+    //    }
+    //    else
+    //    {
+    //        var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+    //        var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+    //        listCtDdh = await CtDonDatService.GetList(Id);
+    //        listDonDat = await donDatService.GetListByKH(ma_khCreate);
+    //        name = name_khCreate;
+    //    }
+    //}
     private async Task Delete(string id)
     {
 
