@@ -81,6 +81,9 @@
     List<Khachhang> list_kh = new List<Khachhang>();
     Khachhang khachhang = new Khachhang();
 
+    QuanLyNv quanly = new QuanLyNv();
+    QuanLyNVService quanlyservice = new QuanLyNVService();
+
     private InputText phone;
     private InputText password;
 
@@ -122,6 +125,11 @@
                                 var role = newAcc.Quyensd;
                                 if (role == "admin")
                                 {
+                                    var result = await quanlyservice.GetNhanvienByTk(acc.TenTk);
+                                    quanly.TenNv = result.HtenNv;
+                                    quanly.Chucvu = result.ChucvuNv;
+                                    await quanlyservice.Create_NV(quanly);
+                                    ///add admin
                                     NavigationManager.NavigateTo("https://localhost:7268");
                                 }
                                 else

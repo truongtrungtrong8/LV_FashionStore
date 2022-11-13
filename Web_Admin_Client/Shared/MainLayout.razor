@@ -5,7 +5,9 @@
 @using Model
 @inject SessionTemp sessionLogin
 @using Blazored.Toast.Configuration
+@using Model.DataDB
 @using Radzen.Blazor
+@using Web_Admin_Client.Service
 @inject NavigationManager NavigationManager;
 
     <div class="container-scroller">
@@ -55,7 +57,7 @@
                   <span class="availability-status online"></span>
                 </div>
                 <div class="nav-profile-text">
-                  <p class="mb-1 text-black">@sessionLogin.Ten</p>
+                  <p class="mb-1 text-black">@name</p>
                 </div>
               </a>
               <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
@@ -238,6 +240,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="/DonDatHang/Index">
+                        <span class="menu-title">Đơn đặt hàng</span>
+                        <i class="mdi mdi-account-multiple-plus menu-icon"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="/LoaiSanpham/Index">
                         <span class="menu-title">Loại sản phẩm</span>
                         <i class="mdi mdi-medical-bag menu-icon"></i>
@@ -343,6 +351,9 @@
 
    
 @code{
+    QuanLyNv nhanvien = new QuanLyNv();
+    List<QuanLyNv> listnhanvien = new List<QuanLyNv>();
+    QuanLyNVService quanLyNVService = new QuanLyNVService();
     private string homeAdminUrl = "https://localhost:7268";
     private string chaturl = "https://dashboard.tawk.to/#/dashboard/634a384737898912e96eba1c";
     private string homeurl = "https://localhost:7155";
@@ -351,8 +362,9 @@
     {
         try
         {
-            name = await sessionStorage.GetItemAsync<string>("admin_name");
-            
+            listnhanvien = await quanLyNVService.GetList();
+            int temp = listnhanvien.Count;
+            name = listnhanvien[temp-1].TenNv;
         }
         catch (Exception ex) 
         {

@@ -111,6 +111,7 @@
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
     private string name;
+    private bool checkReview = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
@@ -178,9 +179,10 @@
     }
     private async Task Review(string id, string id1, ModalSize size, ModalPosition position)
     {
+        checkReview = true;
         await sessionStorage.SetItemAsync<string>("maDDH", id1);
         await sessionStorage.SetItemAsync<string>("maSP", id);
-        var options = new ModalOptions { Size = size, Position = position, DisableBackgroundCancel = true, HideCloseButton = true };
+        var options = new ModalOptions { Size = size, Position = position, HideCloseButton = true };
         if (size == ModalSize.Custom)
             options.SizeCustomClass = "my-custom-size";
         if (position == ModalPosition.Custom)

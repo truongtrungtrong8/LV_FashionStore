@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
 using Model.Dto;
+using Models.Page;
+using Newtonsoft.Json;
 
 namespace Web_Api_Server.Controllers
 {
@@ -40,7 +42,8 @@ namespace Web_Api_Server.Controllers
                               TongDdh = s.TongDdh,
                               Diachi = s.Diachi,
                               MaKh = s.MaKh,
-                              Thoigian = s.Thoigian
+                              Thoigian = s.Thoigian,
+                               TinhTrang = s.TinhTrang
                            });
             return await dondat.ToListAsync();
         }
@@ -57,8 +60,28 @@ namespace Web_Api_Server.Controllers
                               TongDdh = d.TongDdh,
                               Diachi = d.Diachi,
                               Thoigian = d.Thoigian,
+                              TinhTrang = d.TinhTrang
                           });
             return await dondat.ToListAsync();
+        }
+        [HttpGet("getKhByDonDat")]
+        public async Task<ActionResult<IEnumerable<DonDatNewDto>>> GetKhByDD([FromQuery] PagingParameters paging)
+        {
+            var dondat = (from d in _context.Dondathangs
+                          join k in _context.Khachhangs on d.MaKh equals k.MaKh
+                          select new DonDatNewDto()
+                          {
+                              MaDdh = d.MaDdh,
+                              MaKh = d.MaKh,
+                              TongDdh = d.TongDdh,
+                              Diachi = d.Diachi,
+                              Thoigian = d.Thoigian,
+                              TinhTrang = d.TinhTrang,
+                              TenKh = k.TenKh
+                          }).AsQueryable();
+            var result = PagedList<DonDatNewDto>.ToPagedList(dondat, paging.PageNumber, paging.PageSize);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
+            return result;
         }
 
 
@@ -79,32 +102,24 @@ namespace Web_Api_Server.Controllers
         // PUT: api/DonDatHangs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDondathang(string id, Dondathang dondathang)
+        public async Task<IActionResult> PutDondathang(string id, [FromBody] DonDatDto dondathang)
         {
             if (id != dondathang.MaDdh)
             {
                 return BadRequest();
             }
-
-            _context.Entry(dondathang).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DondathangExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var temp = await _context.Dondathangs.FindAsync(id);
+            if (temp == null)
+                return NotFound(id);
+            temp.MaDdh = dondathang.MaDdh;
+            temp.MaKh = dondathang.MaKh;
+            temp.TongDdh = dondathang.TongDdh;
+            temp.Diachi = dondathang.Diachi;
+            temp.Thoigian = dondathang.Thoigian;
+            temp.TinhTrang = dondathang.TinhTrang;
+            _context.Dondathangs.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/DonDatHangs
@@ -122,7 +137,8 @@ namespace Web_Api_Server.Controllers
                 TongDdh = request.TongDdh,
                 Diachi = request.Diachi,
                 MaKh = request.MaKh,
-                Thoigian = request.Thoigian
+                Thoigian = request.Thoigian,
+                TinhTrang = request.TinhTrang
             };
 
             await _context.Dondathangs.AddAsync(dondat);

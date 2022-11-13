@@ -878,6 +878,7 @@
                 dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
             dondatDto.Diachi = khachhang.DiachiKh;
             dondatDto.Thoigian = DateTime.Now;
+            dondatDto.TinhTrang = "chua hoan thanh";
             await donDatService.CreateDonDat(dondatDto);
             //chi tiet don dat
             try
@@ -948,6 +949,7 @@
                 dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
             dondatDto.Diachi = khachhang.DiachiKh;
             dondatDto.Thoigian = DateTime.Now;
+            dondatDto.TinhTrang = "chua hoan thanh";
             await donDatService.CreateDonDat(dondatDto);
             //chi tiet don dat
             try

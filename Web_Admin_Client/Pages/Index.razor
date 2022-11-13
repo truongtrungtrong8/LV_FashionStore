@@ -131,6 +131,8 @@
 </div>
 <!-- main-panel ends -->
 @code{
+
+
     string urlImage = "https://localhost:7268";
     private List<ThongKeDto> tonkho = new List<ThongKeDto>();
     TonkhoService tonkhoService = new TonkhoService();
@@ -157,6 +159,8 @@
 
             soluongsanphamtonkho = tonkho.Count();
             giasoluongsanphamdaban = tonkho.Sum(item => item.Dg);
+
+
         }
         catch (Exception ex) {
             Console.WriteLine(ex.ToString());

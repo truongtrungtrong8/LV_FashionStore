@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model.Dto
 {
-    public class DonDatDto
+    public class DonDatNewDto
     {
         public string MaDdh { get; set; } = null!;
         public int TongDdh { get; set; }
@@ -14,6 +14,6 @@ namespace Model.Dto
         public string MaKh { get; set; } = null!;
         public DateTime Thoigian { get; set; }
         public string? TinhTrang { get; set; }
-
+        public string TenKh { get; set; }
     }
 }

@@ -40,6 +40,7 @@ namespace Model.DataDB
         public virtual DbSet<Mau> Maus { get; set; } = null!;
         public virtual DbSet<Nhacungcap> Nhacungcaps { get; set; } = null!;
         public virtual DbSet<Nhanvien> Nhanviens { get; set; } = null!;
+        public virtual DbSet<QuanLyNv> QuanLyNvs { get; set; } = null!;
         public virtual DbSet<Sanpham> Sanphams { get; set; } = null!;
         public virtual DbSet<Size> Sizes { get; set; } = null!;
         public virtual DbSet<Taikhoan> Taikhoans { get; set; } = null!;
@@ -417,6 +418,8 @@ namespace Model.DataDB
 
                 entity.Property(e => e.Thoigian).HasColumnType("datetime");
 
+                entity.Property(e => e.TinhTrang).HasMaxLength(50);
+
                 entity.Property(e => e.TongDdh).HasColumnName("TONG_DDH");
 
                 entity.HasOne(d => d.MaKhNavigation)
@@ -784,6 +787,19 @@ namespace Model.DataDB
                     .HasForeignKey(d => d.TenTk)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_NHANVIEN_SU_DUNG_TAIKHOAN");
+            });
+
+            modelBuilder.Entity<QuanLyNv>(entity =>
+            {
+                entity.ToTable("QuanLyNV");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Chucvu).HasMaxLength(50);
+
+                entity.Property(e => e.TenNv)
+                    .HasMaxLength(50)
+                    .HasColumnName("TenNV");
             });
 
             modelBuilder.Entity<Sanpham>(entity =>
