@@ -1,0 +1,173 @@
+﻿@page "/KhachHang/ChangePass"
+@using Model.DataDB
+@using Model.Dto
+@using System.Net.Mail
+@using Web_Client.Services
+@inject IJSRuntime JS
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<EditForm Model="khachhangDto">
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example1">Nhập tên tài khoản</label>
+        <InputText type="text" @bind-Value="test1" @ref=taikhoan class="form-control" />
+    </div>
+    <div class="form-outline mb-4" style="display:@display">
+        <label class="form-label" for="form2Example1">Xác nhập email @checkEmail</label>
+        <InputText type="text" @bind-Value="test2" @ref=email class="form-control" />
+    </div>
+    <div class="form-outline mb-4" style="display:@displayCode">
+        <label class="form-label" for="form2Example1">Nhập mã xác nhận</label>
+        <InputText type="text" @bind-Value="test3" @ref=code class="form-control" />
+    </div>
+    <!-- Submit button -->
+    @if(checkButton == true)
+    {
+        <button style="width:50%;margin-inline: auto ; " type="button" class="btn btn-primary btn-block mb-4" @onclick="ForgotPass">Kiểm tra tài khoản</button>
+    }
+    @if (checkButton2 == true)
+    {
+        <button style="width:50%;margin-inline: auto ; " type="button" class="btn btn-primary btn-block mb-4" @onclick="ChangePassw">Xác nhận</button>
+    }
+    @if(checkButton1 == true)
+    {
+        <button style="width:50%;margin-inline: auto ; " type="button" class="btn btn-primary btn-block mb-4" @onclick="() => Submit(ModalSize.Custom,ModalPosition.TopCenter)">Đổi mật khẩu</button>
+    }
+   
+
+
+</EditForm>
+
+@code {
+    InputText email;
+    InputText taikhoan;
+    InputText code;
+    string test1;
+    string test2;
+    string test3;
+    string display = "none;";
+    string displayCode = "none;";
+    string checkEmail;
+    bool checkButton = true;
+    bool checkButton1 = false;
+    bool checkButton2 = false;
+    Khachhang khachhang = new Khachhang();
+    KhachHangDto khachhangDto = new KhachHangDto();
+    List<Khachhang> khachHangs = new List<Khachhang>();
+    KhachHangService khachhangService = new KhachHangService();
+    SanphamService sanphamService = new SanphamService();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+
+    private async Task ForgotPass()
+    {
+        try
+        {
+            
+            var result = await khachhangService.GetKHID(taikhoan.Value);
+            if(result != null)
+            {
+                string temp = result.Email_Kh;
+                string temp1 = temp.Substring(0, 5);
+                checkEmail = temp1 + "*******" + "@gmail.com";
+                display = "block;";
+                checkButton = false;
+                checkButton2 = true; 
+            }
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError("Tài khoản không tồn tại", "Không thành công !");
+        }
+
+    }
+    private async Task ChangePassw()
+    {
+        try
+        {
+            var result = await khachhangService.GetKHID(taikhoan.Value);
+            if (result != null)
+            {
+                if(result.Email_Kh == email.Value)
+                {
+                    await sessionStorage.SetItemAsync<string>("tenkh", result.TenKh);
+                    await sessionStorage.SetItemAsync<string>("tentk", result.TenTk);
+                    SendMail(result.TenKh, result.TenTk, result.Email_Kh);
+                    displayCode = "block;";
+                    display = "none;";
+                    checkButton = false;
+                    checkButton2 = false;
+                    checkButton1 = true;
+                }
+                else
+                {
+                    toastService.ShowError("Email không đúng mời bạn nhập lại", "Không thành công !");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError("Email không đúng mời bạn nhập lại", "Không thành công !");
+        }
+
+    }
+    private async Task Submit(ModalSize size, ModalPosition position)
+    {
+
+        string temp = await sessionStorage.GetItemAsync<string>("tenkh");
+        string temp1 = temp.Substring(0, 6);
+        try
+        {
+            if(code.Value == sanphamService.EndCodeMd5(temp1))
+            {
+                await ModalInstance.CloseAsync();
+                var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
+                if (size == ModalSize.Custom)
+                    options.SizeCustomClass = "my-custom-size-login";
+                if (position == ModalPosition.Custom)
+                    options.PositionCustomClass = "my-custom-position-login";
+                Modal.Show<EditTaikhoan>("", options);
+            }
+            else
+            {
+                toastService.ShowError("Mã không đúng mời bạn nhập lại", "Không thành công !");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError("Email không đúng mời bạn nhập lại", "Không thành công !");
+        }
+
+    }
+    private async void SendMail(string tenkh, string taikhoan, string email)
+    {
+        string temp = tenkh.Substring(0,6);
+        string code = sanphamService.EndCodeMd5(temp);
+        try
+            {
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("truongtrungtrong@outlook.com.vn");
+                    mail.To.Add(email);
+                    mail.Subject = "Xác nhận đặt lại mật khẩu cho tài khoản " + taikhoan;
+                    mail.Body += "<p>Cửa hàng thời trang MultiShop - Online Shop xin chào " + tenkh + "</p>";
+                    mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin của bạn" + "</p>";
+                    mail.Body += "<p>Mã xác nhận đổi mật khẩu " + code + "</p>";
+                    mail.Body += "<p>Thời gian: " + DateTime.Now + "</p>";
+                    mail.Body += "<p>Xin cảm ơn bạn!<br>Trân trọng<br>MultiShop - Online Shop</p>";
+                    mail.IsBodyHtml = true;
+                    using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                    {
+                        smtp.Credentials = new System.Net.NetworkCredential("truongtrungtrong@outlook.com.vn", "m&VqK8Vt@@");
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+    }
+}

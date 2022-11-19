@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using Model.DataDB;
 using Model.Dto;
 
@@ -51,6 +52,17 @@ namespace Web_Api_Server.Controllers
 
             return doanhThu;
         }
+
+        [HttpGet("getNgayByID")]
+        public async Task<ActionResult<DoanhThuNgay>> GetDoanhThuNgayById(int ngay, string thang)
+        {
+            var doanhThu = await _context.DoanhThuNgays.Where(d => d.Ngay == ngay && d.Thang == thang).SingleOrDefaultAsync();
+            if (doanhThu == null)
+            {
+                return NotFound();
+            }
+            return doanhThu;
+        }
         [HttpGet("getByMonth")]
         public async Task<ActionResult<IEnumerable<DoanhThuThang>>> GetDoanhthuThang()
         {
@@ -67,6 +79,13 @@ namespace Web_Api_Server.Controllers
         public async Task<ActionResult<IEnumerable<DoanhThuQuy>>> GetDoanhthuQuy(int nam)
         {
             var doanhthu = _context.DoanhThuQuies.Where(d=>d.Nam == nam).OrderBy(d=>d.Id).ToListAsync();
+            return await doanhthu;
+        }
+
+        [HttpGet("getByNgay")]
+        public async Task<ActionResult<IEnumerable<DoanhThuNgay>>> GetDoanhthuNgay(string thang)
+        {
+            var doanhthu = _context.DoanhThuNgays.Where(d => d.Thang == thang).OrderBy(d => d.Ngay).ToListAsync();
             return await doanhthu;
         }
         [HttpPost]
@@ -137,6 +156,42 @@ namespace Web_Api_Server.Controllers
             _context.DoanhThuQuies.Update(temp);
             await _context.SaveChangesAsync();
             return Ok();
+        }
+        [HttpPut("putByTuan")]
+        public async Task<IActionResult> PutByTuan(int id, [FromBody] DoanhThuNgay doanhthu)
+        {
+            if (id != doanhthu.Id )
+            {
+                return BadRequest();
+            }
+            var temp = await _context.DoanhThuNgays.FindAsync(id);
+            if (temp == null)
+                return NotFound(id);
+            temp.Id = doanhthu.Id;
+            temp.Ngay = doanhthu.Ngay;
+            temp.Thang = doanhthu.Thang;
+            temp.DoanhThu = doanhthu.DoanhThu;
+            _context.DoanhThuNgays.Update(temp);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        [HttpPost("post")]
+        public async Task<ActionResult<DoanhThuNgay>> PostDoanhThu([FromBody] DoanhThuNgay request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var temp = new DoanhThuNgay()
+            {
+                Ngay = request.Ngay,
+                Thang = request.Thang,
+                DoanhThu = request.DoanhThu
+            };
+
+            await _context.DoanhThuNgays.AddAsync(temp);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("DoanhThu", new { id = temp.Id }, temp);
         }
     }
 }

@@ -47,15 +47,26 @@ namespace Web_Api_Server.Controllers
                 return NotFound();
             }
             var khachhang = await _context.Khachhangs.FindAsync(id);
-
             if (khachhang == null)
             {
                 return NotFound();
             }
-
             return khachhang;
-
-
+        }
+        [HttpGet("getKhID")]
+        public async Task<ActionResult<KhachHangDto>> GetKhachhangID(string id)
+        {
+            var khachhang = (from k in _context.Khachhangs
+                             join t in _context.Taikhoans on k.TenTk equals t.TenTk
+                             where t.TenTk == id
+                             select new KhachHangDto()
+                             {
+                                 TenTk = t.TenTk,
+                                 TenKh = k.TenKh,
+                                 MaKh = k.MaKh,
+                                 Email_Kh = k.EmailKh
+                             });
+            return await khachhang.SingleOrDefaultAsync();
         }
 
         // PUT: api/Khachhangs/5

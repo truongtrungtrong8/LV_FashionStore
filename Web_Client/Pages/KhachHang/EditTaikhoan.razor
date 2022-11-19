@@ -1,0 +1,146 @@
+﻿@page "/KhachHang/EditTaikhoan"
+@using Model.DataDB
+@using Model.Dto
+@using System.Net.Mail
+@using System.Security.Cryptography
+@using System.Text
+@using Web_Client.Pages.Taikhoan
+@using Web_Client.Services
+@inject IJSRuntime JS
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12 col-lg-10">
+                <div class="wrap d-md-flex">
+                    <div class="img" style="background-image: url(images/siginup.jpg);">
+                    </div>
+                    <div class="login-wrap p-4 p-md-5">
+                        <div class="d-flex">
+                            <div class="w-100">
+                                <h3 class="mb-4">Xin chào !</h3>
+                            </div>
+                            <div class="w-100">
+                                <p class="social-media d-flex justify-content-end">
+                                    <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span class="fa fa-facebook"></span></a>
+                                    <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span class="fa fa-twitter"></span></a>
+                                </p>
+                            </div>
+                        </div>
+                        <EditForm Model="taikhoan">
+                            <form class="signin-form">
+                                <div class="form-group mb-3">
+                                    <label class="label" for="name">Số điện thoại</label>
+                                    <InputText type="text" @bind-Value="test1" @ref=tentk class="form-control" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="password">Mật khẩu</label>
+                                    <InputText type="@typeInput" @bind-Value="test2" @ref=passwordOne class="form-control" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="password">Nhập lại mật khẩu</label>
+                                    <InputText type="@typeInput" @bind-Value="test3" @ref=passwordTwo class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="form-control btn btn-primary rounded submit px-3" @onclick="Submit">Hoàn Thành</button>
+                                </div>
+                                <div class="form-group d-md-flex">
+                                    <div class="w-50 text-left">
+                                        <label class="checkbox-wrap checkbox-primary mb-0">
+                                            Hiện mật khẩu
+                                            <input type="checkbox" @bind-value="@isChecked" @oninput="DoCheckBox" />
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </form>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    TaikhoanDto taikhoan = new TaikhoanDto();
+    TaiKhoanService taiKhoanService = new TaiKhoanService();
+    KhachHangService khachhangService = new KhachHangService();
+    private InputText passwordOne;
+    private InputText passwordTwo;
+    private InputText tentk;
+    string test1;
+    string test2;
+    string test3;
+    string checkpass;
+    private bool isChecked = false;
+    private string typeInput = "password";
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter] public IModalService Modal { get; set; }
+    ModalSize size;
+    ModalPosition position;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        string temp = await sessionStorage.GetItemAsync<string>("tentk");
+        test1 = temp;
+    }
+
+    void DoCheckBox()
+    {
+        if (isChecked)
+        {
+            typeInput = "password";
+            isChecked = true;
+        }
+        else
+        {
+            typeInput = "text";
+            isChecked = false;
+        }
+    }
+    private async Task Submit()
+    {
+        if(passwordOne.Value != passwordTwo.Value)
+        {
+            toastService.ShowError("Mật khẩu không khớp !", "Nhập lại");
+        }
+        else
+        {
+            string temp = await sessionStorage.GetItemAsync<string>("tentk");
+            var result = await taiKhoanService.CheckTaiKhoan(temp);
+            if(result != null)
+            {
+                taikhoan.TenTk = result.TenTk;
+                taikhoan.Matkhau = GetMD5(passwordOne.Value);
+                taikhoan.Quyensd = result.Quyensd;
+                await taiKhoanService.EditTaikhoan(temp, taikhoan);
+                await this.ModalInstance.CloseAsync();
+                toastService.ShowSuccess("Đổi mật khẩu thành công !", "Mời bạn đăng nhập");
+                var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
+                options.SizeCustomClass = "my-custom-size-login";
+                options.PositionCustomClass = "my-custom-position-login";
+                Modal.Show<Login>("", options);
+            }
+        }
+    }
+    public string GetMD5(string str)
+    {
+        MD5 md5 = new MD5CryptoServiceProvider();
+        byte[] fromData = Encoding.UTF8.GetBytes(str);
+        byte[] targetData = md5.ComputeHash(fromData);
+        string byte2String = null;
+
+        for (int i = 0; i < targetData.Length; i++)
+        {
+            byte2String += targetData[i].ToString("x2");
+
+        }
+        return byte2String;
+    }
+}

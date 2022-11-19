@@ -1,4 +1,5 @@
 ﻿using Model.DataDB;
+using Model.Dto;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
@@ -25,7 +26,11 @@ namespace Web_Client.Services
             var response = await Http.PostAsJsonAsync(urldefault + "/", acc);
             return await response.Content.ReadFromJsonAsync<Taikhoan>();
         }
+        public async Task<bool> EditTaikhoan(string id, TaikhoanDto request)
+        {
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id, request);
+            return result.IsSuccessStatusCode;
+        }
 
-      
     }
 }

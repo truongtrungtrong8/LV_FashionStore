@@ -21,6 +21,14 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<DoanhThuQuy[]>(urldefault + "/getByQuy?nam=" + nam);
         }
+        public async Task<DoanhThuNgay> GetDoanhThuNgayID(int ngay, string thang)
+        {
+            return await Http.GetFromJsonAsync<DoanhThuNgay>(urldefault + "/getNgayByID?ngay=" + ngay + "&thang=" + thang);
+        }
+        public async Task<DoanhThuNgay[]> GetList(string thang)
+        {
+            return await Http.GetFromJsonAsync<DoanhThuNgay[]>(urldefault + "/getByNgay?thang=" + thang);
+        }
         public async Task<DoanhThuThang> GetDoanhThuThangByID(int id)
         {
             return await Http.GetFromJsonAsync<DoanhThuThang>(urldefault + "/getMonthByID?id=" + id);
@@ -33,6 +41,8 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<DoanhThuQuy>(urldefault + "/getQuyByID?id=" + id + "&id1=" + id1);
         }
+
+       
         public async Task<bool> EditByMonth(int id, DoanhThuThang request)
         {
             var result = await Http.PutAsJsonAsync(urldefault + "/putByMonth?id=" + id, request);
@@ -47,6 +57,16 @@ namespace Web_Admin_Client.Service
         public async Task<bool> EditByQuy(int id, string id1, int id2 ,DoanhThuQuy request)
         {
             var result = await Http.PutAsJsonAsync(urldefault + "/putByQuy?id=" + id + "&id1=" + id1 + "&id2=" + id2, request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> EditByTuan(int id, DoanhThuNgay request)
+        {
+            var result = await Http.PutAsJsonAsync(urldefault + "/putByTuan?id=" + id, request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> CreateDoanhThu(DoanhThuNgay request)
+        {
+            var result = await Http.PostAsJsonAsync(urldefault + "/post", request);
             return result.IsSuccessStatusCode;
         }
     }

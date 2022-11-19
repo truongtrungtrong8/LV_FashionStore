@@ -54,7 +54,7 @@
                                         </label>
                                     </div>
                                     <div class="w-50 text-md-right">
-                                        <a href="#">Quên mật khẩu</a>
+                                        <a @onclick="(() => ForgotPass(ModalSize.Custom,ModalPosition.Custom))">Quên mật khẩu</a>
                                     </div>
                                 </div>
                             </form>
@@ -216,6 +216,17 @@
             byte2String += targetData[i].ToString("x2");
         }
         return byte2String;
+    }
+
+    private async Task ForgotPass(ModalSize size, ModalPosition position)
+    {
+        await ModalInstance.CloseAsync();
+        var options = new ModalOptions { Size = size, Position = position, HideCloseButton = false, HideHeader = false, DisableBackgroundCancel = true };
+        if (size == ModalSize.Custom)
+            options.SizeCustomClass = "my-custom-size";
+        if (position == ModalPosition.Custom)
+            options.PositionCustomClass = "my-custom-position";
+        Modal.Show<ChangePass>("Quên mật khẩu", options);
     }
 }
 

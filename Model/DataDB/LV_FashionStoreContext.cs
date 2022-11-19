@@ -26,6 +26,7 @@ namespace Model.DataDB
         public virtual DbSet<Cuahang> Cuahangs { get; set; } = null!;
         public virtual DbSet<DanhgiaSanpham> DanhgiaSanphams { get; set; } = null!;
         public virtual DbSet<DoanhThuNam> DoanhThuNams { get; set; } = null!;
+        public virtual DbSet<DoanhThuNgay> DoanhThuNgays { get; set; } = null!;
         public virtual DbSet<DoanhThuQuy> DoanhThuQuies { get; set; } = null!;
         public virtual DbSet<DoanhThuThang> DoanhThuThangs { get; set; } = null!;
         public virtual DbSet<Dondathang> Dondathangs { get; set; } = null!;
@@ -372,6 +373,17 @@ namespace Model.DataDB
                 entity.Property(e => e.Thang).HasMaxLength(50);
 
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            });
+
+            modelBuilder.Entity<DoanhThuNgay>(entity =>
+            {
+                entity.ToTable("DoanhThuNgay");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Thang)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<DoanhThuQuy>(entity =>

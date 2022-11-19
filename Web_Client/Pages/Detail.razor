@@ -362,7 +362,7 @@
 
         ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
         ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
-        if(checkMau == null || checkSize == null)
+        if (checkMau.Value == null || checkSize.Value == null || (checkMau.Value == null && checkSize.Value == null))
         {
             toastService.ShowWarning("Bạn chưa chọn màu hoặc size", "Không thành công !");
         }
@@ -1001,10 +1001,7 @@
     }  
     private async Task CheckBuyNow()
     {
-        if(Sl.Value > tonkho.Sl)
-        {
-            toastService.ShowWarning("Sản phẩm trong cửa hàng không đủ", "Mua không thành công");
-        }
+        
         if (name_khLogin == null && name_khCreate == null)
         {
             toastService.ShowWarning("Không thể mua sản phẩm", "Bạn chưa đăng nhập");
@@ -1026,12 +1023,19 @@
             }
             await sessionStorage.SetItemAsync<string>("mau", checkMau.Value);
             await sessionStorage.SetItemAsync<string>("size", checkSize.Value);
-            NavigationManager.NavigateTo("/Cart/BuyNow");
+            if (checkMau.Value == null || checkSize.Value == null)
+            {
+                toastService.ShowError("Bạn chưa chọn màu hoặc size !", "Mời bạn kiểm tra");
+            }
+            else if (Sl.Value > tonkho.Sl)
+            {
+                toastService.ShowWarning("Sản phẩm trong cửa hàng không đủ", "Mua không thành công");
+            }
+            else
+                NavigationManager.NavigateTo("/Cart/BuyNow");
         }
         
     }
-    
-    
 
 }
 

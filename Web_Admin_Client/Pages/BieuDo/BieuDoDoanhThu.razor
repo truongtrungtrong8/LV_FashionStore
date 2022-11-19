@@ -20,12 +20,33 @@
         </div>
         <div class="row">
             <div class="col-sm-12 my-5">
-                <RadzenText TextStyle="TextStyle.H6">Biểu đồ thống kê doanh thu theo năm</RadzenText>
+
+                <RadzenText TextStyle="TextStyle.H6">Biểu đồ thống kê doanh thu theo tháng của năm</RadzenText>
+                <div class="row px-3">
+                    <div class="col-md-6 p-3">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn năm thống kê doanh thu</RadzenText>
+                            <RadzenDropDown AllowClear="false" TValue="string" Class="w-100"
+                                            Data=@(dondatList.Select(c => c.Thoigian.Year).Distinct())
+                                            Change=@(args => OnChange_NamX(args)) />
+                        </RadzenCard>
+                    </div>
+                    <div class="col-md-6 p-3">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn năm so sánh doanh thu</RadzenText>
+                            <RadzenDropDown AllowClear="false" TValue="string" Class="w-100"
+                                            Data=@(dondatList.Select(c => c.Thoigian.Year).Distinct())
+                                            Change=@(args => OnChange_NamY(args)) />
+                        </RadzenCard>
+                    </div>
+                </div>
+                
+               
                 <RadzenChart>
-                    <RadzenColumnSeries Data="@chartNamX" CategoryProperty="Thang" Title="2021" LineType="LineType.Dashed" ValueProperty="DoanhThu">
+                    <RadzenColumnSeries Data="@chartNamX" CategoryProperty="Thang" Title="@namX" LineType="LineType.Dashed" ValueProperty="DoanhThu">
                         <RadzenSeriesDataLabels Visible="@showDataLabels" />
                     </RadzenColumnSeries>
-                    <RadzenColumnSeries Data="@chartNamY" CategoryProperty="Thang" Title="2022" ValueProperty="DoanhThu">
+                    <RadzenColumnSeries Data="@chartNamY" CategoryProperty="Thang" Title="@namY" ValueProperty="DoanhThu">
                         <RadzenSeriesDataLabels Visible="@showDataLabels" />
                     </RadzenColumnSeries>
                     <RadzenColumnOptions Radius="5" Width="20" />
@@ -35,16 +56,53 @@
                         <RadzenAxisTitle Text="Doanh Thu (VND)" />
                     </RadzenValueAxis>
                 </RadzenChart>
-@*                <RadzenText TextStyle="TextStyle.H3" TagName="TagName.H3" Class="my-4">
-                    Radzen Blazor Chart column series
-                </RadzenText>
+                <RadzenText TextStyle="TextStyle.H6">Biểu đồ thống kê doanh thu theo quý của năm</RadzenText>
+                <div class="row px-3">
+                    <div class="col-md-6 p-3">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn năm thống kê doanh thu</RadzenText>
+                            <RadzenDropDown AllowClear="false" TValue="string" Class="w-100"
+                                            Data=@(dondatList.Select(c => c.Thoigian.Year).Distinct())
+                                            Change=@(args => OnChange_QuyNamX(args)) />
+                        </RadzenCard>
+                    </div>
+                    <div class="col-md-6 p-3">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn năm so sánh doanh thu</RadzenText>
+                            <RadzenDropDown AllowClear="false" TValue="string" Class="w-100"
+                                            Data=@(dondatList.Select(c => c.Thoigian.Year).Distinct())
+                                            Change=@(args => OnChange_QuyNamY(args)) />
+                        </RadzenCard>
+                    </div>
+                </div>
                 <RadzenChart>
-                    <RadzenLineSeries Smooth="@smooth" Data="@chartNamX" CategoryProperty="Thang" Title="2021" LineType="LineType.Dashed" ValueProperty="DoanhThu">
+                    <RadzenLineSeries Smooth="@smooth" Data="@chartQuyX" CategoryProperty="Quy" Title="@namQuyX" LineType="LineType.Dashed" ValueProperty="DoanhThu">
                         <RadzenMarkers MarkerType="MarkerType.Square" />
                         <RadzenSeriesDataLabels Visible="@showDataLabels" />
                     </RadzenLineSeries>
-                    <RadzenLineSeries Smooth="@smooth" Data="@chartNamY" CategoryProperty="Thang" Title="2022" ValueProperty="DoanhThu">
+                    <RadzenLineSeries Smooth="@smooth" Data="@chartQuyY" CategoryProperty="Quy" Title="@namQuyY" ValueProperty="DoanhThu">
                         <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                    </RadzenLineSeries>
+                    <RadzenValueAxis Formatter="@FormatAsVND">
+                        <RadzenGridLines Visible="true" />
+                        <RadzenAxisTitle Text="Doanh Thu (VND)" />
+                    </RadzenValueAxis>
+                </RadzenChart>
+                <RadzenText TextStyle="TextStyle.H6">Biểu đồ thống kê doanh thu theo tuần của tháng</RadzenText>
+                <div class="row px-3">
+                    <div class="col-md-6 p-3">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn tháng thống kê doanh thu</RadzenText>
+                            <RadzenDropDown AllowClear="false" TValue="string" Class="w-100"
+                                            Data=@(dondatList.Where(c=>c.Thoigian.Year == DateTime.Now.Year).Select(c => c.Thoigian.Month).Distinct())
+                                            Change=@(args => OnChange_Ngay(args)) />
+                        </RadzenCard>
+                    </div>
+                </div>
+                <RadzenChart>
+                    <RadzenLineSeries Smooth="@smooth" Data="@chartNgay_Thang" CategoryProperty="Ngay" Title="@thang" LineType="LineType.Dashed" ValueProperty="DoanhThu">
+                        <RadzenMarkers MarkerType="MarkerType.Square" />
                         <RadzenSeriesDataLabels Visible="@showDataLabels" />
                     </RadzenLineSeries>
                     <RadzenValueAxis Formatter="@FormatAsVND">
@@ -59,6 +117,8 @@
 
 
 @code {
+
+    ColorScheme colorScheme = ColorScheme.Pastel;
     private ElementReference mouseMoveElement;
     private DotNetObjectReference<BieuDoDoanhThu>? selfReference;
     bool smooth = false;
@@ -72,6 +132,8 @@
     DoanhThuQuy doanhThuQuy = new DoanhThuQuy();
     List<DoanhThuQuy> doanhThuQuys = new List<DoanhThuQuy>();
     DoanhThuService doanhThuService = new DoanhThuService();
+    DoanhThuNgay doanhThuNgay = new DoanhThuNgay();
+    List<DoanhThuNgay> doanhThuNgayList = new List<DoanhThuNgay>();
 
     private bool showDataLabels = false;
     private DonDatDto[]? temp;
@@ -80,572 +142,402 @@
     private DoanhThuThang[]? chartThang;
     private DoanhThuQuy[]? chartQuyX;
     private DoanhThuQuy[]? chartQuyY;
+    private DoanhThuNgay[]? chartNgay_Thang;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private string namX;
+    private string namY;
+    private string namQuyX;
+    private string namQuyY;
+    private string thang;
+
+    protected override async Task OnInitializedAsync()
     {
-        if(firstRender)
-        {
-            dondatList = await dondatService.GetListAll();
-        }
+        await base.OnInitializedAsync();
+        dondatList = await dondatService.GetListAll();
     }
-    protected override async void OnInitialized()
+
+    async void OnChange_Ngay(object value)
     {
-        chartNamX = await doanhThuService.GetDoanhThuNam(2021);
-        chartNamY = await doanhThuService.GetDoanhThuNam(2022);
-        chartQuyX = await doanhThuService.GetDoanhThuQuy(2021);
-        chartQuyY = await doanhThuService.GetDoanhThuQuy(2022);
+        var Thang = value is IEnumerable<string> ? string.Join(", ", (IEnumerable<string>)value) : value;
+        thang = ("Tháng " + Thang).ToString();
+        dondatList = await dondatService.GetListAll();
+        foreach(var item in dondatList)
+        {
+            try
+            {
+                var result = await doanhThuService.GetDoanhThuNgayID(item.Thoigian.Day, Thang.ToString());
+                if(result != null)
+                {
+                    doanhThuNgay.Ngay = result.Ngay;
+                    doanhThuNgay.Thang = result.Thang;
+                    doanhThuNgay.DoanhThu = result.DoanhThu + dondatList.Where(d=>d.Thoigian.Day == item.Thoigian.Day && d.Thoigian.Month == int.Parse(Thang.ToString()) && d.Thoigian.Year == DateTime.Now.Year).Sum(d=>d.TongDdh);
+                    await doanhThuService.EditByTuan(result.Id, doanhThuNgay);
+                    StateHasChanged();
+                }
+            }
+            catch(Exception ex)
+            {
+                doanhThuNgay.Ngay = item.Thoigian.Day;
+                doanhThuNgay.Thang = Thang.ToString();
+                doanhThuNgay.DoanhThu = dondatList.Where(d => d.Thoigian.Day == item.Thoigian.Day && d.Thoigian.Month == int.Parse(Thang.ToString()) && d.Thoigian.Year == DateTime.Now.Year).Sum(d => d.TongDdh);
+                await doanhThuService.CreateDoanhThu(doanhThuNgay);
+                StateHasChanged();
+            }
+        }
+        chartNgay_Thang = await doanhThuService.GetList(Thang.ToString());
+        StateHasChanged();
     }
     string FormatAsVND(object value)
     {
         return ((double)value).ToString("#,###", CultureInfo.CreateSpecificCulture("vi-VN"));
     }
-    //Set doanh thu nam X
-    private async Task CreateDoanhThuThang1_NamX()
+   
+    async void OnChange_NamX(object value)
     {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 1", 2021);
-        if (thang != null)
+        dondatList = await dondatService.GetListAll();
+        var NamX = value is IEnumerable<int> ? string.Join(", ", (IEnumerable<int>)value) : value;
+        namX = NamX.ToString();
+        //thang 1 Nam X
+        var thang1_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 1", Convert.ToInt32(NamX));
+        if (thang1_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 1";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_1_NamX();
-            await doanhThuService.EditByYear("Tháng 1", 2021, thang.Id ,doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang1_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 1 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 1", Convert.ToInt32(NamX), thang1_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang2_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 2", 2021);
-        if (thang != null)
+        //thang 2 nam X
+        var thang2_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 2", Convert.ToInt32(NamX));
+        if (thang2_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 2";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_2_NamX();
-            await doanhThuService.EditByYear("Tháng 2", 2021,thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang2_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 2 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 2", Convert.ToInt32(NamX), thang2_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang3_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 3", 2021);
-        if (thang != null)
+        //thang 3 nam X
+        var thang3_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 3", Convert.ToInt32(NamX));
+        if (thang3_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 3";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_3_NamX();
-            await doanhThuService.EditByYear("Tháng 3", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang3_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 3 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 3", Convert.ToInt32(NamX), thang3_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang4_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 4", 2021);
-        if (thang != null)
+        //thang 4 nam X
+        var thang4_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 4", Convert.ToInt32(NamX));
+        if (thang4_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 4";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_4_NamX();
-            await doanhThuService.EditByYear("Tháng 4", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang4_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 4 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 4", Convert.ToInt32(NamX), thang4_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang5_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 5", 2021);
-        if (thang != null)
+        //thang 5 nam X
+        var thang5_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 5", Convert.ToInt32(NamX));
+        if (thang5_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 5";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_5_NamX();
-            await doanhThuService.EditByYear("Tháng 5", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang5_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 5 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 5", Convert.ToInt32(NamX), thang5_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang6_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 6", 2021);
-        if (thang != null)
+        //thang 6 nam X
+        var thang6_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 6", Convert.ToInt32(NamX));
+        if (thang6_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 6";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_6_NamX();
-            await doanhThuService.EditByYear("Tháng 6", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang6_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 6 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 6", Convert.ToInt32(NamX), thang6_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang7_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 7", 2021);
-        if (thang != null)
+        //thang 7 nam X
+        var thang7_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 7", Convert.ToInt32(NamX));
+        if (thang7_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 7";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_7_NamX();
-            await doanhThuService.EditByYear("Tháng 7", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang7_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 7 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 7", Convert.ToInt32(NamX), thang7_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang8_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 8", 2021);
-        if (thang != null)
+        //thang 8 nam X
+        var thang8_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 8", Convert.ToInt32(NamX));
+        if (thang8_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 8";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_8_NamX();
-            await doanhThuService.EditByYear("Tháng 8", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang8_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 8 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 8", Convert.ToInt32(NamX), thang8_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang9_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 9", 2021);
-        if (thang != null)
+        //thang 9 nam X
+        var thang9_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 9", Convert.ToInt32(NamX));
+        if (thang9_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 9";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_9_NamX();
-            await doanhThuService.EditByYear("Tháng 9", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang9_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 9 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 9", Convert.ToInt32(NamX), thang9_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang10_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 10", 2021);
-        if (thang != null)
+        //thang 10 nam X
+        var thang10_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 10", Convert.ToInt32(NamX));
+        if (thang10_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 10";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_10_NamX();
-            await doanhThuService.EditByYear("Tháng 10", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang10_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 10 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 10", Convert.ToInt32(NamX), thang10_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang11_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 11", 2021);
-        if (thang != null)
+        //thang 11 nam X
+        var thang11_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 11", Convert.ToInt32(NamX));
+        if (thang11_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 11";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_11_NamX();
-            await doanhThuService.EditByYear("Tháng 11", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang11_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 11 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 11", Convert.ToInt32(NamX), thang11_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang12_NamX()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 12", 2021);
-        if (thang != null)
+        //thang 12 nam X
+        var thang12_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 12", Convert.ToInt32(NamX));
+        if (thang12_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 12";
-            doanhThuNam.Nam = 2021;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_12_NamX();
-            await doanhThuService.EditByYear("Tháng 12", 2021, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang12_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 12 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 12", Convert.ToInt32(NamX), thang12_NamX.Id, doanhThuNam);
         }
+        chartNamX = await doanhThuService.GetDoanhThuNam(Convert.ToInt32(NamX));
+        StateHasChanged();
     }
-    //Set doanh thu nam Y
-    private async Task CreateDoanhThuThang1_NamY()
+    async void OnChange_NamY(object value)
     {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 1", 2022);
-        if (thang != null)
+        var NamX = value is IEnumerable<int> ? string.Join(", ", (IEnumerable<int>)value) : value;
+        namY = NamX.ToString();
+        //thang 1 Nam X
+        var thang1_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 1", Convert.ToInt32(NamX));
+        if (thang1_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 1";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_1_NamY();
-            await doanhThuService.EditByYear("Tháng 1", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang1_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 1 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 1", Convert.ToInt32(NamX), thang1_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang2_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 2", 2022);
-        if (thang != null)
+        //thang 2 nam X
+        var thang2_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 2", Convert.ToInt32(NamX));
+        if (thang2_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 2";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_2_NamY();
-            await doanhThuService.EditByYear("Tháng 2", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang2_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 2 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 2", Convert.ToInt32(NamX), thang2_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang3_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 3", 2022);
-        if (thang != null)
+        //thang 3 nam X
+        var thang3_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 3", Convert.ToInt32(NamX));
+        if (thang3_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 3";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_3_NamY();
-            await doanhThuService.EditByYear("Tháng 3", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang3_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 3 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 3", Convert.ToInt32(NamX), thang3_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang4_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 4", 2022);
-        if (thang != null)
+        //thang 4 nam X
+        var thang4_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 4", Convert.ToInt32(NamX));
+        if (thang4_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 4";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_4_NamY();
-            await doanhThuService.EditByYear("Tháng 4", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang4_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 4 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 4", Convert.ToInt32(NamX), thang4_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang5_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 5", 2022);
-        if (thang != null)
+        //thang 5 nam X
+        var thang5_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 5", Convert.ToInt32(NamX));
+        if (thang5_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 5";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_5_NamY();
-            await doanhThuService.EditByYear("Tháng 5", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang5_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 5 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 5", Convert.ToInt32(NamX), thang5_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang6_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 6", 2022);
-        if (thang != null)
+        //thang 6 nam X
+        var thang6_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 6", Convert.ToInt32(NamX));
+        if (thang6_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 6";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_6_NamY();
-            await doanhThuService.EditByYear("Tháng 6", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang6_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 6 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 6", Convert.ToInt32(NamX), thang6_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang7_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 7", 2022);
-        if (thang != null)
+        //thang 7 nam X
+        var thang7_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 7", Convert.ToInt32(NamX));
+        if (thang7_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 7";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_7_NamY();
-            await doanhThuService.EditByYear("Tháng 7", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang7_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 7 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 7", Convert.ToInt32(NamX), thang7_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang8_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 8", 2022);
-        if (thang != null)
+        //thang 8 nam X
+        var thang8_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 8", Convert.ToInt32(NamX));
+        if (thang8_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 8";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_8_NamY();
-            await doanhThuService.EditByYear("Tháng 8", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang8_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 8 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 8", Convert.ToInt32(NamX), thang8_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang9_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 9", 2022);
-        if (thang != null)
+        //thang 9 nam X
+        var thang9_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 9", Convert.ToInt32(NamX));
+        if (thang9_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 9";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_9_NamY();
-            await doanhThuService.EditByYear("Tháng 9", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang9_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 9 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 9", Convert.ToInt32(NamX), thang9_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang10_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 10", 2022);
-        if (thang != null)
+        //thang 10 nam X
+        var thang10_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 10", Convert.ToInt32(NamX));
+        if (thang10_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 10";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_10_NamY();
-            await doanhThuService.EditByYear("Tháng 10", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang10_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 10 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 10", Convert.ToInt32(NamX), thang10_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang11_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 11", 2022);
-        if (thang != null)
+        //thang 11 nam X
+        var thang11_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 11", Convert.ToInt32(NamX));
+        if (thang11_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 11";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_11_NamY();
-            await doanhThuService.EditByYear("Tháng 11", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang11_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 11 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 11", Convert.ToInt32(NamX), thang11_NamX.Id, doanhThuNam);
         }
-    }
-    private async Task CreateDoanhThuThang12_NamY()
-    {
-        var thang = await doanhThuService.GetDoanhThuNamByID("Tháng 12", 2022);
-        if (thang != null)
+        //thang 12 nam X
+        var thang12_NamX = await doanhThuService.GetDoanhThuNamByID("Tháng 12", Convert.ToInt32(NamX));
+        if (thang12_NamX != null)
         {
             doanhThuNam.Thang = "Tháng 12";
-            doanhThuNam.Nam = 2022;
-            doanhThuNam.Id = thang.Id;
-            doanhThuNam.DoanhThu = PriceMonth_12_NamY();
-            await doanhThuService.EditByYear("Tháng 12", 2022, thang.Id, doanhThuNam);
+            doanhThuNam.Nam = Convert.ToInt32(NamX);
+            doanhThuNam.Id = thang12_NamX.Id;
+            doanhThuNam.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 12 && temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByYear("Tháng 12", Convert.ToInt32(NamX), thang12_NamX.Id, doanhThuNam);
         }
+        chartNamY = await doanhThuService.GetDoanhThuNam(Convert.ToInt32(NamX));
+        StateHasChanged();
     }
-    //Create doanh thu by quy
-    private async Task CreateDoanhThuQuy1_NamX()
+    //Doanh thu quy
+    async void OnChange_QuyNamX(object value)
     {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 1", 2021);
-        if(quy != null)
+        var NamX = value is IEnumerable<int> ? string.Join(", ", (IEnumerable<int>)value) : value;
+        namQuyX = NamX.ToString();
+        var quy4 = await doanhThuService.GetDoanhThuQuyByID("Quý 4", Convert.ToInt32(NamX));
+        if (quy4 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_1_NamX();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy4.Id;
+            doanhThuQuy.Quy = quy4.Quy;
+            doanhThuQuy.Nam = quy4.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 10 || temp.Thoigian.Month == 11 || temp.Thoigian.Month == 12).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy4.Id, quy4.Quy, quy4.Nam, doanhThuQuy);
         }
-    }
-    private async Task CreateDoanhThuQuy2_NamX()
-    {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 2", 2021);
-        if (quy != null)
+        //quy 3
+        var quy3 = await doanhThuService.GetDoanhThuQuyByID("Quý 3", Convert.ToInt32(NamX));
+        if (quy3 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_2_NamX();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy3.Id;
+            doanhThuQuy.Quy = quy3.Quy;
+            doanhThuQuy.Nam = quy3.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 7 || temp.Thoigian.Month == 8 || temp.Thoigian.Month == 9).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy3.Id, quy3.Quy, quy3.Nam, doanhThuQuy);
         }
-    }
-    private async Task CreateDoanhThuQuy3_NamX()
-    {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 3", 2021);
-        if (quy != null)
+        //quy 2
+        var quy2 = await doanhThuService.GetDoanhThuQuyByID("Quý 2", Convert.ToInt32(NamX));
+        if (quy2 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_3_NamX();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy2.Id;
+            doanhThuQuy.Quy = quy2.Quy;
+            doanhThuQuy.Nam = quy2.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 4 || temp.Thoigian.Month == 5 || temp.Thoigian.Month == 6).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy2.Id, quy2.Quy, quy2.Nam, doanhThuQuy);
         }
-    }
-    private async Task CreateDoanhThuQuy4_NamX()
-    {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 4", 2021);
-        if (quy != null)
+        //quy 1
+        var quy1 = await doanhThuService.GetDoanhThuQuyByID("Quý 1", Convert.ToInt32(NamX));
+        if (quy1 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_4_NamX();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy1.Id;
+            doanhThuQuy.Quy = quy1.Quy;
+            doanhThuQuy.Nam = quy1.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 1 || temp.Thoigian.Month == 2 || temp.Thoigian.Month == 3).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy1.Id, quy1.Quy, quy1.Nam, doanhThuQuy);
         }
+        chartQuyX = await doanhThuService.GetDoanhThuQuy(Convert.ToInt32(NamX));
+        StateHasChanged();
     }
-    //Doanh thu quy Nam Y
-    private async Task CreateDoanhThuQuy1_NamY()
+    async void OnChange_QuyNamY(object value)
     {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 1", 2022);
-        if (quy != null)
+        var NamX = value is IEnumerable<int> ? string.Join(", ", (IEnumerable<int>)value) : value;
+        namQuyY = NamX.ToString();
+        var quy4 = await doanhThuService.GetDoanhThuQuyByID("Quý 4", Convert.ToInt32(NamX));
+        if (quy4 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_1_NamY();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy4.Id;
+            doanhThuQuy.Quy = quy4.Quy;
+            doanhThuQuy.Nam = quy4.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 10 || temp.Thoigian.Month == 11 || temp.Thoigian.Month == 12).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy4.Id, quy4.Quy, quy4.Nam, doanhThuQuy);
         }
-    }
-    private async Task CreateDoanhThuQuy2_NamY()
-    {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 2", 2022);
-        if (quy != null)
+        //quy 3
+        var quy3 = await doanhThuService.GetDoanhThuQuyByID("Quý 3", Convert.ToInt32(NamX));
+        if (quy3 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_2_NamY();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy3.Id;
+            doanhThuQuy.Quy = quy3.Quy;
+            doanhThuQuy.Nam = quy3.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 7 || temp.Thoigian.Month == 8 || temp.Thoigian.Month == 9).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy3.Id, quy3.Quy, quy3.Nam, doanhThuQuy);
         }
-    }
-    private async Task CreateDoanhThuQuy3_NamY()
-    {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 3", 2022);
-        if (quy != null)
+        //quy 2
+        var quy2 = await doanhThuService.GetDoanhThuQuyByID("Quý 2", Convert.ToInt32(NamX));
+        if (quy2 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_3_NamY();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy2.Id;
+            doanhThuQuy.Quy = quy2.Quy;
+            doanhThuQuy.Nam = quy2.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 4 || temp.Thoigian.Month == 5 || temp.Thoigian.Month == 6).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy2.Id, quy2.Quy, quy2.Nam, doanhThuQuy);
         }
-    }
-    private async Task CreateDoanhThuQuy4_NamY()
-    {
-        var quy = await doanhThuService.GetDoanhThuQuyByID("Quý 4", 2022);
-        if (quy != null)
+        //quy 1
+        var quy1 = await doanhThuService.GetDoanhThuQuyByID("Quý 1", Convert.ToInt32(NamX));
+        if (quy1 != null)
         {
-            doanhThuQuy.Id = quy.Id;
-            doanhThuQuy.Quy = quy.Quy;
-            doanhThuQuy.Nam = quy.Nam;
-            doanhThuQuy.DoanhThu = PriceInQuy_4_NamY();
-            await doanhThuService.EditByQuy(quy.Id, quy.Quy, quy.Nam, doanhThuQuy);
+            doanhThuQuy.Id = quy1.Id;
+            doanhThuQuy.Quy = quy1.Quy;
+            doanhThuQuy.Nam = quy1.Nam;
+            doanhThuQuy.DoanhThu = dondatList.Where(temp => temp.Thoigian.Month == 1 || temp.Thoigian.Month == 2 || temp.Thoigian.Month == 3).Where(temp => temp.Thoigian.Year == Convert.ToInt32(NamX)).Sum(temp => temp.TongDdh);
+            await doanhThuService.EditByQuy(quy1.Id, quy1.Quy, quy1.Nam, doanhThuQuy);
         }
-    }
-
-    //Doanh thu nam X
-    public int PriceMonth_1_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 1 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_2_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 2 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_3_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 3 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_4_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 4 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_5_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 5 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_6_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 6 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_7_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 7 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_8_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 8 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_9_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 9 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_10_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 10 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_11_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 11 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_12_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 12 && temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    //Doanh thu nam Y
-    public int PriceMonth_1_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 1 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_2_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 2 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_3_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 3 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_4_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 4 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_5_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 5 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_6_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 6 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_7_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 7 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_8_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 8 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_9_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 9 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_10_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 10 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_11_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 11 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceMonth_12_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 12 && temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    //Doanh thu quy cua nam Y
-    public int PriceInQuy_1_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 1 || temp.Thoigian.Month == 2 || temp.Thoigian.Month == 3).Where(temp => temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceInQuy_2_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 4 || temp.Thoigian.Month == 5 || temp.Thoigian.Month == 6).Where(temp => temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceInQuy_3_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 7 || temp.Thoigian.Month == 8 || temp.Thoigian.Month == 9).Where(temp => temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceInQuy_4_NamY()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 10 || temp.Thoigian.Month == 11 || temp.Thoigian.Month == 12).Where(temp => temp.Thoigian.Year == 2022).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    //Doanh thu quy cua nam X
-    public int PriceInQuy_1_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 1 || temp.Thoigian.Month == 2 || temp.Thoigian.Month == 3).Where(temp => temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceInQuy_2_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 4 || temp.Thoigian.Month == 5 || temp.Thoigian.Month == 6).Where(temp => temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
-    public int PriceInQuy_3_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 7 || temp.Thoigian.Month == 8 || temp.Thoigian.Month == 9).Where(temp => temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
-    }
+        chartQuyY = await doanhThuService.GetDoanhThuQuy(Convert.ToInt32(NamX));
+        StateHasChanged();
     }
 }
