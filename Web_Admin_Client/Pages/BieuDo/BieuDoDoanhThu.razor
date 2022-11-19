@@ -47,23 +47,6 @@
                         <RadzenMarkers MarkerType="MarkerType.Circle" />
                         <RadzenSeriesDataLabels Visible="@showDataLabels" />
                     </RadzenLineSeries>
-                    <RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />
-                    <RadzenValueAxis Formatter="@FormatAsVND">
-                        <RadzenGridLines Visible="true" />
-                        <RadzenAxisTitle Text="Doanh Thu (VND)" />
-                    </RadzenValueAxis>
-                </RadzenChart>*@
-                <RadzenText TextStyle="TextStyle.H6">Biểu đồ thống kê doanh thu theo quý</RadzenText>
-                <RadzenChart>
-                    <RadzenLineSeries Smooth="@smooth" Data="@chartQuyX" CategoryProperty="Quy" Title="2021" LineType="LineType.Dashed" ValueProperty="DoanhThu">
-                        <RadzenMarkers MarkerType="MarkerType.Square" />
-                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
-                    </RadzenLineSeries>
-                    <RadzenLineSeries Smooth="@smooth" Data="@chartQuyY" CategoryProperty="Quy" Title="2022" ValueProperty="DoanhThu">
-                        <RadzenMarkers MarkerType="MarkerType.Circle" />
-                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
-                    </RadzenLineSeries>
-                    @*<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />*@
                     <RadzenValueAxis Formatter="@FormatAsVND">
                         <RadzenGridLines Visible="true" />
                         <RadzenAxisTitle Text="Doanh Thu (VND)" />
@@ -103,49 +86,6 @@
         if(firstRender)
         {
             dondatList = await dondatService.GetListAll();
-            await CreateDoanhThuThang1_NamX();
-            await CreateDoanhThuThang2_NamX();
-            await CreateDoanhThuThang3_NamX();
-            await CreateDoanhThuThang4_NamX();
-            await CreateDoanhThuThang5_NamX();
-            await CreateDoanhThuThang6_NamX();
-            await CreateDoanhThuThang7_NamX();
-            await CreateDoanhThuThang8_NamX();
-            await CreateDoanhThuThang9_NamX();
-            await CreateDoanhThuThang10_NamX();
-            await CreateDoanhThuThang11_NamX();
-            await CreateDoanhThuThang12_NamX();
-            await CreateDoanhThuThang1_NamY();
-            await CreateDoanhThuThang2_NamY();
-            await CreateDoanhThuThang3_NamY();
-            await CreateDoanhThuThang4_NamY();
-            await CreateDoanhThuThang5_NamY();
-            await CreateDoanhThuThang6_NamY();
-            await CreateDoanhThuThang7_NamY();
-            await CreateDoanhThuThang8_NamY();
-            await CreateDoanhThuThang9_NamY();
-            await CreateDoanhThuThang10_NamY();
-            await CreateDoanhThuThang11_NamY();
-            await CreateDoanhThuThang12_NamY();
-            //Doanh thu quy
-            await CreateDoanhThuQuy1_NamX();
-            await CreateDoanhThuQuy2_NamX();
-            await CreateDoanhThuQuy3_NamX();
-            await CreateDoanhThuQuy4_NamX();
-
-            await CreateDoanhThuQuy1_NamY();
-            await CreateDoanhThuQuy2_NamY();
-            await CreateDoanhThuQuy3_NamY();
-            await CreateDoanhThuQuy4_NamY();
-
-
-            chartNamX = await doanhThuService.GetDoanhThuNam(2021);
-            chartNamY = await doanhThuService.GetDoanhThuNam(2022);
-            //
-            chartQuyX = await doanhThuService.GetDoanhThuQuy(2021);
-            chartQuyY = await doanhThuService.GetDoanhThuQuy(2022);
-            StateHasChanged();
-
         }
     }
     protected override async void OnInitialized()
@@ -707,9 +647,5 @@
         var pri = dondatList.Where(temp => temp.Thoigian.Month == 7 || temp.Thoigian.Month == 8 || temp.Thoigian.Month == 9).Where(temp => temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
         return pri;
     }
-    public int PriceInQuy_4_NamX()
-    {
-        var pri = dondatList.Where(temp => temp.Thoigian.Month == 10 || temp.Thoigian.Month == 11 || temp.Thoigian.Month == 12).Where(temp=>temp.Thoigian.Year == 2021).Sum(temp => temp.TongDdh);
-        return pri;
     }
 }
