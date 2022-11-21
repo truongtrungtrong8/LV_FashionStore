@@ -1,0 +1,153 @@
+﻿@page "/HinhAnh/Edit"
+@using Model
+@using Model.DataDB
+@using Tewr.Blazor.FileReader
+@using Web_Admin_Client.Service
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IFileReaderService fileReader
+@inject HttpClient client
+
+<EditForm Model="images">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="example"></label>
+            <InputText class="form-control" placeholder="" @bind-Value="tensp"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="example">Hình ảnh</label>
+            <input type="file" @ref=elementReference multiple />
+        </div>
+
+    </form>
+
+    <button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%" @onclick="() => UploadFileAsync()">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" style="margin-left:19%">Đóng</button>
+</EditForm>
+
+
+@code {
+
+    ElementReference elementReference;
+    string imagePath = "";
+    string type = "";
+    string size = "";
+    Stream fileStream = null;
+    string tensp;
+    private InputSelect<string> tensanpham;
+
+    private Images_Model images = new Images_Model();
+    private HinhanhService hinhanhService = new HinhanhService();
+    private List<Images_Model> imageList = new List<Images_Model>();
+    private SanphamService sanphamService = new SanphamService();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+            var id = await sessionStorage.GetItemAsync<string>("id_image");
+            var result = await hinhanhService.GetImageByPro(id);
+            tensp = result.TenSp;
+    }
+
+
+
+    private async Task UploadFileAsync()
+    {
+        ImageDto image = new ImageDto();
+        var checkImage = await sessionStorage.GetItemAsync<string>("getmasp");
+        var id = await sessionStorage.GetItemAsync<string>("id_image");
+            var result = await hinhanhService.GetImageByID(id);
+            try
+            {
+                if (result != null)
+                {
+                    var files = (await fileReader.CreateReference(elementReference).EnumerateFilesAsync()).ToList();
+
+
+                    int i = 0;
+                    string[] fileName = new string[files.Count];
+                    try
+                    {
+                        if (files.Count == 0)
+                        {
+                            toastService.ShowWarning("Bạn chưa chọn ảnh ", "Không thành công !");
+                            NavigationManager.NavigateTo("/Hinhanh/Index");
+                        }
+                        if (files.Count > 0 && files.Count < 4)
+                        {
+                            foreach (var file in files)
+                            {
+
+                                var fileInfo = await file.ReadFileInfoAsync();
+                                fileName[i] = fileInfo.Name;
+                                size = $"{fileInfo.Size}b";
+                                type = fileInfo.Type;
+
+                                using (var memoryStream = await file.CreateMemoryStreamAsync((int)fileInfo.Size))
+                                {
+                                    fileStream = new MemoryStream(memoryStream.ToArray());
+                                }
+                                try
+                                {
+                                    //string fileNameNew = "";
+                                    string url = "https://localhost:7268";
+                                    var content = new MultipartFormDataContent();
+                                    content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+                                    //string extension = Path.GetExtension(fileName);
+                                    //string[] allow = { ".jpg", ".png" };
+                                    //if (allow.Contains(extension.ToLower()))
+                                    //    fileNameNew = $"{Guid.NewGuid()}{extension}";
+                                    content.Add(new StreamContent(fileStream, (int)fileStream.Length), "image", fileName[i]);
+                                    var respone = await client.PostAsync($"{url}/api/Image/PostImage", content);
+
+                                    if (respone.IsSuccessStatusCode)
+                                    {
+
+                                        image.MaHa = result.MaHa;
+                                        image.MaSp = result.MaSp;
+                                        if (files.Count == 1)
+                                            image.HaBia = fileName[0];
+                                        if (files.Count == 2)
+                                        {
+                                            image.HaBia = fileName[0];
+                                            image.Ha1 = fileName[1];
+                                        }
+                                        if (files.Count == 3)
+                                        {
+                                            image.HaBia = fileName[0];
+                                            image.Ha1 = fileName[1];
+                                            image.Ha2 = fileName[2];
+                                        }
+                                    }
+                                    i++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.ToString());
+                                }
+
+                            }
+                            await hinhanhService.EditImages(result.MaHa, image);
+                            NavigationManager.NavigateTo("/Sanpham/Index", forceLoad: true);
+                            toastService.ShowSuccess("Thêm thành công !", "Chúc mừng ");
+                        }
+                        if (files.Count > 3)
+                        {
+                            toastService.ShowWarning("Số ảnh được chọn nhiều nhất là 3", "Không thành công !");
+                            NavigationManager.NavigateTo("/Hinhanh/Index");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+}

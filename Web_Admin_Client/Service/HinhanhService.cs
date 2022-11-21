@@ -39,7 +39,10 @@ namespace Web_Admin_Client.Service
         {
             return await Http.GetFromJsonAsync<ImageDto>(urldefault + "/getImageBySP?id=" + id);
         }
-
+        public async Task<Images_Model> GetImageByPro(string id)
+        {
+            return await Http.GetFromJsonAsync<Images_Model>(urldefault + "/getProductInImage?id=" + id);
+        }
         public async Task<PagingResponse<Images_Model>> GetListPageImage(PagingParameters paging)
         {
             var queryStringParam = new Dictionary<string, string>

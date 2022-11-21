@@ -76,6 +76,23 @@ namespace Web_Api_Server.Controllers
                          }).SingleOrDefaultAsync();
             return await image;
         }
+        [HttpGet("getProductInImage")]
+        public async Task<ActionResult<Images_Model>> GetPro(string id)
+        {
+            var image = (from h in _context.Hinhanhs
+                         join s in _context.Sanphams on h.MaSp equals s.MaSp
+                         where h.MaSp == id
+                         select new Images_Model()
+                         {
+                             MaHa = h.MaHa,
+                             MaSp = h.MaSp,
+                             HaBia = h.HaBia,
+                             Ha1 = h.Ha1,
+                             Ha2 = h.Ha2,
+                             TenSp = s.TenSp
+                         }).SingleOrDefaultAsync();
+            return await image;
+        }
         [HttpGet("getImageByImage")]
         public async Task<ActionResult<IEnumerable<Images_Model>>> GetHinhanhByImage(string id)
         {

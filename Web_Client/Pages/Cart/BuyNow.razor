@@ -367,9 +367,10 @@
         var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
         var mausp = await sessionStorage.GetItemAsync<string>("mau");
         var size = await sessionStorage.GetItemAsync<string>("size");
-        khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+        
         if (name_khLogin != null)
         {
+            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
             try
             {
                 using (MailMessage mail = new MailMessage())

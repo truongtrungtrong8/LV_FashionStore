@@ -26,7 +26,10 @@
         <InputText type="text" @bind-Value="khachhang.DiachiKh" @ref=diachi class="form-control" />
     </div>
 
-
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form2Example2">Email</label>
+        <InputText type="text" @bind-Value="khachhang.EmailKh" @ref=email class="form-control" />
+    </div>
     
 
     <!-- Submit button -->
@@ -41,6 +44,7 @@
     private InputText tenkhachhang;
     private InputText sdt;
     private InputText diachi;
+    private InputText email;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,9 +66,6 @@
         {
 
         }
-        
-
-
     }
     public async void Create_KH()
     {
@@ -73,14 +74,13 @@
             khachhang.TenKh = tenkhachhang.Value;
             khachhang.SdtKh = sdt.Value;
             khachhang.DiachiKh = diachi.Value;
+            khachhang.EmailKh = email.Value;
             await khachHangService.AddAKhachHang(khachhang);
             await sessionStorage.SetItemAsync("ten_kh1", khachhang.TenKh);
             await sessionStorage.SetItemAsync("ma_khachhangCreate", khachhang.MaKh);
             NavigationManager.NavigateTo("/",forceLoad:true);
             toastService.ShowSuccess("Chỉnh sửa thành công !", "Chúc mừng!");
         }
-
-           
         catch(Exception ex) 
         {
 

@@ -31,7 +31,7 @@
     private void CreatePaginationLinks()
     {
         _links = new List<PagingLink>();
-        _links.Add(new PagingLink(MetaData.CurrentPage - 1, MetaData.HasPrevious, "Previous"));
+        _links.Add(new PagingLink(MetaData.CurrentPage - 1, MetaData.HasPrevious, "Trước"));
         for (int i = 1; i <= MetaData.TotalPage; i++)
         {
             if (i >= MetaData.CurrentPage - Spread && i <= MetaData.CurrentPage + Spread)
@@ -39,7 +39,7 @@
                 _links.Add(new PagingLink(i, true, i.ToString()) { Active = MetaData.CurrentPage == i });
             }
         }
-        _links.Add(new PagingLink(MetaData.CurrentPage + 1, MetaData.HasNext, "Next"));
+        _links.Add(new PagingLink(MetaData.CurrentPage + 1, MetaData.HasNext, "Sau"));
     }
     private async Task OnSelectedPage(PagingLink link)
     {

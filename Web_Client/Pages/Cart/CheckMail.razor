@@ -182,11 +182,11 @@
     {
         var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
         var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
-        khachhang = await khachHangService.GetKhachHang(ma_khLogin);
-        var id = "GH" + ma_khLogin;
-        giohang = await gioHangService.GetDetail(id);
         if(name_khLogin != null)
         {
+            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+            var id = "GH" + ma_khLogin;
+            giohang = await gioHangService.GetDetail(id);
             try
             {
                 using (MailMessage mail = new MailMessage())
@@ -230,6 +230,8 @@
             var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
             khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+            var id = "GH" + ma_khCreate;
+            giohang = await gioHangService.GetDetail(id);
             try
             {
                 using (MailMessage mail = new MailMessage())

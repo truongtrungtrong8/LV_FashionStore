@@ -134,7 +134,7 @@
                                 }
                                 else
                                 {
-                                    
+
                                     await this.ModalInstance.CancelAsync();
                                     NavigationManager.NavigateTo("/",forceLoad:true);
                                     toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
@@ -167,6 +167,7 @@
                             {
                                 //await this.ModalInstance.CancelAsync();
                                 toastService.ShowSuccess("Đăng nhập thành công", "Chúc mừng!");
+                                await ModalInstance.CloseAsync();
                                 Modal.Show<Create_KhachHang>("Chỉnh sửa thông tin");
                                 //NavigationManager.NavigateTo("/");
                             }
