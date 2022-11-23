@@ -61,12 +61,25 @@
                                     <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
                                     <td class="align-middle">@sanphamService.FormatVND(item.GiaSp) VND</td>
                                     <td class="align-middle">
-                                        <div class="input-group quantity mx-auto" style="width: 100px;">
+@*                                        <div class="input-group quantity mx-auto" style="width: 100px;">
                                              <EditForm Model="item">
                                                 <InputNumber id="quantity" @bind-Value="@item.Sl"
                                                  class="form-control" style="width: 70px" />
                                             </EditForm>
-                                        </div>
+                                        </div>*@
+                                            <div class="input-group quantity mx-auto" style="width: 100px;">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaGh,item.GiaSp,item.MaSp,item.Sl))">
+                                                        <i class="fa fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                                <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@item.Sl">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaGh,item.GiaSp,item.MaSp,item.Sl))">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                     </td>
                                     <td class="align-middle">@item.Ten_Mau - @item.Ten_Size</td>
                                     <td class="align-middle">@sanphamService.FormatVND((item.GiaSp * item.Sl)) VND</td>
@@ -81,12 +94,25 @@
                                     <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
                                     <td class="align-middle">@sanphamService.FormatVND(item.GiaSp - (item.GiaSp * item.Tile)) VND</td>
                                     <td class="align-middle">
-                                        <div class="input-group quantity mx-auto" style="width: 100px;">
+                                        @*<div class="input-group quantity mx-auto" style="width: 100px;">
                                              <EditForm Model="item">
                                                 <InputNumber id="quantity" @bind-Value="@item.Sl"
                                                  class="form-control" style="width: 70px" />
                                             </EditForm>
-                                        </div>
+                                        </div>*@
+                                        <div class="input-group quantity mx-auto" style="width: 100px;">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaGh,Convert.ToInt32(item.GiaSp - (item.GiaSp * item.Tile)),item.MaSp,item.Sl))">
+                                                        <i class="fa fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                                <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@item.Sl">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaGh,Convert.ToInt32(item.GiaSp - (item.GiaSp * item.Tile)),item.MaSp,item.Sl))">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                     </td>
                                     <td class="align-middle">@item.Ten_Mau - @item.Ten_Size</td>
                                     <td class="align-middle">@sanphamService.FormatVND((item.GiaSp - (item.GiaSp * item.Tile)) * item.Sl) VND</td>
@@ -182,6 +208,8 @@
     bool flagIvoice = false;
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
+    private int Soluong;
+    [Parameter] public EventCallback OnChangeEvent { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
 
@@ -445,7 +473,7 @@
             }
 
         }
-        
+
 
     }
     public async void Pay(ModalSize size, ModalPosition position)
@@ -507,5 +535,44 @@
         }
 
 
+    }
+
+    private async void Minus(string magh, int giatien, string masp, int soluong)
+    {
+        var result = await gioHangService.GetDetail(magh);
+        gioHangDto.MaGh = result.MaGh;
+        gioHangDto.Ngaydat = result.Ngaydat;
+        gioHangDto.MaKh = result.MaKh;
+        gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - giatien - giatien*0.02);
+        await gioHangService.Edit(magh, gioHangDto);
+        ///
+        var edit = await cTGioHangService.GetID(masp, magh);
+        cTGioHangDto.MaGh = edit.MaGh;
+        cTGioHangDto.MaSp = edit.MaSp;
+        cTGioHangDto.Sl = edit.Sl - 1;
+        cTGioHangDto.Size = edit.Size;
+        cTGioHangDto.Mau = edit.Mau;
+        await cTGioHangService.Edit(masp, magh, cTGioHangDto);
+        //await OnChangeEvent.InvokeAsync();
+        StateHasChanged();
+    }
+    private async void Plus(string magh, int giatien, string masp, int soluong)
+    {
+        var result = await gioHangService.GetDetail(magh);
+        gioHangDto.MaGh = result.MaGh;
+        gioHangDto.Ngaydat = result.Ngaydat;
+        gioHangDto.MaKh = result.MaKh;
+        gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + giatien + giatien*0.02);
+        await gioHangService.Edit(magh, gioHangDto);
+        ///
+        var edit = await cTGioHangService.GetID(masp, magh);
+        cTGioHangDto.MaGh = edit.MaGh;
+        cTGioHangDto.MaSp = edit.MaSp;
+        cTGioHangDto.Sl = edit.Sl + 1;
+        cTGioHangDto.Size = edit.Size;
+        cTGioHangDto.Mau = edit.Mau;
+        await cTGioHangService.Edit(masp, magh, cTGioHangDto);
+        //await OnChangeEvent.InvokeAsync();
+        StateHasChanged();
     }
 }

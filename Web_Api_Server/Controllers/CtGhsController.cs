@@ -92,7 +92,9 @@ namespace Web_Api_Server.Controllers
                            {
                                MaGh = g.MaGh,
                                MaSp = g.MaSp,
-                               Sl = g.Sl
+                               Sl = g.Sl,
+                               Size = g.Size,
+                               Mau = g.Mau
                            }).SingleOrDefault();
             return giohang;
         }
