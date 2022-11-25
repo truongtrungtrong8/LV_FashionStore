@@ -381,9 +381,9 @@
                 ctDonDatDto.Size = item.Ten_Size;
                 ctDonDatDto.DanhGia = 0;
                 if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
-                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
+                    ctDonDatDto.Dg = Convert.ToInt32((getCTGH.Sl * sanpham.GiaSp) + (getCTGH.Sl * sanpham.GiaSp)*0.02);
                 else
-                    ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp -(sanpham.GiaSp*sanpham.Tile)));
+                    ctDonDatDto.Dg = Convert.ToInt32((getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile))) + (getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile))*0.02));
                 await CtDonDatService.CreateCtdonDat(ctDonDatDto);
                 await DeleteItemByDDH(item.MaSp, id);
                 ///Tonkho

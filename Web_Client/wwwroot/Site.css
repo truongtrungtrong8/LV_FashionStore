@@ -82,8 +82,24 @@ a, .btn-link {
     top: 40px;
     left: 350px;
 }
+.my-custom-size-ivoice {
+    width: 70%;
+}
+
+.my-custom-position-ivoice .blazored-modal {
+    position: absolute;
+    top: 40px;
+    left: 350px;
+}
 .my-custom-modal-class {
     width: 90%;
+    margin-top: 75px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 16px;
+}
+.my-custom-modal-class-ivoice {
+    width: 45%;
     margin-top: 75px;
     margin-left: auto;
     margin-right: auto;
