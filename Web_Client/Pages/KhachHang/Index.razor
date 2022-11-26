@@ -34,12 +34,13 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>Tên người đặt hàng</th>
-                        <th>Giá đơn đăt hàng</th>
+                        <th>Giá đơn đặt hàng</th>
                         <th>Địa chỉ giao hàng</th>
                         <th>Thời gian đặt hàng</th>
                         <th>Chi tiết đơn đặt hàng</th>
                         <th>Hủy đơn hàng</th>
                         <th>Xác nhận đã nhận hàng</th>
+                        <th>Xem hóa đơn</th>
                     </tr>
                 </thead>
                 @foreach (var item in listDonDat)
@@ -60,6 +61,7 @@
                                 {
                                    <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="@(() => CheckGiaoHang(item.MaDdh))"><i class="fa fa-check"></i></button></td>
                                 }
+                                <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick="@(() => Ivoice(item.MaDdh))"><i class="fa fa-building"></i></button></td>
                             </tr>
                         </tbody>
                 }
@@ -214,6 +216,10 @@
     private async Task Detail(string id)
     {
         NavigationManager.NavigateTo("Khachhang/DetailDonDatHang/" + id);
+    }
+    private async Task Ivoice(string id)
+    {
+        NavigationManager.NavigateTo("/Cart/Ivoice/" + id);
     }
     private async Task CheckGiaoHang(string id)
     {

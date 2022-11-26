@@ -17,8 +17,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Syncfusion.Blazor.WordProcessor" Version="20.3.0.58" />
-    <PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="20.3.0.58" />
   </ItemGroup>
 
   <ItemGroup>

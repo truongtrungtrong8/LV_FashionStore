@@ -1,21 +1,19 @@
-﻿@page "/Cart/Ivoice"
+﻿@page "/Cart/Ivoice/{id}"
 @using Model
 @using Model.DataDB
 @using Model.Dto
 @using Model.Pay
 @using Web_Client.Pages.Taikhoan
 @using Web_Client.Services
+
 @inject IJSRuntime JS
 @using System.Net.Mail
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IToastService toastService
+
 @inject NavigationManager NavigationManager
 @layout Layout_Ivoice
-@using Syncfusion.Blazor.DocumentEditor
-@using System.IO
-@using System.Net
-@using System.Text.Json
-@using Syncfusion.DocIORenderer
+
 
 
 <table class="body-wrap">
@@ -59,6 +57,13 @@
                                                                                 <td class="alignright" width="80%">Tổng tiền</td>
                                                                                 <td class="alignright">@sanphamService.FormatVND(Sum()) VND</td>
                                                                             </tr>
+                                             
+                                                                            <tr>
+                                                                                @if (check)
+                                                                                {
+                                                                                    <td><button class="btn btn-sm btn-success" @onclick="Print"><i class="fa fa-print fa-2x"></i></button> </td>
+                                                                                }
+                                                                            </tr>
                                                                         </tbody>
                                                                     </table>
                                                                 </td>
@@ -80,9 +85,9 @@
 </table>
 
 @code {
-
-    public List<CartItems> cartItems = new List<CartItems>();
-    CartItems cart = new CartItems();
+    [Parameter]
+    public string Id { get; set; }
+    bool check = true;
     public List<Khachhang> khachhangs = new List<Khachhang>();
     Khachhang khachhang = new Khachhang();
     KhachHangService khachHangService = new KhachHangService();
@@ -96,18 +101,7 @@
     CtDonDatService CtDonDatService = new CtDonDatService();
     CtDdh chitietDDH = new CtDdh();
 
-    Giohang giohang = new Giohang();
-    GioHangDto gioHangDto = new GioHangDto();
-    CTGioHangDto cTGioHangDto = new CTGioHangDto();
-
-    GioHangService gioHangService = new GioHangService();
-    CTGioHangService cTGioHangService = new CTGioHangService();
-
-    TonkhoDto tonkho = new TonkhoDto();
     Sanpham_Model sanpham = new Sanpham_Model();
-    TonkhoService tonkhoService = new TonkhoService();
-
-    KhuyenMaiDto khuyenmai = new KhuyenMaiDto();
     SanphamService sanphamService = new SanphamService();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -118,24 +112,29 @@
         {
             if (name_khLogin != null)
             {
-                string temp = "GH" + makhachhang;
-                listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
-                listDonDat = await donDatService.GetListByKH(makhachhang);
+                listCtDdh = await CtDonDatService.GetList(Id);
                 khachhang = await khachHangService.GetKhachHang(makhachhang);
             }
             else
             {
                 var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
                 var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
-                string tempCreate = "GH" + ma_khCreate;
-                listCtDdh = await CtDonDatService.GetListByKh(ma_khCreate);
+                listCtDdh = await CtDonDatService.GetList(Id);
                 khachhang = await khachHangService.GetKhachHang(ma_khCreate);
-            } 
+            }
+            StateHasChanged();
         }
     }
 
 
-    
+    private async Task Print()
+    {
+        check = false;
+        await Task.Delay(1000);
+        await JS.InvokeVoidAsync("printInvoke");
+        check = true;
+        await InvokeAsync(() => StateHasChanged());
+    }
     private int Sum()
     {
         int tong = 0;

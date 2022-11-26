@@ -33,7 +33,7 @@
                         @if(name != null || name1 != null)
                         {
                             <button class="dropdown-item" type="button" @onclick="DDH" >Đơn đặt hàng</button>
-                            <button class="dropdown-item" type="button" @onclick="() => HoaDon(ModalSize.Custom,ModalPosition.TopCenter)">Xem hóa đơn</button>
+                            <button class="dropdown-item" type="button" @onclick="() => HoaDon()">Xem hóa đơn</button>
                         }
                         
                     </div>
@@ -166,7 +166,7 @@
         StateHasChanged();
     }
 
-    
+
     public async void Register(ModalSize size, ModalPosition position)
     {
         var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
@@ -228,13 +228,8 @@
     {
         NavigationManager.NavigateTo("/KhachHang/Index");
     }
-    private async void HoaDon(ModalSize size, ModalPosition position)
+    private async void HoaDon()
     {
-        var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class-ivoice", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
-        if (size == ModalSize.Custom)
-            options.SizeCustomClass = "my-custom-size-ivoice";
-        if (position == ModalPosition.Custom)
-            options.PositionCustomClass = "my-custom-position-ivoice";
-        Modal.Show<Ivoice>("", options);
+        NavigationManager.NavigateTo("/Cart/Ivoice");
     }
 }

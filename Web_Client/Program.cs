@@ -1,3 +1,4 @@
+
 using Blazored.LocalStorage;
 using Blazored.Modal;
 using Blazored.SessionStorage;
@@ -28,7 +29,6 @@ builder.Services.AddControllers();
 
 //Add Blazor Modal
 builder.Services.AddBlazoredModal();
-
 //Add Blazor Session
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddScoped<ICartService, CartService>();
