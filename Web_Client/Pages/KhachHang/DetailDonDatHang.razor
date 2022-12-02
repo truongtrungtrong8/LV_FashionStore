@@ -55,7 +55,15 @@
                             <td class="align-middle">@item.Mau - @item.Size</td>
                             <td class="align-middle">@sanphamService.FormatVND(item.TongTien) VND</td>
                             <td class="align-middle">@item.DiaChi</td>
-                            <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
+                            @if(dondat.TinhTrang == "dang van chuyen" || dondat.TinhTrang == "dang chuan bi hang" || dondat.TinhTrang == "chua hoan thanh")
+                            {
+                                <td class="align-middle"><button disabled class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
+                            }
+                            else
+                            {
+                                <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
+                            }
+                            
                             @if(item.DanhGia == 0)
                             {
                                 <td class ="align-middle" style="color:red;">chưa đánh giá</td>
@@ -106,7 +114,7 @@
     TonkhoService tonkhoService = new TonkhoService();
 
     KhuyenMaiDto khuyenmai = new KhuyenMaiDto();
-
+    Dondathang dondat = new Dondathang();
     [CascadingParameter] public IModalService Modal { get; set; }
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
@@ -118,6 +126,7 @@
         {
             var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
             var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            dondat = await donDatService.GetDonDatByDD(Id);
             if (name_khLogin != null)
             {
                 listCtDdh = await CtDonDatService.GetList(Id);

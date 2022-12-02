@@ -1,0 +1,139 @@
+﻿@page "/KhachHang/CheckDeleteAcc"
+@inject IJSRuntime JS
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@using System.Text.RegularExpressions
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Client.Services
+
+
+<EditForm Model="newkhachang">
+    <form class="forms-sample">
+        <div class="form-group">
+            <label for="example">Họ và tên</label>
+            <InputText class="form-control" @bind-Value="newkhachang.TenKh"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="example">Tên tài khoản</label>
+            <InputText class="form-control" @bind-Value="newkhachang.TenTk"></InputText>
+        </div>
+    </form>
+
+    <button type="button" class="btn btn-primary me-2" @onclick="Submit" style="margin-left:15%">Xóa tài khoản</button>
+    <button type="button" class="btn btn-primary me-2" @onclick="Close" style="margin-left:15%">Hủy</button>
+</EditForm>
+
+
+@code {
+
+    Khachhang khachhang = new Khachhang();
+    KhachHangDto newkhachang = new KhachHangDto();
+    KhachHangService khachHangService = new KhachHangService();
+
+    TaiKhoanService taiKhoanService = new TaiKhoanService();
+    List<DonDatDto> donDatDtos = new List<DonDatDto>();
+    List<CtddhDtoList> ctDonDatDtos = new List<CtddhDtoList>();
+    Dondathang dondathang = new Dondathang();
+    DonDatService donDatService = new DonDatService();
+    CtDdh ctDdh = new CtDdh();
+    CtDonDatService ctDonDatService = new CtDonDatService();
+    GioHangService gioHangService = new GioHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
+    List<CartItems> cTGioHangDtos = new List<CartItems>();
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (makhachhang != null)
+        {
+            var result = await khachHangService.GetKhachHang(makhachhang);
+            newkhachang.MaKh = result.MaKh;
+            newkhachang.TenKh = result.TenKh;
+            newkhachang.TenTk = result.TenTk;
+            newkhachang.SdtKh = result.SdtKh;
+            newkhachang.DiachiKh = result.DiachiKh;
+            newkhachang.Email_Kh = result.EmailKh;
+        }
+        else
+        {
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            var result = await khachHangService.GetKhachHang(ma_khCreate);
+            newkhachang.MaKh = result.MaKh;
+            newkhachang.TenKh = result.TenKh;
+            newkhachang.TenTk = result.TenTk;
+            newkhachang.SdtKh = result.SdtKh;
+            newkhachang.DiachiKh = result.DiachiKh;
+            newkhachang.Email_Kh = result.EmailKh;
+        }
+    }
+    private async void Submit()
+    {
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (makhachhang != null)
+        {
+            //don dat
+            donDatDtos = await donDatService.GetListByKH(makhachhang);
+            foreach(var item in donDatDtos)
+            {
+                ctDonDatDtos = await ctDonDatService.GetList(item.MaDdh);
+                foreach(var item1 in ctDonDatDtos)
+                {
+                    await ctDonDatService.DeleteDDH(item1.MaDdh, item1.MaSp);
+                }
+                await donDatService.Delete_DD(item.MaDdh);
+            }
+            //gio hang
+            cTGioHangDtos = await cTGioHangService.GetCartAllInUser("GH" + makhachhang);
+            foreach(var item in cTGioHangDtos)
+            {
+                await cTGioHangService.DeleteCart(item.MaGh, item.MaSp);
+            }
+            await gioHangService.Delete("GH" + makhachhang);
+            await khachHangService.Delete_Kh(makhachhang);
+            await taiKhoanService.Delete_TK(makhachhang);
+            await this.ModalInstance.CancelAsync();
+            await sessionStorage.ClearAsync();
+            NavigationManager.NavigateTo("/",forceLoad:true);
+            toastService.ShowSuccess("Tài khoản đã bị xóa", "Mời bạn tạo tài khoản mới");
+        }
+        else
+        {
+            var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+            //don dat
+            donDatDtos = await donDatService.GetListByKH(ma_khCreate);
+            foreach (var item in donDatDtos)
+            {
+                ctDonDatDtos = await ctDonDatService.GetList(item.MaDdh);
+                foreach (var item1 in ctDonDatDtos)
+                {
+                    await ctDonDatService.DeleteDDH(item1.MaDdh, item1.MaSp);
+                }
+                await donDatService.Delete_DD(item.MaDdh);
+            }
+            //gio hang
+            cTGioHangDtos = await cTGioHangService.GetCartAllInUser("GH" + ma_khCreate);
+            foreach (var item in cTGioHangDtos)
+            {
+                await cTGioHangService.DeleteCart(item.MaGh, item.MaSp);
+            }
+            await gioHangService.Delete("GH" + ma_khCreate);
+            await khachHangService.Delete_Kh(ma_khCreate);
+            await taiKhoanService.Delete_TK(ma_khCreate);
+            await this.ModalInstance.CancelAsync();
+            await sessionStorage.ClearAsync();
+            NavigationManager.NavigateTo("/", forceLoad: true);
+            toastService.ShowSuccess("Tài khoản đã bị xóa", "Mời bạn tạo tài khoản mới");
+        }
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+        NavigationManager.NavigateTo("/KhachHang/ProfileUser");
+    }
+}

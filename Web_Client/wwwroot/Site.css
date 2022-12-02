@@ -62,7 +62,14 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
-
+.my-custom-size-acc {
+    width: 400px;
+}
+.my-custom-position-acc .blazored-modal {
+    position: absolute;
+    top: 49px;
+    left: 460px;
+}
 .my-custom-size {
     width: 600px;
 }

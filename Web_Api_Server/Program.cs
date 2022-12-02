@@ -2,9 +2,10 @@
 
 
 using DocumentFormat.OpenXml.EMMA;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Model.DataDB;
-
+using Web_Api_Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddServerSideBlazor();
+//SignalR
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
 
 
 builder.Services.AddCors(options =>
@@ -39,7 +47,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
-
+app.MapBlazorHub();
+app.UseResponseCompression();
+app.MapHub<BroadcastHub>("/broadcastHub");
 app.Run();

@@ -1,13 +1,15 @@
-
+﻿
 using Blazored.LocalStorage;
 using Blazored.Modal;
 using Blazored.SessionStorage;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
+using Web_Admin_Client.HubsUpdate;
 using Web_Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,13 +19,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredToast();
 
-builder.Services.AddLocalization();
-var supportedCultures = new[] { "vn-VN", "en-US" };
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(supportedCultures[0])
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
 
+builder.Services.AddLocalization();
 
 builder.Services.AddControllers();
 
@@ -49,6 +46,13 @@ builder.Services.AddCors(options =>
         builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
+
 builder.Services.AddScoped<SessionTemp>();
 var app =  builder.Build();
 
@@ -67,8 +71,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.MapControllers();
-app.UseRequestLocalization(localizationOptions);
-app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+app.MapBlazorHub();
+app.UseResponseCompression();
+app.MapHub<BroadcastHub>("/BroadcastHub");
 
 app.Run();

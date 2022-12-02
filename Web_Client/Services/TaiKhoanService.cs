@@ -31,6 +31,10 @@ namespace Web_Client.Services
             var result = await Http.PutAsJsonAsync(urldefault + "/" + id, request);
             return result.IsSuccessStatusCode;
         }
-
+        public async Task<bool> Delete_TK(string id)
+        {
+            var result = await Http.DeleteAsync(urldefault + "/" + id);
+            return result.IsSuccessStatusCode;
+        }
     }
 }

@@ -14,7 +14,7 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
-
+@using Microsoft.AspNetCore.SignalR.Client
 <!-- Breadcrumb Start -->
 <div class="container-fluid">
     <div class="row px-xl-5">
@@ -52,77 +52,63 @@
                                 <th>Xóa</th>
                             </tr>
                         </thead>
+                        <tbody class="align-middle">
                         @foreach (var item in cartItems)
                         {
+                            Soluong = item.Sl;
                             if (item.Thoigian.Date == DateTime.Now.Date || item.Thoigian.Date < DateTime.Now.Date)
                             {
-                                <tbody class="align-middle">
+                                
                                 <tr>
                                     <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
                                     <td class="align-middle">@sanphamService.FormatVND(item.GiaSp) VND</td>
                                     <td class="align-middle">
-@*                                        <div class="input-group quantity mx-auto" style="width: 100px;">
-                                             <EditForm Model="item">
-                                                <InputNumber id="quantity" @bind-Value="@item.Sl"
-                                                 class="form-control" style="width: 70px" />
-                                            </EditForm>
-                                        </div>*@
                                             <div class="input-group quantity mx-auto" style="width: 100px;">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaGh,item.GiaSp,item.MaSp,item.Sl))">
+                                                
+                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaSp,item.MaGh,item.GiaSp,item.Sl))">
                                                         <i class="fa fa-minus"></i>
                                                     </button>
-                                                </div>
-                                                <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@item.Sl">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaGh,item.GiaSp,item.MaSp,item.Sl))">
+                                                    <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@Soluong">
+                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaSp,item.MaGh,item.GiaSp,item.Sl))">
                                                         <i class="fa fa-plus"></i>
                                                     </button>
-                                                </div>
+                                                
                                             </div>
                                     </td>
                                     <td class="align-middle">@item.Ten_Mau - @item.Ten_Size</td>
                                     <td class="align-middle">@sanphamService.FormatVND((item.GiaSp * item.Sl)) VND</td>
                                     <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick ="@(() => DeleteItem(item.MaSp,item.MaGh))"><i class="fa fa-times"></i></button></td>
                                 </tr>
-                                </tbody>
                             }
                             else
                             {
-                                <tbody class="align-middle">
                                 <tr>
                                     <td class="align-middle"><img src="@urlimage/images/@item.HaBia" alt="" style="width: 50px;"> @item.TenSp</td>
                                     <td class="align-middle">@sanphamService.FormatVND(item.GiaSp - (item.GiaSp * item.Tile)) VND</td>
                                     <td class="align-middle">
-                                        @*<div class="input-group quantity mx-auto" style="width: 100px;">
-                                             <EditForm Model="item">
-                                                <InputNumber id="quantity" @bind-Value="@item.Sl"
-                                                 class="form-control" style="width: 70px" />
-                                            </EditForm>
-                                        </div>*@
                                         <div class="input-group quantity mx-auto" style="width: 100px;">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaGh,Convert.ToInt32(item.GiaSp - (item.GiaSp * item.Tile)),item.MaSp,item.Sl))">
+                                                
+                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaSp,item.MaGh,item.GiaSp,item.Sl))">
                                                         <i class="fa fa-minus"></i>
                                                     </button>
-                                                </div>
-                                                <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@item.Sl">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaGh,Convert.ToInt32(item.GiaSp - (item.GiaSp * item.Tile)),item.MaSp,item.Sl))">
+                                                <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@Soluong">
+                                                
+
+                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaSp,item.MaGh,item.GiaSp,item.Sl))">
                                                         <i class="fa fa-plus"></i>
                                                     </button>
-                                                </div>
+                                                
                                             </div>
                                     </td>
                                     <td class="align-middle">@item.Ten_Mau - @item.Ten_Size</td>
                                     <td class="align-middle">@sanphamService.FormatVND((item.GiaSp - (item.GiaSp * item.Tile)) * item.Sl) VND</td>
                                     <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick ="@(() => DeleteItem(item.MaSp,item.MaGh))"><i class="fa fa-times"></i></button></td>
                                 </tr>
-                                </tbody>
+                                
                             }
                             
                         }
-
+                    </tbody>
                     </table>
                 </div>
                    <div class="row px-xl-3 ">
@@ -166,7 +152,7 @@
 }
 
 @code {
-
+    private HubConnection hubConnection;
     string urlimage = "https://localhost:7268";
     bool orderPlaced = false;
     [Parameter]
@@ -209,6 +195,7 @@
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
     private int Soluong;
+    InputNumber<int> sl1 ;
     [Parameter] public EventCallback OnChangeEvent { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -228,6 +215,12 @@
                 string temp = "GH" + makhachhang;
                 cartItems = await cTGioHangService.GetCartAllInUser(temp);
                 giohang = await gioHangService.GetDetail(temp);
+
+                hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+                .Build();
+
+                await hubConnection.StartAsync();
             }
 
             else
@@ -236,6 +229,12 @@
                 string tempCreate = "GH" + ma_khCreate;
                 cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
                 giohang = await gioHangService.GetDetail(tempCreate);
+
+                hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+                .Build();
+
+                await hubConnection.StartAsync();
             }
 
 
@@ -280,6 +279,12 @@
                 string temp = "GH" + makhachhang;
                 cartItems = await cTGioHangService.GetCartAllInUser(temp);
                 giohang = await gioHangService.GetDetail(temp);
+
+                hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+                .Build();
+
+                await hubConnection.StartAsync();
             }
 
             else
@@ -288,6 +293,12 @@
                 string tempCreate = "GH" + ma_khCreate;
                 cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
                 giohang = await gioHangService.GetDetail(tempCreate);
+
+                hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+                .Build();
+
+                await hubConnection.StartAsync();
             }
         }
         catch (Exception ex) {
@@ -537,7 +548,7 @@
 
     }
 
-    private async void Minus(string magh, int giatien, string masp, int soluong)
+    async Task Minus(string masp, string magh, int giatien, int soluong)
     {
         var result = await gioHangService.GetDetail(magh);
         gioHangDto.MaGh = result.MaGh;
@@ -545,6 +556,7 @@
         gioHangDto.MaKh = result.MaKh;
         gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - giatien - giatien*0.02);
         await gioHangService.Edit(magh, gioHangDto);
+        StateHasChanged();
         ///
         var edit = await cTGioHangService.GetID(masp, magh);
         cTGioHangDto.MaGh = edit.MaGh;
@@ -553,10 +565,10 @@
         cTGioHangDto.Size = edit.Size;
         cTGioHangDto.Mau = edit.Mau;
         await cTGioHangService.Edit(masp, magh, cTGioHangDto);
-        //await OnChangeEvent.InvokeAsync();
+        cartItems = await cTGioHangService.GetCartAllInUser(magh);
         StateHasChanged();
     }
-    private async void Plus(string magh, int giatien, string masp, int soluong)
+    async Task Plus(string masp, string magh, int giatien, int soluong)
     {
         var result = await gioHangService.GetDetail(magh);
         gioHangDto.MaGh = result.MaGh;
@@ -564,6 +576,7 @@
         gioHangDto.MaKh = result.MaKh;
         gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + giatien + giatien*0.02);
         await gioHangService.Edit(magh, gioHangDto);
+        StateHasChanged();
         ///
         var edit = await cTGioHangService.GetID(masp, magh);
         cTGioHangDto.MaGh = edit.MaGh;
@@ -572,7 +585,15 @@
         cTGioHangDto.Size = edit.Size;
         cTGioHangDto.Mau = edit.Mau;
         await cTGioHangService.Edit(masp, magh, cTGioHangDto);
-        //await OnChangeEvent.InvokeAsync();
+        cartItems = await cTGioHangService.GetCartAllInUser(magh);
         StateHasChanged();
     }
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
 }

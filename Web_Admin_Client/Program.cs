@@ -4,11 +4,14 @@ using Blazored.Toast;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.DataDB;
 using Radzen;
 using Tewr.Blazor.FileReader;
+using Web_Admin_Client.HubsUpdate;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +25,12 @@ builder.Services.AddCors(options =>
         "LV_FashionStore",
         builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
-
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
 builder.Services.AddDbContext<LV_FashionStoreContext>(option =>
 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -56,8 +64,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.MapBlazorHub();
+
 app.UseMvcWithDefaultRoute();
 app.MapFallbackToPage("/_Host");
+
+app.MapBlazorHub();
+app.UseResponseCompression();
+app.MapHub<BroadcastHub>("/BroadcastHub");
 
 app.Run();

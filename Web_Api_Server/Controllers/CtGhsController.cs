@@ -36,7 +36,6 @@ namespace Web_Api_Server.Controllers
                            join x in _context.Sanphams on s.MaSp equals x.MaSp
                            join l in _context.Hinhanhs on x.MaSp equals l.MaSp
                            join k in _context.Khuyenmais on x.MaSp equals k.MaSp
-                           
                            where s.MaGh == id
                            select new CartItems()
                            {
@@ -164,9 +163,7 @@ namespace Web_Api_Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCtGh(string id,string id1)
         {
-
             var ctGh = await _context.CtGhs.FindAsync(id,id1);
-            //var giohang = await _context.Giohangs.FindAsync(id1);
             if (ctGh == null)
             {
                 return NotFound();

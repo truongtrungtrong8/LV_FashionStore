@@ -78,7 +78,7 @@ namespace Web_Api_Server.Controllers
                               Thoigian = d.Thoigian,
                               TinhTrang = d.TinhTrang,
                               TenKh = k.TenKh
-                          }).AsQueryable();
+                          }).OrderBy(d=>d.Thoigian.Date).AsQueryable();
             var result = PagedList<DonDatNewDto>.ToPagedList(dondat, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;

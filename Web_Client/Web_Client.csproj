@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Model\Model.csproj" />
+    <ProjectReference Include="..\Web_Admin_Client\Web_Admin_Client.csproj" />
     <ProjectReference Include="..\Web_Api_Server\Web_Api_Server.csproj" />
   </ItemGroup>
 

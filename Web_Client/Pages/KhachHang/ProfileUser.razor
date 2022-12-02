@@ -1,0 +1,196 @@
+﻿@page "/KhachHang/ProfileUser"
+@inject IJSRuntime JS
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@using System.Text.RegularExpressions
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Web_Client.Services
+@layout MainLayout
+
+<div class="container">
+		<div class="main-body">
+			<div class="row">
+				<div class="col-lg-4">
+					<div class="card">
+						<div class="card-body">
+							<div class="d-flex flex-column align-items-center text-center">
+								<img src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
+								<div class="mt-3">
+									<h4>@khachhang.TenKh</h4>
+									<p class="text-muted font-size-sm">@khachhang.SdtKh</p>
+									<p class="text-muted font-size-sm">@khachhang.DiachiKh</p>
+@*									<button class="btn btn-primary">Follow</button>
+									<button class="btn btn-outline-primary">Message</button>*@
+								</div>
+							</div>
+							<hr class="my-4">
+							<ul class="list-group list-group-flush">
+								<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+									<a style="cursor:pointer" class="mb-0" href="/KhachHang/Index">Đơn đặt hàng</a>
+								</li>
+								<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+									<a style="cursor:pointer" class="mb-0" @onclick="(() => ForgotPass(ModalSize.Custom,ModalPosition.Custom))">Đổi mật khẩu</a>
+								</li>
+								<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+									<a style="cursor:pointer" class="mb-0" @onclick="(() => DeleteAcc(ModalSize.Custom,ModalPosition.Custom))">Xóa tài khoản</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-8">
+					<div class="card">
+						<EditForm Model="newkhachang">
+						<div class="card-body">
+							<div class="row mb-3">
+								<div class="col-sm-3">
+									<h6 class="mb-0">Họ và tên</h6>
+								</div>
+								<div class="col-sm-9 text-secondary">
+									<InputText class="form-control" @bind-Value="newkhachang.TenKh"></InputText>
+									
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-sm-3">
+									<h6 class="mb-0">Email</h6>
+								</div>
+								<div class="col-sm-9 text-secondary">
+									<InputText class="form-control" @bind-Value="newkhachang.Email_Kh"></InputText>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-sm-3">
+									<h6 class="mb-0">Số điện thoại</h6>
+								</div>
+								<div class="col-sm-9 text-secondary">
+									<InputText class="form-control" @bind-Value="newkhachang.SdtKh"></InputText>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-sm-3">
+									<h6 class="mb-0">Địa chỉ</h6>
+								</div>
+								<div class="col-sm-9 text-secondary">
+									<InputText class="form-control" @bind-Value="newkhachang.DiachiKh"></InputText>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-sm-3">
+									<h6 class="mb-0">Tài khoản</h6>
+								</div>
+								<div class="col-sm-9 text-secondary">
+									<InputText class="form-control" @bind-Value="newkhachang.TenTk" readonly></InputText>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-3"></div>
+								<div class="col-sm-9 text-secondary">
+									<input type="button" class="btn btn-primary px-4" value="Lưu thay đổi" @onclick="Submit">
+								</div>
+							</div>
+						</div>
+						</EditForm>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+@code {
+	public List<CartItems> cartItems = new List<CartItems>();
+
+	public List<Khachhang> khachhangs = new List<Khachhang>();
+	Khachhang khachhang = new Khachhang();
+	KhachHangDto newkhachang = new KhachHangDto();
+	KhachHangService khachHangService = new KhachHangService();
+	[CascadingParameter] public IModalService Modal { get; set; }
+	[CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+
+	DonDatDto dondatDto = new DonDatDto();
+	List<DonDatDto> listDonDat = new List<DonDatDto>();
+	DonDatService donDatService = new DonDatService();
+	CtDonDatDto ctDonDatDto = new CtDonDatDto();
+	CtDonDatService CtDonDatService = new CtDonDatService();
+
+	Giohang giohang = new Giohang();
+	GioHangDto gioHangDto = new GioHangDto();
+	CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
+	GioHangService gioHangService = new GioHangService();
+	CTGioHangService cTGioHangService = new CTGioHangService();
+	private string id { get; set; } = "";
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+			if(firstRender)
+			{
+			var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+			if (makhachhang != null)
+			{
+				khachhang = await khachHangService.GetKhachHang(makhachhang);
+				var result = await khachHangService.GetKhachHang(makhachhang);
+				newkhachang.MaKh = result.MaKh;
+				newkhachang.TenKh = result.TenKh;
+				newkhachang.TenTk = result.TenTk;
+				newkhachang.SdtKh = result.SdtKh;
+				newkhachang.DiachiKh = result.DiachiKh;
+				newkhachang.Email_Kh = result.EmailKh;
+			}
+			else
+			{
+
+				var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+				khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+				var result = await khachHangService.GetKhachHang(ma_khCreate);
+				newkhachang.MaKh = result.MaKh;
+				newkhachang.TenKh = result.TenKh;
+				newkhachang.TenTk = result.TenTk;
+				newkhachang.SdtKh = result.SdtKh;
+				newkhachang.DiachiKh = result.DiachiKh;
+				newkhachang.Email_Kh = result.EmailKh;
+			}
+			}
+			StateHasChanged();
+	}
+	private async void Submit()
+	{
+		var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+		if (makhachhang != null)
+		{
+			await khachHangService.EditKhachhang(makhachhang, newkhachang);
+			StateHasChanged();
+			toastService.ShowSuccess("Chỉnh sửa thông tin thành công", "Thông báo");
+		}
+		else
+		{
+			var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+			await khachHangService.EditKhachhang(ma_khCreate, newkhachang);
+			StateHasChanged();
+			toastService.ShowSuccess("Chỉnh sửa thông tin thành công", "Thông báo");
+		}
+	}
+	private async Task ForgotPass(ModalSize size, ModalPosition position)
+	{
+		var options = new ModalOptions { Size = size, Position = position, HideCloseButton = false, HideHeader = false, DisableBackgroundCancel = true };
+		if (size == ModalSize.Custom)
+			options.SizeCustomClass = "my-custom-size";
+		if (position == ModalPosition.Custom)
+			options.PositionCustomClass = "my-custom-position";
+		Modal.Show<ChangePass>("Đổi mật khẩu", options);
+	}
+
+	private async Task DeleteAcc(ModalSize size, ModalPosition position)
+	{
+		var options = new ModalOptions { Size = size, Position = position, HideCloseButton = true, HideHeader = false, DisableBackgroundCancel = false };
+		if (size == ModalSize.Custom)
+			options.SizeCustomClass = "my-custom-size-acc";
+		if (position == ModalPosition.Custom)
+			options.PositionCustomClass = "my-custom-position-acc";
+		Modal.Show<CheckDeleteAcc>("Xóa tài khoản", options);
+	}
+
+}

@@ -56,6 +56,11 @@ namespace Web_Admin_Client.Service
             var result = await Http.DeleteAsync(urldefault + "/" + id);
             return result.IsSuccessStatusCode;
         }
+        public async Task<bool> EditDDH(string id, DonDatDto request)
+        {
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id, request);
+            return result.IsSuccessStatusCode;
+        }
     }
 }
 
