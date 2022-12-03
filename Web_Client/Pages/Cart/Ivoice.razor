@@ -138,6 +138,7 @@
         foreach(var item in listCtDdh)
         {
             tong = listCtDdh.Where(d => d.MaDdh == item.MaDdh).Sum(d => d.Dg);
+            tong = Convert.ToInt32(tong + (tong * 0.02));
         }
         return tong;
     }
