@@ -244,17 +244,7 @@
                 display = checkdisplay;
                 display1 = checkdisplay;
             }
-            var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
-
-            if(firstRender)
-            {
-                if (getvnpcheck == "00")
-                {
-                    await sessionStorage.RemoveItemAsync("vnpcheckcode_true");
-                    toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
-                    await AddDonDat();
-                }
-            }
+            
         }
         catch (Exception ex)
         {

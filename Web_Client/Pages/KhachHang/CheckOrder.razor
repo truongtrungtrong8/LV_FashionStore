@@ -1,0 +1,246 @@
+﻿@page "/KhachHang/CheckOrder"
+@using Microsoft.AspNetCore.SignalR.Client
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Model.Pay
+@using Web_Client.Pages.Taikhoan
+@using Web_Client.Services
+@inject ICartService CartService
+@inject ISanphamService sanphamService
+@layout MainLayout
+@inject IJSRuntime JS
+@using System.Net.Mail
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+
+<!-- Breadcrumb Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="#">Trang chủ</a>
+                <a class="breadcrumb-item text-dark" href="#">Cá nhân</a>
+                <span class="breadcrumb-item active">Đơn đặt hàng</span>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-lg-12 table-responsive mb-5">
+            <table class="table table-light table-borderless table-hover text-center mb-0">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Tên người đặt hàng</th>
+                        <th>Giá đơn đặt hàng</th>
+                        <th>Địa chỉ giao hàng</th>
+                        <th>Thời gian đặt hàng</th>
+                        <th>Chi tiết đơn đặt hàng</th>
+                        <th>Hủy đơn hàng</th>
+                        <th>Xác nhận đã nhận hàng</th>
+                        <th>Xem hóa đơn</th>
+                    </tr>
+                </thead>
+                @foreach (var item in listDonDat)
+                {
+                        <tbody class="align-middle">
+                            <tr>
+                                <td class="align-middle">@name</td>
+                                <td class="align-middle">@sanphamService.FormatVND(item.TongDdh) VND</td>
+                                <td class="align-middle">@item.Diachi</td>
+                                <td class="align-middle">@item.Thoigian.Day/@item.Thoigian.Month/@item.Thoigian.Year---@item.Thoigian.TimeOfDay.Hours:@item.Thoigian.TimeOfDay.Minutes:@item.Thoigian.TimeOfDay.Seconds</td>
+                                <td class="align-middle"><button class="btn btn-sm btn-info" @onclick="@(() => Detail(item.MaDdh))"><i class="fa fa-info-circle"></i></button></td>
+                                <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick="@(() => Delete(item.MaDdh))"><i class="fa fa-times"></i></button></td>
+                            @if (item.TinhTrang == "dang chuan bi hang" || item.TinhTrang == "dang van chuyen" || item.TinhTrang == "chua hoan thanh" || item.TinhTrang == "da nhan duoc hang")
+                                {
+                                   <td class="align-middle"><button disabled class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></td>
+                                }
+                                else
+                                {
+                                   <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="@(() => CheckGiaoHang(item.MaDdh,item.MaKh))"><i class="fa fa-check"></i></button></td>
+                                }
+                                <td class="align-middle"><button class="btn btn-sm btn-danger" @onclick="@(() => Ivoice(item.MaDdh))"><i class="fa fa-building"></i></button></td>
+                            </tr>
+                        </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    string urlimage = "https://localhost:7268";
+    bool orderPlaced = false;
+    [Parameter]
+    public UserIP userIP { get; set; }
+    public List<CartItems> cartItems = new List<CartItems>();
+    CartItems cart = new CartItems();
+    public List<Khachhang> khachhangs = new List<Khachhang>();
+    Khachhang khachhang = new Khachhang();
+    KhachHangService khachHangService = new KhachHangService();
+
+    Dondathang dondat = new Dondathang();
+    DonDatDto dondatDto = new DonDatDto();
+    List<DonDatDto> listDonDat = new List<DonDatDto>();
+    DonDatService donDatService = new DonDatService();
+    CtDonDatDto ctDonDatDto = new CtDonDatDto();
+    List<CtddhDtoList> listCtDdh = new List<CtddhDtoList>();
+    CtDonDatService CtDonDatService = new CtDonDatService();
+    CtDdh chitietDDH = new CtDdh();
+
+    Giohang giohang = new Giohang();
+    GioHangDto gioHangDto = new GioHangDto();
+    CTGioHangDto cTGioHangDto = new CTGioHangDto();
+
+    GioHangService gioHangService = new GioHangService();
+    CTGioHangService cTGioHangService = new CTGioHangService();
+
+    TonkhoDto tonkho = new TonkhoDto();
+    Sanpham_Model sanpham = new Sanpham_Model();
+    TonkhoService tonkhoService = new TonkhoService();
+
+    KhuyenMaiDto khuyenmai = new KhuyenMaiDto();
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private int CountDonDat { get; set; }
+    private int MaDonDat { get; set; }
+    private string name;
+    private bool checkGiaoHang = false;
+    private HubConnection hubConnection;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+        if (firstRender)
+        {
+            if (name_khLogin != null)
+            {
+                List<DonDatDto> newList = new List<DonDatDto>();
+                newList = await donDatService.GetListByKH(makhachhang);
+                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang").ToList();
+                name = name_khLogin;
+            }
+            else
+            {
+                var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                List<DonDatDto> newList = new List<DonDatDto>();
+                newList = await donDatService.GetListByKH(ma_khCreate);
+                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang").ToList();
+                name = name_khCreate;
+            }
+        }
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("https://localhost:7268/broadcastHub"))
+            .Build();
+
+        hubConnection.On("ReceiveMessage", async () =>
+        {
+            await CallData();
+        });
+        await hubConnection.StartAsync();
+        StateHasChanged();
+    }
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
+    private async Task CallData()
+    {
+        await LoadData();
+        await this.InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadData()
+    {
+        var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+        var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+            if (name_khLogin != null)
+            {
+                List<DonDatDto> newList = new List<DonDatDto>();
+                newList = await donDatService.GetListByKH(makhachhang);
+                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang" || d.TinhTrang == "chua hoan thanh").ToList();
+                name = name_khLogin;
+            }
+            else
+            {
+                var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+                var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+                List<DonDatDto> newList = new List<DonDatDto>();
+                newList = await donDatService.GetListByKH(ma_khCreate);
+                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang" || d.TinhTrang == "chua hoan thanh").ToList();
+                name = name_khCreate;
+            }
+            StateHasChanged();
+    }
+
+    private async Task Delete(string id)
+    {
+        List<CtddhDtoList> newList = new List<CtddhDtoList>();
+        newList = await CtDonDatService.GetList(id);
+        dondat = await donDatService.GetDonDatByDD(id);
+            try
+            {
+                foreach (var item in newList)
+                {
+                    var result = await tonkhoService.GetTonkho(item.MaSp);
+                    sanpham = await sanphamService.GetProduct(item.MaSp);
+                    tonkho.MaSp = result.MaSp;
+                    tonkho.MaCh = result.MaCh;
+                    tonkho.Sl = result.Sl + item.Sl;
+                    tonkho.Dg = result.Dg + sanpham.GiaSp * item.Sl;
+                    await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+                    await CtDonDatService.DeleteDDH(id, item.MaSp);
+                    await donDatService.Delete_DD(id);
+                }
+                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/KhachHang/Index");
+                toastService.ShowSuccess("Hủy đơn hàng thành công !", "Thành công");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+    }
+    private async Task Detail(string id)
+    {
+        NavigationManager.NavigateTo("Khachhang/DetailDonDatHang/" + id);
+    }
+    private async Task Ivoice(string id)
+    {
+        NavigationManager.NavigateTo("/Cart/Ivoice/" + id);
+    }
+    private async Task CheckGiaoHang(string id, string id1)
+    {
+        var check = await donDatService.GetDonDatByDD(id);
+        dondatDto.MaDdh = check.MaDdh;
+        dondatDto.MaKh = check.MaKh;
+        dondatDto.TongDdh = check.TongDdh;
+        dondatDto.Diachi = check.Diachi;
+        dondatDto.Thoigian = check.Thoigian;
+        dondatDto.TinhTrang = "da nhan duoc hang";
+        await donDatService.EditDDH(id, dondatDto);
+        listDonDat = await donDatService.GetListByKH(id1);
+        if (IsConnected) 
+            await SendMessage();
+        StateHasChanged();
+        toastService.ShowSuccess("Bạn đã xác nhận nhận được sản phẩm", "Cảm ơn bạn");
+    }
+
+
+}
+

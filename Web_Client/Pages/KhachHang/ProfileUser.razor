@@ -4,6 +4,7 @@
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
 @using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.SignalR.Client
 @using Model
 @using Model.DataDB
 @using Model.Dto
@@ -41,66 +42,114 @@
 						</div>
 					</div>
 				</div>
+			
 				<div class="col-lg-8">
-					<div class="card">
-						<EditForm Model="newkhachang">
-						<div class="card-body">
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Họ và tên</h6>
+					<div class="container-fluid pt-5">
+						<div class="row px-xl-5 pb-3">
+							@if(dangchuanbi == 0)
+							{
+								<div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+									<button class="btn btn-primary" disabled @onclick="ChuanBiHang"><i class="fa fa-spinner m-0 mr-3"></i>Đang chuẩn bị @dangchuanbi</button>
 								</div>
-								<div class="col-sm-9 text-secondary">
-									<InputText class="form-control" @bind-Value="newkhachang.TenKh"></InputText>
-									
+							}
+							else
+							{
+								<div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+									<button class="btn btn-primary" @onclick="ChuanBiHang"><i class="fa fa-spinner m-0 mr-3"></i>Đang chuẩn bị @dangchuanbi</button>
 								</div>
-							</div>
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Email</h6>
+							}
+							@if(danggiao == 0)
+							{
+								<div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+									<button class="btn btn-info" disabled @onclick="DangGiao"><i class="fa fa-shipping-fast m-0 mr-3"></i>Đang giao @danggiao</button>
 								</div>
-								<div class="col-sm-9 text-secondary">
-									<InputText class="form-control" @bind-Value="newkhachang.Email_Kh"></InputText>
+							}
+							else
+							{
+								<div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+									<button class="btn btn-info" @onclick="DangGiao"><i class="fa fa-shipping-fast m-0 mr-3"></i>Đang giao @danggiao</button>
 								</div>
-							</div>
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Số điện thoại</h6>
+							}
+							@if(dagiao == 0)
+							{
+								<div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+									<button class="btn btn-success" disabled @onclick="DaGiao"><i class="fa fa-check m-0 mr-3"></i>Đã giao hàng @dagiao</button>
 								</div>
-								<div class="col-sm-9 text-secondary">
-									<InputText class="form-control" @bind-Value="newkhachang.SdtKh"></InputText>
+							}
+							else
+							{
+								<div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+									<button class="btn btn-success" @onclick="DaGiao"><i class="fa fa-check m-0 mr-3"></i>Đã giao hàng @dagiao</button>
 								</div>
-							</div>
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Địa chỉ</h6>
-								</div>
-								<div class="col-sm-9 text-secondary">
-									<InputText class="form-control" @bind-Value="newkhachang.DiachiKh"></InputText>
-								</div>
-							</div>
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Tài khoản</h6>
-								</div>
-								<div class="col-sm-9 text-secondary">
-									<InputText class="form-control" @bind-Value="newkhachang.TenTk" readonly></InputText>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-sm-3"></div>
-								<div class="col-sm-9 text-secondary">
-									<input type="button" class="btn btn-primary px-4" value="Lưu thay đổi" @onclick="Submit">
-								</div>
-							</div>
+							}
+							
 						</div>
-						</EditForm>
+					</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="card">
+							<EditForm Model="newkhachang">
+								<div class="card-body">
+									<div class="row mb-3">
+										<div class="col-sm-3">
+											<h6 class="mb-0">Họ và tên</h6>
+										</div>
+										<div class="col-sm-9 text-secondary">
+											<InputText class="form-control" @bind-Value="newkhachang.TenKh"></InputText>
+
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-sm-3">
+											<h6 class="mb-0">Email</h6>
+										</div>
+										<div class="col-sm-9 text-secondary">
+											<InputText class="form-control" @bind-Value="newkhachang.Email_Kh"></InputText>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-sm-3">
+											<h6 class="mb-0">Số điện thoại</h6>
+										</div>
+										<div class="col-sm-9 text-secondary">
+											<InputText class="form-control" @bind-Value="newkhachang.SdtKh"></InputText>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-sm-3">
+											<h6 class="mb-0">Địa chỉ</h6>
+										</div>
+										<div class="col-sm-9 text-secondary">
+											<InputText class="form-control" @bind-Value="newkhachang.DiachiKh"></InputText>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-sm-3">
+											<h6 class="mb-0">Tài khoản</h6>
+										</div>
+										<div class="col-sm-9 text-secondary">
+											<InputText class="form-control" @bind-Value="newkhachang.TenTk" readonly></InputText>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-3"></div>
+										<div class="col-sm-9 text-secondary">
+											<input type="button" class="btn btn-primary px-4" value="Lưu thay đổi" @onclick="Submit">
+										</div>
+									</div>
+								</div>
+							</EditForm>
+						</div>
 					</div>
 				</div>
+				</div>
+				
 			</div>
 		</div>
-	</div>
+</div>
 
 @code {
+	private HubConnection hubConnection;
 	public List<CartItems> cartItems = new List<CartItems>();
 
 	public List<Khachhang> khachhangs = new List<Khachhang>();
@@ -111,23 +160,39 @@
 	[CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
 
+	Dondathang dondat = new Dondathang();
 	DonDatDto dondatDto = new DonDatDto();
 	List<DonDatDto> listDonDat = new List<DonDatDto>();
 	DonDatService donDatService = new DonDatService();
 	CtDonDatDto ctDonDatDto = new CtDonDatDto();
+	List<CtddhDtoList> listCtDdh = new List<CtddhDtoList>();
 	CtDonDatService CtDonDatService = new CtDonDatService();
+	CtDdh chitietDDH = new CtDdh();
 
 	Giohang giohang = new Giohang();
 	GioHangDto gioHangDto = new GioHangDto();
 	CTGioHangDto cTGioHangDto = new CTGioHangDto();
 
+	TonkhoDto tonkho = new TonkhoDto();
+	Sanpham_Model sanpham = new Sanpham_Model();
+	TonkhoService tonkhoService = new TonkhoService();
+
+	KhuyenMaiDto khuyenmai = new KhuyenMaiDto();
+
+	SanphamService sanphamService = new SanphamService();
+
 	GioHangService gioHangService = new GioHangService();
 	CTGioHangService cTGioHangService = new CTGioHangService();
+	private int CountDonDat { get; set; }
+	private int MaDonDat { get; set; }
 	private string id { get; set; } = "";
+	private int dangchuanbi;
+	private int danggiao;
+	private int dagiao;
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-			if(firstRender)
-			{
+		if(firstRender)
+		{
 			var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
 			if (makhachhang != null)
 			{
@@ -139,6 +204,20 @@
 				newkhachang.SdtKh = result.SdtKh;
 				newkhachang.DiachiKh = result.DiachiKh;
 				newkhachang.Email_Kh = result.EmailKh;
+				try
+				{
+					string temp = "GH" + makhachhang;
+					cartItems = await cTGioHangService.GetCartAllInUser(temp);
+					giohang = await gioHangService.GetDetail(temp);
+					//
+					listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
+					listDonDat = await donDatService.GetListByKH(makhachhang);
+				}
+				catch (Exception ex)
+				{
+					listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
+					listDonDat = await donDatService.GetListByKH(makhachhang);
+				}
 			}
 			else
 			{
@@ -152,9 +231,61 @@
 				newkhachang.SdtKh = result.SdtKh;
 				newkhachang.DiachiKh = result.DiachiKh;
 				newkhachang.Email_Kh = result.EmailKh;
+				try
+				{
+					//
+					var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+					string tempCreate = "GH" + ma_khCreate;
+					cartItems = await cTGioHangService.GetCartAllInUser(tempCreate);
+					giohang = await gioHangService.GetDetail(tempCreate);
+					//
+					listCtDdh = await CtDonDatService.GetListByKh(ma_khCreate);
+					listDonDat = await donDatService.GetListByKH(ma_khCreate);
+
+				}
+				catch (Exception ex)
+				{
+					var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+					listCtDdh = await CtDonDatService.GetListByKh(ma_khCreate);
+					listDonDat = await donDatService.GetListByKH(ma_khCreate);
+				}
 			}
+			var getvnpcheck = await sessionStorage.GetItemAsync<string>("vnpcheckcode_true");
+
+			if (getvnpcheck == "00")
+			{
+				await sessionStorage.RemoveItemAsync("vnpcheckcode_true");
+				await AddDonDat();
+				NavigationManager.NavigateTo("/Cart/Cart");
+				NavigationManager.NavigateTo("/KhachHang/ProfileUser");
+				toastService.ShowSuccess("Thanh toán thành công", "Thông báo");
+				StateHasChanged();
 			}
+		}
+		StateHasChanged();
+	}
+	//
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+		hubConnection = new HubConnectionBuilder()
+			.WithUrl(NavigationManager.ToAbsoluteUri("https://localhost:7268/broadcastHub"))
+			.Build();
+
+		hubConnection.On("ReceiveMessage", async () =>
+		{
+			await CallData();
+		});
+		await hubConnection.StartAsync();
+		StateHasChanged();
+	}
+	private async Task CallData()
+	{
+		await LoadData();
+		await this.InvokeAsync(() =>
+		{
 			StateHasChanged();
+		});
 	}
 	private async void Submit()
 	{
@@ -192,5 +323,207 @@
 			options.PositionCustomClass = "my-custom-position-acc";
 		Modal.Show<CheckDeleteAcc>("Xóa tài khoản", options);
 	}
+	//
+	private async Task LoadData()
+	{
+		var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+		var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+		if (name_khLogin != null)
+		{
+			listDonDat = await donDatService.GetListByKH(makhachhang);
+			List<DonDatDto> newList =  new List<DonDatDto>();
+			newList = await donDatService.GetListByKH(makhachhang);
+			dangchuanbi = newList.Where(d => d.TinhTrang == "dang chuan bi hang" || d.TinhTrang == "chua hoan thanh").Count();
+			danggiao = newList.Where(d => d.TinhTrang == "dang van chuyen").Count();
+			dagiao = newList.Where(d=>d.TinhTrang == "da giao hang").Count();
+		}
+		else
+		{
+			var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+			var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+			listDonDat = await donDatService.GetListByKH(ma_khCreate);
+			List<DonDatDto> newList = new List<DonDatDto>();
+			newList = await donDatService.GetListByKH(ma_khCreate);
+			dangchuanbi = newList.Where(d => d.TinhTrang == "dang chuan bi hang" || d.TinhTrang == "chua hoan thanh").Count();
+			danggiao = newList.Where(d => d.TinhTrang == "dang van chuyen").Count();
+			dagiao = newList.Where(d => d.TinhTrang == "da giao hang").Count();
+		}
+		StateHasChanged();
+	}
+	private async Task ChuanBiHang()
+	{
+		NavigationManager.NavigateTo("/KhachHang/CheckOrder");
+	}
+	private async Task DangGiao()
+	{
+		NavigationManager.NavigateTo("/KhachHang/Shipping");
+	}
+	private async Task DaGiao()
+	{
+		NavigationManager.NavigateTo("/KhachHang/CheckOk");
+	}
+	////
+	private async Task AddDonDat()
+	{
+		var name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
+		var name_khLogin = await sessionStorage.GetItemAsync<string>("ten_kh");
+		var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
+		var ma_khLogin = await sessionStorage.GetItemAsync<string>("ma_khachhang");
+		List<DonDatDto> countDD = new List<DonDatDto>();
+		countDD = await donDatService.GetCountDonDat();
+		CountDonDat = countDD.Count;
+		MaDonDat = CountDonDat + 1;
 
+		if (ma_khLogin != null)
+		{
+			var id = "GH" + ma_khLogin;
+			foreach (var item in cartItems)
+			{
+				///check khuyen mai
+				var result_km = await gioHangService.GetDetail(id);
+				var sanpham = await sanphamService.GetProduct(item.MaSp);
+				var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+				khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+				dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+				dondatDto.TongDdh = result_km.Tongtien;
+				dondatDto.Diachi = khachhang.DiachiKh;
+				dondatDto.MaKh = ma_khLogin; //khachhang
+				dondatDto.Thoigian = DateTime.Now;
+				dondatDto.TinhTrang = "chua hoan thanh";
+				await donDatService.CreateDonDat(dondatDto);
+				//chi tiet don dat hang
+				ctDonDatDto.MaDdh = dondatDto.MaDdh;
+				ctDonDatDto.MaSp = item.MaSp;
+				ctDonDatDto.Sl = getCTGH.Sl;
+				ctDonDatDto.Mau = item.Ten_Mau;
+				ctDonDatDto.Size = item.Ten_Size;
+				ctDonDatDto.DanhGia = 0;
+				if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+					ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
+				else
+					ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+				await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+				await DeleteItemByDDH(item.MaSp, id);
+				///Tonkho
+				try
+				{
+					sanpham = await sanphamService.GetProduct(item.MaSp);
+					tonkho = await tonkhoService.GetTonkho(item.MaSp);
+					if (tonkho != null)
+					{
+						var result = await tonkhoService.GetTonkho(item.MaSp);
+						tonkho.MaSp = result.MaSp;
+						tonkho.MaCh = result.MaCh;
+						tonkho.Sl = result.Sl - getCTGH.Sl;
+						//if(sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+						tonkho.Dg = (result.Sl - getCTGH.Sl) * sanpham.GiaSp;
+						//tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+						await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+					}
+				}
+				catch (Exception ex)
+				{
+					tonkho.MaSp = item.MaSp;
+					tonkho.MaCh = "CH01";
+					tonkho.Sl = sanpham.Sl - item.Sl;
+					tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+					await tonkhoService.CreateTonkho(tonkho);
+				}
+			}
+
+		}
+		else if (ma_khCreate != null)
+		{
+			var id = "GH" + ma_khCreate;
+			foreach (var item in cartItems)
+			{
+				///check khuyen mai
+				var result_km = await gioHangService.GetDetail(id);
+				var sanpham = await sanphamService.GetProduct(item.MaSp);
+				var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+				khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+				dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+				dondatDto.TongDdh = result_km.Tongtien;
+				dondatDto.Diachi = khachhang.DiachiKh;
+				dondatDto.MaKh = ma_khCreate; //khachhang
+				dondatDto.Thoigian = DateTime.Now;
+				dondatDto.TinhTrang = "chua hoan thanh";
+				await donDatService.CreateDonDat(dondatDto);
+				//chi tiet don dat hang
+				ctDonDatDto.MaDdh = dondatDto.MaDdh;
+				ctDonDatDto.MaSp = item.MaSp;
+				ctDonDatDto.Sl = getCTGH.Sl;
+				ctDonDatDto.Mau = item.Ten_Mau;
+				ctDonDatDto.Size = item.Ten_Size;
+				ctDonDatDto.DanhGia = 0;
+				if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+					ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp /*-(sanpham.GiaSp*sanpham.Tile)*/));
+				else
+					ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+				await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+				await DeleteItemByDDH(item.MaSp, id);
+				///Tonkho
+				try
+				{
+					sanpham = await sanphamService.GetProduct(item.MaSp);
+					tonkho = await tonkhoService.GetTonkho(item.MaSp);
+					if (tonkho != null)
+					{
+						var result = await tonkhoService.GetTonkho(item.MaSp);
+						tonkho.MaSp = result.MaSp;
+						tonkho.MaCh = result.MaCh;
+						tonkho.Sl = result.Sl - getCTGH.Sl;
+						if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+							tonkho.Dg = (result.Sl - getCTGH.Sl) * sanpham.GiaSp;
+						else
+							tonkho.Dg = Convert.ToInt32((result.Sl - getCTGH.Sl) * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
+						await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
+					}
+				}
+				catch (Exception ex)
+				{
+					tonkho.MaSp = item.MaSp;
+					tonkho.MaCh = "CH01";
+					tonkho.Sl = sanpham.Sl - item.Sl;
+					tonkho.Dg = (sanpham.Sl - item.Sl) * item.GiaSp;
+					await tonkhoService.CreateTonkho(tonkho);
+				}
+			}
+
+		}
+		StateHasChanged();
+	}
+	private async Task DeleteItemByDDH(string id, string id1)
+	{
+		try
+		{
+			var result = await gioHangService.GetDetail(id1);
+			var sanpham = await sanphamService.GetProduct(id);
+			var getCTGH = await cTGioHangService.GetID(id, id1);//loi
+			if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
+			{
+				gioHangDto.MaGh = id1;
+				gioHangDto.MaKh = result.MaKh;
+				gioHangDto.Ngaydat = DateTime.Now;
+				gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - (sanpham.GiaSp * getCTGH.Sl) - (sanpham.GiaSp * getCTGH.Sl * 0.02));
+				await gioHangService.Edit(id1, gioHangDto);
+			}
+			else
+			{
+				gioHangDto.MaGh = id1;
+				gioHangDto.MaKh = result.MaKh;
+				gioHangDto.Ngaydat = DateTime.Now;
+				gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) * 0.02);
+				await gioHangService.Edit(id1, gioHangDto);
+			}
+			await cTGioHangService.DeleteCart(id, id1);
+			cartItems = await cTGioHangService.GetCartAllInUser(id1);
+		}
+		catch (Exception ex)
+		{
+
+		}
+
+
+	}
 }

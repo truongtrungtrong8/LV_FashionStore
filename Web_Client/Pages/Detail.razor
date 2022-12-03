@@ -314,16 +314,19 @@
             {
                 await sessionStorage.RemoveItemAsync("vnpcheckcode");
                 await BuyNow();
+                NavigationManager.NavigateTo("KhachHang/ProfileUser");
                 toastService.ShowSuccess("Thanh toán thành công !", "Thành công");
             }
             if (checksendmail == "ok")
             {
                 await sessionStorage.RemoveItemAsync("checksendmail");
                 await BuyNow();
+                NavigationManager.NavigateTo("KhachHang/ProfileUser");
                 toastService.ShowSuccess("Mời bạn kiểm tra email " + emailkh, "Thành công");
                 await sessionStorage.RemoveItemAsync("emailkh");
             }
         }
+        StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
