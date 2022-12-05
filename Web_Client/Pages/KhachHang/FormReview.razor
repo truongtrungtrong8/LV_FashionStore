@@ -104,7 +104,7 @@
         danhgia.BinhChon = binhchon.Value;
         danhgia.MaSp = maSP;
         await danhGiaService.CreateReview(danhgia);
-        NavigationManager.NavigateTo("KhachHang/Index");
+        NavigationManager.NavigateTo("KhachHang/CheckOk");
         toastService.ShowSuccess("Cảm ơn bạn đã đánh giá sản phẩm", "Thành công !");
     }
 }

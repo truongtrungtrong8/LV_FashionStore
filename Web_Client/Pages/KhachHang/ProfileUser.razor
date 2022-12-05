@@ -11,6 +11,18 @@
 @using Web_Client.Services
 @layout MainLayout
 
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="#">Trang chủ</a>
+                <a class="breadcrumb-item text-dark" href="#">Cá nhân</a>
+                <span class="breadcrumb-item active">Thông tin cá nhân</span>
+            </nav>
+        </div>
+    </div>
+</div>
+
 <div class="container">
 		<div class="main-body">
 			<div class="row">
@@ -29,9 +41,9 @@
 							</div>
 							<hr class="my-4">
 							<ul class="list-group list-group-flush">
-								<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+@*								<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
 									<a style="cursor:pointer" class="mb-0" href="/KhachHang/Index">Đơn đặt hàng</a>
-								</li>
+								</li>*@
 								<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
 									<a style="cursor:pointer" class="mb-0" @onclick="(() => ForgotPass(ModalSize.Custom,ModalPosition.Custom))">Đổi mật khẩu</a>
 								</li>
@@ -193,6 +205,9 @@
 	{
 		if(firstRender)
 		{
+			listDonDat = await donDatService.GetCountDonDat();
+            CountDonDat = listDonDat.Count;
+            MaDonDat = CountDonDat + 1;
 			var makhachhang = await sessionStorage.GetItemAsync<string>("ma_khachhang");
 			if (makhachhang != null)
 			{

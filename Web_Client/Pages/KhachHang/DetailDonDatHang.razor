@@ -55,7 +55,7 @@
                             <td class="align-middle">@item.Mau - @item.Size</td>
                             <td class="align-middle">@sanphamService.FormatVND(item.TongTien) VND</td>
                             <td class="align-middle">@item.DiaChi</td>
-                            @if(dondat.TinhTrang == "dang van chuyen" || dondat.TinhTrang == "dang chuan bi hang" || dondat.TinhTrang == "chua hoan thanh")
+                            @if(dondat.TinhTrang == "dang van chuyen" || dondat.TinhTrang == "dang chuan bi hang" || dondat.TinhTrang == "chua hoan thanh" || item.DanhGia == 1)
                             {
                                 <td class="align-middle"><button disabled class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
                             }

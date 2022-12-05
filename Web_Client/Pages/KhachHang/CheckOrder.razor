@@ -122,7 +122,7 @@
             {
                 List<DonDatDto> newList = new List<DonDatDto>();
                 newList = await donDatService.GetListByKH(makhachhang);
-                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang").ToList();
+                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang" || d.TinhTrang == "chua hoan thanh").ToList();
                 name = name_khLogin;
             }
             else
@@ -131,7 +131,7 @@
                 var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
                 List<DonDatDto> newList = new List<DonDatDto>();
                 newList = await donDatService.GetListByKH(ma_khCreate);
-                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang").ToList();
+                listDonDat = newList.Where(d => d.TinhTrang == "dang chuan bi hang" || d.TinhTrang == "chua hoan thanh").ToList();
                 name = name_khCreate;
             }
         }
@@ -207,7 +207,7 @@
                     await donDatService.Delete_DD(id);
                 }
                 NavigationManager.NavigateTo("/");
-                NavigationManager.NavigateTo("/KhachHang/Index");
+                NavigationManager.NavigateTo("/KhachHang/CheckOrder");
                 toastService.ShowSuccess("Hủy đơn hàng thành công !", "Thành công");
             }
             catch(Exception ex)

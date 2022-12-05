@@ -88,13 +88,13 @@
                                     <td class="align-middle">
                                         <div class="input-group quantity mx-auto" style="width: 100px;">
                                                 
-                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaSp,item.MaGh,item.GiaSp,item.Sl))">
+                                                    <button class="btn btn-sm btn-primary btn-minus" @onclick="(() => Minus(item.MaSp,item.MaGh,Convert.ToInt32(item.GiaSp - (item.GiaSp * item.Tile)),item.Sl))">
                                                         <i class="fa fa-minus"></i>
                                                     </button>
                                                 <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@Soluong">
                                                 
 
-                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaSp,item.MaGh,item.GiaSp,item.Sl))">
+                                                    <button class="btn btn-sm btn-primary btn-plus" @onclick="(() => Plus(item.MaSp,item.MaGh,Convert.ToInt32(item.GiaSp - (item.GiaSp * item.Tile)),item.Sl))">
                                                         <i class="fa fa-plus"></i>
                                                     </button>
                                                 
@@ -244,7 +244,7 @@
                 display = checkdisplay;
                 display1 = checkdisplay;
             }
-            
+
         }
         catch (Exception ex)
         {
@@ -540,14 +540,6 @@
 
     async Task Minus(string masp, string magh, int giatien, int soluong)
     {
-        var result = await gioHangService.GetDetail(magh);
-        gioHangDto.MaGh = result.MaGh;
-        gioHangDto.Ngaydat = result.Ngaydat;
-        gioHangDto.MaKh = result.MaKh;
-        gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - giatien - giatien*0.02);
-        await gioHangService.Edit(magh, gioHangDto);
-        StateHasChanged();
-        ///
         var edit = await cTGioHangService.GetID(masp, magh);
         cTGioHangDto.MaGh = edit.MaGh;
         cTGioHangDto.MaSp = edit.MaSp;
@@ -555,19 +547,21 @@
         cTGioHangDto.Size = edit.Size;
         cTGioHangDto.Mau = edit.Mau;
         await cTGioHangService.Edit(masp, magh, cTGioHangDto);
-        cartItems = await cTGioHangService.GetCartAllInUser(magh);
         StateHasChanged();
-    }
-    async Task Plus(string masp, string magh, int giatien, int soluong)
-    {
+        ///
         var result = await gioHangService.GetDetail(magh);
         gioHangDto.MaGh = result.MaGh;
         gioHangDto.Ngaydat = result.Ngaydat;
         gioHangDto.MaKh = result.MaKh;
-        gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + giatien + giatien*0.02);
+        gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - giatien - giatien*0.02);
         await gioHangService.Edit(magh, gioHangDto);
+        
+        cartItems = await cTGioHangService.GetCartAllInUser(magh);
+        giohang = await gioHangService.GetDetail(magh);
         StateHasChanged();
-        ///
+    }
+    async Task Plus(string masp, string magh, int giatien, int soluong)
+    {
         var edit = await cTGioHangService.GetID(masp, magh);
         cTGioHangDto.MaGh = edit.MaGh;
         cTGioHangDto.MaSp = edit.MaSp;
@@ -575,7 +569,17 @@
         cTGioHangDto.Size = edit.Size;
         cTGioHangDto.Mau = edit.Mau;
         await cTGioHangService.Edit(masp, magh, cTGioHangDto);
+        StateHasChanged();
+        //
+        var result = await gioHangService.GetDetail(magh);
+        gioHangDto.MaGh = result.MaGh;
+        gioHangDto.Ngaydat = result.Ngaydat;
+        gioHangDto.MaKh = result.MaKh;
+        gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien + giatien + giatien*0.02);
+        await gioHangService.Edit(magh, gioHangDto);
+        
         cartItems = await cTGioHangService.GetCartAllInUser(magh);
+        giohang = await gioHangService.GetDetail(magh);
         StateHasChanged();
     }
     public bool IsConnected =>
