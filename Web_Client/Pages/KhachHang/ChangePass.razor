@@ -14,7 +14,7 @@
         <InputText type="text" @bind-Value="test1" @ref=taikhoan class="form-control" />
     </div>
     <div class="form-outline mb-4" style="display:@display">
-        <label class="form-label" for="form2Example1">Xác nhập email @checkEmail</label>
+        <label class="form-label" for="form2Example1">Xác nhận email @checkEmail</label>
         <InputText type="text" @bind-Value="test2" @ref=email class="form-control" />
     </div>
     <div class="form-outline mb-4" style="display:@displayCode">
@@ -49,6 +49,7 @@
     string display = "none;";
     string displayCode = "none;";
     string checkEmail;
+    string temp;
     bool checkButton = true;
     bool checkButton1 = false;
     bool checkButton2 = false;
@@ -65,7 +66,7 @@
     {
         try
         {
-            
+
             var result = await khachhangService.GetKHID(taikhoan.Value);
             if(result != null)
             {
@@ -115,12 +116,12 @@
     }
     private async Task Submit(ModalSize size, ModalPosition position)
     {
-
-        string temp = await sessionStorage.GetItemAsync<string>("tenkh");
-        string temp1 = temp.Substring(0, 6);
+        //string temp = await sessionStorage.GetItemAsync<string>("tenkh");
+        //string temp1 = temp.Substring(0, 6);
+        
         try
         {
-            if(code.Value == sanphamService.EndCodeMd5(temp1))
+            if(code.Value == temp)
             {
                 await ModalInstance.CloseAsync();
                 var options = new ModalOptions { Size = size, Position = position, Class = "my-custom-modal-class", HideCloseButton = true, HideHeader = true, DisableBackgroundCancel = false };
@@ -143,8 +144,10 @@
     }
     private async void SendMail(string tenkh, string taikhoan, string email)
     {
-        string temp = tenkh.Substring(0,6);
-        string code = sanphamService.EndCodeMd5(temp);
+        //string temp = tenkh.Substring(0,6);
+        //string code = sanphamService.EndCodeMd5(temp);
+        Random ran = new Random();
+        temp = ran.Next(10000, 99999).ToString();
         try
             {
                 using (MailMessage mail = new MailMessage())
@@ -154,7 +157,7 @@
                     mail.Subject = "Xác nhận đặt lại mật khẩu cho tài khoản " + taikhoan;
                     mail.Body += "<p>Cửa hàng thời trang MultiShop - Online Shop xin chào " + tenkh + "</p>";
                     mail.Body += "<p>Chúng tôi xin phép xác nhận thông tin của bạn" + "</p>";
-                    mail.Body += "<p>Mã xác nhận đổi mật khẩu " + code + "</p>";
+                    mail.Body += "<p>Mã xác nhận đổi mật khẩu " + temp.ToString() + "</p>";
                     mail.Body += "<p>Thời gian: " + DateTime.Now + "</p>";
                     mail.Body += "<p>Xin cảm ơn bạn!<br>Trân trọng<br>MultiShop - Online Shop</p>";
                     mail.IsBodyHtml = true;
