@@ -17,9 +17,9 @@ namespace Web_Client.Services
             return await Http.GetFromJsonAsync<TonkhoDto>(urldefault + "/" + id);
         }
         //https://localhost:7118/api/Tonkhos/SP01?id2=CH01
-        public async Task<bool> EditTonkho(string id, string id2, TonkhoDto request)
+        public async Task<bool> EditTonkho(string id, string id1, TonkhoDto request)
         {
-            var result = await Http.PutAsJsonAsync(urldefault + "/" + id + "?id2=" + id2, request);
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id + "?id1=" + id1, request);
             return result.IsSuccessStatusCode;
         }
         public async Task<bool> CreateTonkho(TonkhoDto request)

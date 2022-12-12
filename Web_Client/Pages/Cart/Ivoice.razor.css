@@ -219,7 +219,7 @@ a {
 .invoice {
     margin: 40px auto;
     text-align: left;
-    width: 80%;
+    width: 100%;
 }
 
     .invoice td {

@@ -15,5 +15,6 @@ namespace Model.Dto
         public DateTime Thoigian { get; set; }
         public string? TinhTrang { get; set; }
         public string TenKh { get; set; }
+        public string? ThanhToan { get; set; }
     }
 }

@@ -168,6 +168,7 @@
                 var result = await doanhThuService.GetDoanhThuNgayID(item.Thoigian.Day, Thang.ToString());
                 if(result != null)
                 {
+                    doanhThuNgay.Id = result.Id;
                     doanhThuNgay.Ngay = result.Ngay;
                     doanhThuNgay.Thang = result.Thang;
                     doanhThuNgay.DoanhThu = result.DoanhThu + dondatList.Where(d=>d.Thoigian.Day == item.Thoigian.Day && d.Thoigian.Month == int.Parse(Thang.ToString()) && d.Thoigian.Year == DateTime.Now.Year).Sum(d=>d.TongDdh);

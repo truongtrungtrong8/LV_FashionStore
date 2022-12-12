@@ -26,6 +26,10 @@
             <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Baohanh"></InputNumber>
         </div>
         <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Số lượng sản phẩm</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="sanphamdto.Sl"></InputNumber>
+        </div>
+        <div class="form-group">
             <label for="exampleInputConfirmPassword1">Loại sản phẩm</label>
             <InputSelect class="form-select" placeholder="" @bind-Value="sanphamdto.MaLoai">
                 @foreach (var item in loaisp)
@@ -84,6 +88,7 @@
             sanphamdto.MaLoai = result.MaLoai;
             sanphamdto.Baohanh = result.Baohanh;
             sanphamdto.TinhTrang = result.TinhTrang;
+            sanphamdto.Sl = result.Sl;
        
     }
     private async void Submit()

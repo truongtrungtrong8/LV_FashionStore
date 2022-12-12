@@ -100,7 +100,7 @@
                     </div>
                 </div>
                 <div class="mb-5">
-                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
+                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Chọn phương thức thanh toán</span></h5>
                     <div class="bg-light p-30">
                         <EditForm Model="checkbox">
                         <div class="form-group">
@@ -382,7 +382,7 @@
                     mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn" + "<br>";
                     mail.Body += "Thời gian: " + DateTime.Now +"<br>";
                     mail.Body += sanpham.TenSp + " --Màu: " + mausp + " --Size: " + size + "<br>";
-                    mail.Body += "Giá tổng sản phẩm: " + sanphamService.FormatVND((giasp * sl) - (giasp * 0.02)) + " VND " + " trên " + 1 + " sản phẩm "  + "<br>";
+                    mail.Body += "Giá tổng sản phẩm: " + sanphamService.FormatVND((giasp * sl) + (giasp * 0.02 * sl)) + " VND " + " trên " + 1 + " sản phẩm "  + "<br>";
                     mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() +"<br>";
                     mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
                     mail.IsBodyHtml = true;
@@ -418,7 +418,7 @@
                     mail.Body += "Chúng tôi xin phép xác nhận thông tin đặt sản phẩm của bạn" + "<br>";
                     mail.Body += "Thời gian: " + DateTime.Now + "<br>";
                     mail.Body += sanpham.TenSp + " --Màu: " + mausp + " --Size: " + size + "<br>";
-                    mail.Body += "Giá tổng sản phẩm: " + sanphamService.FormatVND((giasp * sl) - (giasp * 0.02)) + " VND " + " trên " + 1 + " sản phẩm " + "<br>";
+                    mail.Body += "Giá tổng sản phẩm: " + sanphamService.FormatVND((giasp * sl) + (giasp * 0.02 * sl)) + " VND " + " trên " + 1 + " sản phẩm " + "<br>";
                     mail.Body += "Địa chỉ giao hàng: " + khachhang.DiachiKh.ToString() + "<br>";
                     mail.Body += "<p>Xin cảm ơn bạn đã mua hàng tại shop của chúng tôi !<br>Trân trọng<br>MultiShop - Online Shop</p>";
                     mail.IsBodyHtml = true;

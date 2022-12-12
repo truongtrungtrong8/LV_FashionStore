@@ -88,13 +88,13 @@ namespace Web_Api_Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTonkho(string id,string id2 ,[FromBody] TonkhoDto tonkho)
+        public async Task<IActionResult> PutTonkho(string id,string id1 ,[FromBody] TonkhoDto tonkho)
         {
-            if (id != tonkho.MaSp && id2 != tonkho.MaCh)
+            if (id != tonkho.MaSp && id1 != tonkho.MaCh)
             {
                 return BadRequest();
             }
-            var temp = await _context.Tonkhos.FindAsync(id,id2);
+            var temp = await _context.Tonkhos.FindAsync(id,id1);
             if (temp == null)
                 return NotFound(id);
             temp.MaSp = tonkho.MaSp;

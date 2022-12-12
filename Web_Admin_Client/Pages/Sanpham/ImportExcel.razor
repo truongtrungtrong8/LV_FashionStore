@@ -64,13 +64,11 @@
                     ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
                     int totalCollumn = worksheet.Dimension.End.Column;
                     int totalRow = worksheet.Dimension.End.Row;
-
                     for (int row = 2; row <= totalRow; row++)
                     {
                         SanphamEdit emp = new SanphamEdit();
                         for (int col = 1; col <= totalCollumn; col++)
                         {
-
                             if (col == 1) emp.MaSp = worksheet.Cells[row, col].Value.ToString();
                             if (col == 2) emp.MaHsx = worksheet.Cells[row, col].Value.ToString();
                             if (col == 3) emp.MaLoai= worksheet.Cells[row, col].Value.ToString();
@@ -80,7 +78,6 @@
                             if (col == 7) emp.Sl = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
                             if (col == 8) emp.Mota = worksheet.Cells[row, col].Value.ToString();
                             if (col == 9) emp.TinhTrang = worksheet.Cells[row, col].Value.ToString();
-
                         }
                         table.Add(emp);
                     }

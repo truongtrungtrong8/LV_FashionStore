@@ -1,0 +1,77 @@
+﻿@page "/Tonkho/Edit"
+@using Blazored.Modal.Services
+@using Model
+@using Model.DataDB
+@using Model.Dto
+@using Models.Page
+@using Web_Admin_Client.Pages.Modal
+@inject IJSRuntime JS
+@layout MainLayout
+@using System.Globalization
+@using Web_Admin_Client.Pages.Sanpham
+@using Web_Admin_Client.Service
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager;
+@inject IToastService toastService
+
+
+<EditForm Model="tonkhoDto">
+    <form class="forms-sample">
+
+        <div class="form-group">
+            <label for="exampleInputEmail1">Tên sản phẩm</label>
+            <InputText class="form-control" placeholder="" @bind-Value="sanpham.TenSp"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputConfirmPassword1">Nhập số lượng cần thêm : Hiện có @check sản phẩm</label>
+            <InputNumber class="form-control" placeholder="" @bind-Value="tonkhoDto.Sl" @ref=sl></InputNumber>
+        </div>
+    </form>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Submit" style="margin-left:19%">Lưu</button>
+    <button type="button" class="btn btn-gradient-primary me-2" @onclick="Close" style="margin-left:19%">Đóng</button>
+</EditForm>
+
+@code {
+    public List<TonkhoDtoList> tonkho = new List<TonkhoDtoList>();
+    public TonkhoService tonkhoService = new TonkhoService();
+    TonkhoDto tonkhoDto = new TonkhoDto();
+
+    public List<Sanpham_Model> sanphamList = new List<Sanpham_Model>();
+    public Sanpham_Model sanpham = new Sanpham_Model();
+    SanphamService sanphamService = new SanphamService();
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters paging = new PagingParameters();
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    InputNumber<int> sl;
+    int check;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var id = await sessionStorage.GetItemAsync<string>("tonkhoID");
+        var result = await tonkhoService.GetTonkho(id);
+        sanpham = await sanphamService.GetProduct(id);
+        tonkhoDto.MaCh = result.MaCh;
+        tonkhoDto.MaSp = result.MaSp;
+        tonkhoDto.Sl = result.Sl;
+        tonkhoDto.Dg = result.Dg;
+        check = result.Sl;
+    }
+    private async void Submit()
+    {
+        var id = await sessionStorage.GetItemAsync<string>("tonkhoID");
+        var result = await tonkhoService.GetTonkho(id);
+        sanpham = await sanphamService.GetProduct(id);
+        tonkhoDto.Sl = result.Sl + sl.Value;
+        tonkhoDto.Dg = result.Dg + (sanpham.GiaSp * sl.Value);
+        await tonkhoService.EditTonkho(id, "CH01", tonkhoDto);
+        NavigationManager.NavigateTo("/Nhanvien/Index");
+        NavigationManager.NavigateTo("/Tonkho/Index");
+        toastService.ShowSuccess("Thêm số lượng thành công!", "Thành công!");
+        StateHasChanged();
+    }
+    private async void Close()
+    {
+        await this.ModalInstance.CancelAsync();
+    }
+}

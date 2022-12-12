@@ -373,6 +373,7 @@
                 dondatDto.MaKh = ma_khLogin; //khachhang
                 dondatDto.Thoigian = DateTime.Now;
                 dondatDto.TinhTrang = "chua hoan thanh";
+                dondatDto.ThanhToan = "da thanh toan";
                 await donDatService.CreateDonDat(dondatDto);
                 //chi tiet don dat hang
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;
@@ -431,6 +432,7 @@
                 dondatDto.MaKh = ma_khCreate; //khachhang
                 dondatDto.Thoigian = DateTime.Now;
                 dondatDto.TinhTrang = "chua hoan thanh";
+                dondatDto.ThanhToan = "da thanh toan";
                 await donDatService.CreateDonDat(dondatDto);
                 //chi tiet don dat hang
                 ctDonDatDto.MaDdh = dondatDto.MaDdh;

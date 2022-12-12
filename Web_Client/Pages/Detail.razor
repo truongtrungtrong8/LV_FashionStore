@@ -120,9 +120,9 @@
                 
                 <div class="d-flex align-items-center mb-4 pt-2">
                     <div class="input-group quantity mr-3" style="width: 130px;">
-                        <EditForm Model="cTGioHangDto">
+                        <EditForm Model="soluongItem">
 
-                            <InputNumber id="quantity" @bind-Value="@cTGioHangDto.Sl" @ref=Sl min = "0" max = "@tonkho.Sl"
+                            <InputNumber id="quantity" @bind-Value="soluongItem" @ref=Sl min = "0" max = "@tonkho.Sl"
                                          class="form-control bg-secondary border-0 text-center" style="width: 70px" />
 
                         </EditForm>
@@ -240,6 +240,7 @@
     public InputRadioGroup<string> checkMau { get; set; }
     private InputNumber<int> Sl { get; set; }
 
+    private int soluongItem = 1;
 
     Sanpham_Model sanpham = new Sanpham_Model();
 
@@ -284,6 +285,10 @@
     CtDonDatDto ctDonDatDto = new CtDonDatDto();
     CtDonDatService CtDonDatService = new CtDonDatService();
 
+    HoaDonDto hoaDon = new HoaDonDto();
+    List<Hoadon> listHoadon = new List<Hoadon>();
+    HoaDonService hoaDonService = new HoaDonService();
+
     SanphamService sanphamService = new SanphamService();
     [CascadingParameter] public IModalService Modal { get; set; }
 
@@ -294,6 +299,8 @@
     private int CountDonDat { get; set; }
     private int MaDonDat { get; set; }
     public string deCode { get; set; }
+    int countHoadon;
+    int MaHoadon;
     [Parameter]
     public string Id { get; set; }
     private string display ;
@@ -320,7 +327,7 @@
             if (checksendmail == "ok")
             {
                 await sessionStorage.RemoveItemAsync("checksendmail");
-                await BuyNow();
+                await BuyNowMail();
                 NavigationManager.NavigateTo("KhachHang/ProfileUser");
                 toastService.ShowSuccess("Mời bạn kiểm tra email " + emailkh, "Thành công");
                 await sessionStorage.RemoveItemAsync("emailkh");
@@ -340,6 +347,10 @@
             sizeList = await sizeService.GetListSize();
             mauList = await mauService.GetListMau();
             countReviewByPro = danhgiaList.Count();
+            //
+            listHoadon = await hoaDonService.GetList();
+            countHoadon = listHoadon.Count();
+            MaHoadon = countHoadon + 1;
             try
             {
                 tonkho = await tonkhoService.GetTonkho(deCode);
@@ -880,7 +891,186 @@
                 dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
             dondatDto.Diachi = khachhang.DiachiKh;
             dondatDto.Thoigian = DateTime.Now;
-            dondatDto.TinhTrang = "chua hoan thanh";
+            dondatDto.TinhTrang = "dang van chuyen";
+            dondatDto.ThanhToan = "da thanh toan";
+            await donDatService.CreateDonDat(dondatDto);
+            //chi tiet don dat
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if(check != null)
+                {
+                    ctDonDatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch(Exception ex)
+            {
+                ctDonDatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
+            ctDonDatDto.MaSp = deCode;
+            ctDonDatDto.Sl = getSl;
+            if(sanpham.Thoigian.Date <= DateTime.Now.Date)
+                ctDonDatDto.Dg = Convert.ToInt32(sanpham.GiaSp * getSl);
+            else
+                ctDonDatDto.Dg = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp*sanpham.Tile)) * getSl);
+            ctDonDatDto.Mau = getmau;
+            ctDonDatDto.Size = getsize;
+            ctDonDatDto.DanhGia = 0;
+            await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+            //Ton kho
+            try
+            {
+                sanpham = await sanphamService.GetProduct(deCode);
+                tonkho = await tonkhoService.GetTonkho(deCode);
+                if (tonkho != null)
+                {
+                    var result = await tonkhoService.GetTonkho(deCode);
+                    tonkho.MaSp = result.MaSp;
+                    tonkho.MaCh = result.MaCh;
+                    tonkho.Sl = result.Sl - getSl;
+                    tonkho.Dg = (result.Sl - getSl) * sanpham.GiaSp;
+                    await tonkhoService.EditTonkho(deCode, result.MaCh, tonkho);
+                }
+            }
+            catch (Exception ex)
+            {
+                tonkho.MaSp = deCode;
+                tonkho.MaCh = "CH01";
+                tonkho.Sl = sanpham.Sl - getSl;
+                tonkho.Dg = (sanpham.Sl - getSl) * sanpham.GiaSp;
+                await tonkhoService.CreateTonkho(tonkho);
+            }
+            //hoadon
+            sanpham = await sanphamService.GetProduct(deCode);
+            hoaDon.MaHd = ("HD" + MaHoadon).ToString();
+            hoaDon.MaNv = "NV6";
+            hoaDon.MaKh = ma_khLogin;
+            hoaDon.NgaylapHd = DateTime.Now;
+            hoaDon.DiachiHd = khachhang.DiachiKh;
+            if (sanpham.Thoigian.Date < DateTime.Now.Date || sanpham.Thoigian.Date == DateTime.Now.Date)
+                hoaDon.TongHd = Convert.ToInt32((sanpham.GiaSp * getSl) + (sanpham.GiaSp * 0.02 * getSl));
+            else
+                hoaDon.TongHd = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
+            await hoaDonService.Create(hoaDon);
+        }
+        else
+        {
+            khachhang = await khachHangService.GetKhachHang(ma_khCreate);
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if (check != null)
+                {
+                    dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                dondatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
+            dondatDto.MaKh = ma_khCreate;
+            if (sanpham.Thoigian.Date <= DateTime.Now.Date)
+                dondatDto.TongDdh = Convert.ToInt32((sanpham.GiaSp * getSl) + (sanpham.GiaSp * 0.02 * getSl));
+            else
+                dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
+            dondatDto.Diachi = khachhang.DiachiKh;
+            dondatDto.Thoigian = DateTime.Now;
+            dondatDto.TinhTrang = "dang van chuyen";
+            dondatDto.ThanhToan = "da thanh toan";
+            await donDatService.CreateDonDat(dondatDto);
+            //chi tiet don dat
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if (check != null)
+                {
+                    ctDonDatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                ctDonDatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
+            ctDonDatDto.MaSp = deCode;
+            ctDonDatDto.Sl = getSl;
+            if(sanpham.Thoigian.Date <= DateTime.Now.Date)
+                ctDonDatDto.Dg = Convert.ToInt32(sanpham.GiaSp * getSl);
+            else
+                ctDonDatDto.Dg = Convert.ToInt32((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl);
+            ctDonDatDto.Mau = getmau;
+            ctDonDatDto.Size = getsize;
+            ctDonDatDto.DanhGia = 0;
+            await CtDonDatService.CreateCtdonDat(ctDonDatDto);
+            //Ton kho
+            try
+            {
+                sanpham = await sanphamService.GetProduct(deCode);
+                tonkho = await tonkhoService.GetTonkho(deCode);
+                if (tonkho != null)
+                {
+                    var result = await tonkhoService.GetTonkho(deCode);
+                    tonkho.MaSp = result.MaSp;
+                    tonkho.MaCh = result.MaCh;
+                    tonkho.Sl = result.Sl - getSl;
+                    tonkho.Dg = (result.Sl - getSl) * sanpham.GiaSp;
+                    await tonkhoService.EditTonkho(deCode, result.MaCh, tonkho);
+                }
+            }
+            catch (Exception ex)
+            {
+                tonkho.MaSp = deCode;
+                tonkho.MaCh = "CH01";
+                tonkho.Sl = sanpham.Sl - getSl;
+                tonkho.Dg = (sanpham.Sl - getSl) * sanpham.GiaSp;
+                await tonkhoService.CreateTonkho(tonkho);
+            }
+            //hoadon
+            sanpham = await sanphamService.GetProduct(deCode);
+            hoaDon.MaHd = ("HD" + MaHoadon).ToString();
+            hoaDon.MaNv = "NV6";
+            hoaDon.MaKh = ma_khCreate;
+            hoaDon.NgaylapHd = DateTime.Now;
+            hoaDon.DiachiHd = khachhang.DiachiKh;
+            if (sanpham.Thoigian.Date < DateTime.Now.Date || sanpham.Thoigian.Date == DateTime.Now.Date)
+                hoaDon.TongHd = Convert.ToInt32((sanpham.GiaSp * getSl) + (sanpham.GiaSp * 0.02 * getSl));
+            else
+                hoaDon.TongHd = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
+            await hoaDonService.Create(hoaDon);
+        }
+    }  
+    ///
+     private async Task BuyNowMail()
+    {
+        int getSl = await sessionStorage.GetItemAsync<int>("sl");
+        var getmau = await sessionStorage.GetItemAsync<string>("mau");
+        var getsize = await sessionStorage.GetItemAsync<string>("size");
+        var temp = ("DDH" + MaDonDat).ToString();
+        Dondathang check = new Dondathang();
+        if(ma_khLogin != null)
+        {
+            khachhang = await khachHangService.GetKhachHang(ma_khLogin);
+            //check ID don dat hang
+            try
+            {
+                check = await donDatService.GetDonDatByDD(temp);
+                if(check != null)
+                {
+                    dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
+                }
+            }
+            catch(Exception ex)
+            {
+                dondatDto.MaDdh = ("DDH" + MaDonDat + "a").ToString();
+            }
+            dondatDto.MaKh = ma_khLogin;
+            if (sanpham.Thoigian.Date < DateTime.Now.Date || sanpham.Thoigian.Date == DateTime.Now.Date)
+                dondatDto.TongDdh = Convert.ToInt32((sanpham.GiaSp * getSl) + (sanpham.GiaSp*0.02*getSl));
+            else
+                dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
+            dondatDto.Diachi = khachhang.DiachiKh;
+            dondatDto.Thoigian = DateTime.Now;
+            dondatDto.TinhTrang = "dang chuan bi hang";
+            dondatDto.ThanhToan = "chua thanh toan";
             await donDatService.CreateDonDat(dondatDto);
             //chi tiet don dat
             try
@@ -951,7 +1141,8 @@
                 dondatDto.TongDdh = Convert.ToInt32(((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) + ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getSl) * 0.02);
             dondatDto.Diachi = khachhang.DiachiKh;
             dondatDto.Thoigian = DateTime.Now;
-            dondatDto.TinhTrang = "chua hoan thanh";
+            dondatDto.TinhTrang = "dang chuan bi hang";
+            dondatDto.ThanhToan = "chua thanh toan";
             await donDatService.CreateDonDat(dondatDto);
             //chi tiet don dat
             try

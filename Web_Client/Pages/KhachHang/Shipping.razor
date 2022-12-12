@@ -70,7 +70,7 @@
         </div>
     </div>
 </div>
-<marquee style="position:absolute;top:24%" scrollamount="5">Bạn có thể hủy đơn hàng trong vòng 1 ngày kể từ ngày đặt hàng. Cảm ơn bạn !</marquee>
+
 
 @code {
     string urlimage = "https://localhost:7268";
@@ -193,6 +193,7 @@
     }
     private async Task Ivoice(string id)
     {
+        await sessionStorage.SetItemAsync<string>("maddh", id);
         NavigationManager.NavigateTo("/Cart/Ivoice/" + id);
     }
 }

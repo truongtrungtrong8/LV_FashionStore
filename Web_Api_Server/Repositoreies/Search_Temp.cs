@@ -70,6 +70,25 @@ namespace Web_Api_Server.Repositoreies
             return khachhangsTemp.AsQueryable();
 
         }
+        //search don dat hang
+        //search khach hang
+        public static IQueryable<DonDatNewDto> Search(this IQueryable<DonDatNewDto> dondat, string search)
+        {
+
+            if (string.IsNullOrWhiteSpace(search))
+                return dondat;
+            var khachhangsTemp = new List<DonDatNewDto>();
+            foreach (var khachhang in dondat)
+            {
+                var lowerCaseSearchTerm = ConvertToUnSign3(search.Trim().ToLower());
+                if (ConvertToUnSign3(khachhang.TinhTrang.ToLower()).Contains(lowerCaseSearchTerm) == true)
+                {
+                    khachhangsTemp.Add(khachhang);
+                }
+            }
+            return khachhangsTemp.AsQueryable();
+
+        }
         public static string ConvertToUnSign3(string s)
         {
             Regex regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model.DataDB;
+using Model.Dto;
 
 namespace Web_Api_Server.Controllers
 {
@@ -75,24 +76,21 @@ namespace Web_Api_Server.Controllers
         // POST: api/Hoadons
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Hoadon>> PostHoadon(Hoadon hoadon)
+        public async Task<ActionResult<Hoadon>> PostHoadon([FromBody] HoaDonDto hoadon)
         {
-            _context.Hoadons.Add(hoadon);
-            try
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var temp = new Hoadon()
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (HoadonExists(hoadon.MaHd))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                MaHd = hoadon.MaHd,
+                MaNv = hoadon.MaNv,
+                MaKh = hoadon.MaKh,
+                NgaylapHd = hoadon.NgaylapHd,
+                TongHd = hoadon.TongHd,
+                DiachiHd = hoadon.DiachiHd
+            };
+            await _context.Hoadons.AddAsync(temp);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetHoadon", new { id = hoadon.MaHd }, hoadon);
         }

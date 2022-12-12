@@ -11,6 +11,7 @@ using Model.DataDB;
 using Model.Dto;
 using Models.Page;
 using Newtonsoft.Json;
+using Web_Api_Server.Repositoreies;
 
 namespace Web_Api_Server.Controllers
 {
@@ -43,7 +44,8 @@ namespace Web_Api_Server.Controllers
                               Diachi = s.Diachi,
                               MaKh = s.MaKh,
                               Thoigian = s.Thoigian,
-                               TinhTrang = s.TinhTrang
+                              TinhTrang = s.TinhTrang,
+                              ThanhToan = s.ThanhToan
                            });
             return await dondat.ToListAsync();
         }
@@ -60,7 +62,8 @@ namespace Web_Api_Server.Controllers
                               TongDdh = d.TongDdh,
                               Diachi = d.Diachi,
                               Thoigian = d.Thoigian,
-                              TinhTrang = d.TinhTrang
+                              TinhTrang = d.TinhTrang,
+                              ThanhToan = d.ThanhToan
                           });
             return await dondat.ToListAsync();
         }
@@ -69,6 +72,7 @@ namespace Web_Api_Server.Controllers
         {
             var dondat = (from d in _context.Dondathangs
                           join k in _context.Khachhangs on d.MaKh equals k.MaKh
+                          where d.TinhTrang == "chua hoan thanh" || d.TinhTrang == "dang van chuyen" || d.TinhTrang == "dang chuan bi hang"
                           select new DonDatNewDto()
                           {
                               MaDdh = d.MaDdh,
@@ -77,8 +81,10 @@ namespace Web_Api_Server.Controllers
                               Diachi = d.Diachi,
                               Thoigian = d.Thoigian,
                               TinhTrang = d.TinhTrang,
-                              TenKh = k.TenKh
-                          }).OrderBy(d=>d.Thoigian.Date).AsQueryable();
+                              TenKh = k.TenKh,
+                              ThanhToan = d.ThanhToan
+                          }).OrderBy(d=>d.Thoigian.Date).AsQueryable()
+                            .Search(paging.SearchTerm);
             var result = PagedList<DonDatNewDto>.ToPagedList(dondat, paging.PageNumber, paging.PageSize);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(result.MetaData));
             return result;
@@ -117,6 +123,8 @@ namespace Web_Api_Server.Controllers
             temp.Diachi = dondathang.Diachi;
             temp.Thoigian = dondathang.Thoigian;
             temp.TinhTrang = dondathang.TinhTrang;
+            temp.ThanhToan= dondathang.ThanhToan;
+
             _context.Dondathangs.Update(temp);
             await _context.SaveChangesAsync();
             return Ok();
@@ -138,7 +146,8 @@ namespace Web_Api_Server.Controllers
                 Diachi = request.Diachi,
                 MaKh = request.MaKh,
                 Thoigian = request.Thoigian,
-                TinhTrang = request.TinhTrang
+                TinhTrang = request.TinhTrang,
+                ThanhToan = request.ThanhToan
             };
 
             await _context.Dondathangs.AddAsync(dondat);

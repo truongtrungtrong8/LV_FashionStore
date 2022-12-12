@@ -58,5 +58,10 @@ namespace Web_Admin_Client.Service
             var result = await Http.DeleteAsync(urldefault + "/" + id + "?id1=" + id1);
             return result.IsSuccessStatusCode;
         }
+        public async Task<bool> EditTonkho(string id, string id1,TonkhoDto request)
+        {
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id + "?id1=" + id1, request);
+            return result.IsSuccessStatusCode;
+        }
     }
 }

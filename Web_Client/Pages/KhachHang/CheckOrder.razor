@@ -214,7 +214,7 @@
             {
                 Console.WriteLine(ex);
             }
-
+            StateHasChanged();
     }
     private async Task Detail(string id)
     {
@@ -222,6 +222,7 @@
     }
     private async Task Ivoice(string id)
     {
+        await sessionStorage.SetItemAsync<string>("maddh", id);
         NavigationManager.NavigateTo("/Cart/Ivoice/" + id);
     }
     private async Task CheckGiaoHang(string id, string id1)

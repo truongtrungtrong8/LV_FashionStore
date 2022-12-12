@@ -428,6 +428,10 @@ namespace Model.DataDB
                     .IsUnicode(false)
                     .HasColumnName("MA_KH");
 
+                entity.Property(e => e.ThanhToan)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Thoigian).HasColumnType("datetime");
 
                 entity.Property(e => e.TinhTrang).HasMaxLength(50);

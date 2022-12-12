@@ -18,7 +18,7 @@
     <div class="content-wrapper">
         <div class="page-header">
             <h3 class="page-title"> Quản lý đơn đặt hàng</h3>
-            @*<SearchForm OnSearchChanged="SearchChanged" />*@
+            <SearchFormDD OnSearchChanged="SearchChanged" />
             @*<button class="btn btn-block btn-lg btn-gradient-primary mdi mdi-playlist-plus" @onclick="() => Create(ModalSize.Custom,ModalPosition.Custom)">Thêm sản nhân viên !</button>*@
         </div>
         <div class="row">
@@ -36,6 +36,7 @@
                                     <th>Thời gian đặt hàng</th>
                                     <th>Tổng đơn đặt hàng</th>
                                     <th>Thông tin đơn hàng</th>
+                                    <th>Thanh toán</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,6 +70,7 @@
                                         <td> @item.Thoigian </td>
                                         <td>@dondathangService.FormatVND(item.TongDdh) VND</td>
                                         <td>@item.TinhTrang</td>
+                                        <td>@item.ThanhToan</td>
                                     </tr>
                                 }
                             </tbody>
@@ -144,6 +146,12 @@
         paging.PageNumber = page;
         await GetDDH();
     }
+    private async Task SearchChanged(string search)
+    {
+        paging.PageNumber = 1;
+        paging.SearchTerm = search;
+        await GetDDH();
+    }
     public async Task Delete(string id)
     {
         await dondathangService.Delete_DD(id);
@@ -160,6 +168,7 @@
         dondatDto.Diachi = check.Diachi;
         dondatDto.Thoigian = check.Thoigian;
         dondatDto.TinhTrang = "dang chuan bi hang";
+        dondatDto.ThanhToan = "chua thanh toan";
         await dondathangService.EditDDH(id, dondatDto);
         await GetDDH();
         if (IsConnected) await SendMessage();
@@ -174,6 +183,7 @@
         dondatDto.Diachi = check.Diachi;
         dondatDto.Thoigian = check.Thoigian;
         dondatDto.TinhTrang = "dang van chuyen";
+        dondatDto.ThanhToan = "chua thanh toan";
         await dondathangService.EditDDH(id, dondatDto);
         await GetDDH();
         if (IsConnected) await SendMessage();
@@ -188,6 +198,7 @@
         dondatDto.Diachi = check.Diachi;
         dondatDto.Thoigian = check.Thoigian;
         dondatDto.TinhTrang = "da giao hang";
+        dondatDto.ThanhToan = "da thanh toan";
         await dondathangService.EditDDH(id, dondatDto);
         await GetDDH();
         if (IsConnected) await SendMessage();

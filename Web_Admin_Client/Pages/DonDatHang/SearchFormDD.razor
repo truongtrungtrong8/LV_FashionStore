@@ -1,0 +1,10 @@
+﻿
+
+<input type="text" class="form-control" placeholder="Tìm kiếm đơn hàng" style="width: 400px;"
+           @bind-value="@SearchTerm" @bind-value:event="oninput" @onkeyup="async () => await OnSearchChanged.InvokeAsync(SearchTerm)" />
+
+@code {
+    public string SearchTerm { get; set; }
+    [Parameter]
+    public EventCallback<string> OnSearchChanged { get; set; }
+}
