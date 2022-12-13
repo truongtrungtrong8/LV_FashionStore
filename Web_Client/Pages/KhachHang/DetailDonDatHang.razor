@@ -57,11 +57,11 @@
                             <td class="align-middle">@item.DiaChi</td>
                             @if(dondat.TinhTrang == "dang van chuyen" || dondat.TinhTrang == "dang chuan bi hang" || dondat.TinhTrang == "chua hoan thanh" || item.DanhGia == 1)
                             {
-                                <td class="align-middle"><button disabled class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
+                                <td class="align-middle"><button disabled class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,item.Id,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
                             }
                             else
                             {
-                                <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
+                                <td class="align-middle"><button class="btn btn-sm btn-success" @onclick="(() => Review(item.MaSp,item.MaDdh,item.Id,ModalSize.Custom,ModalPosition.Custom))"><i class="fa fa-commenting-o"></i></button></td>
                             }
                             
                             @if(item.DanhGia == 0)
@@ -176,7 +176,7 @@
             tonkho.Sl = result.Sl + item.Sl;
             tonkho.Dg = result.Dg + sanpham.GiaSp * item.Sl;
             await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
-            await CtDonDatService.DeleteDDH(id, item.MaSp);
+            await CtDonDatService.DeleteDDH(id, item.MaSp,item.Id);
             await donDatService.Delete_DD(id);
         }
         NavigationManager.NavigateTo("/");
@@ -186,11 +186,12 @@
     {
         NavigationManager.NavigateTo("DetailDonDatHang/" + id);
     }
-    private async Task Review(string id, string id1, ModalSize size, ModalPosition position)
+    private async Task Review(string id, string id1, int id2, ModalSize size, ModalPosition position)
     {
         checkReview = true;
         await sessionStorage.SetItemAsync<string>("maDDH", id1);
         await sessionStorage.SetItemAsync<string>("maSP", id);
+        await sessionStorage.SetItemAsync<int>("ID", id2);
         var options = new ModalOptions { Size = size, Position = position, HideCloseButton = true };
         if (size == ModalSize.Custom)
             options.SizeCustomClass = "my-custom-size";

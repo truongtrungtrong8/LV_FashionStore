@@ -28,7 +28,7 @@
     </div>
 </div>
 <!-- Breadcrumb End -->
-<div class="container-fluid">
+@*<div class="container-fluid">
     <div class="row px-xl-5">
         <div class="col-lg-12 table-responsive mb-5">
             <table class="table table-light table-borderless table-hover text-center mb-0">
@@ -71,8 +71,8 @@
     </div>
 </div>
 <marquee style="position:absolute;top:24%" scrollamount="5">Bạn có thể hủy đơn hàng trong vòng 1 ngày kể từ ngày đặt hàng. Cảm ơn bạn !</marquee>
-
-@code {
+*@
+@*@code {
     string urlimage = "https://localhost:7268";
     bool orderPlaced = false;
     [Parameter]
@@ -412,13 +412,13 @@
 
 
     }
-    private async Task DeleteItemByDDH(string id, string id1)
+    private async Task DeleteItemByDDH(string id, string id1,string id2,string id3)
     {
         try
         {
             var result = await gioHangService.GetDetail(id1);
             var sanpham = await sanphamService.GetProduct(id);
-            var getCTGH = await cTGioHangService.GetID(id, id1);//loi
+            var getCTGH = await cTGioHangService.GetID(id, id1,id2,id3);//loi
             if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
             {
                 gioHangDto.MaGh = id1;
@@ -435,7 +435,7 @@
                 gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) * 0.02);
                 await gioHangService.Edit(id1, gioHangDto);
             }
-            await cTGioHangService.DeleteCart(id, id1);
+            await cTGioHangService.DeleteCart(id, id1,id2,id3);
             cartItems = await cTGioHangService.GetCartAllInUser(id1);
         }
         catch (Exception ex)
@@ -445,4 +445,4 @@
 
 
     }
-}
+}*@

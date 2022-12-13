@@ -21,5 +21,6 @@ namespace Model.Dto
         public int TongTien { get; set; }
         public string DiaChi { get; set; }
         public int DanhGia { get; set; }
+        public int Id { get; set; }
     }
 }

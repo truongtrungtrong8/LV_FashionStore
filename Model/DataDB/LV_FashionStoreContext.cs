@@ -123,7 +123,7 @@ namespace Model.DataDB
 
             modelBuilder.Entity<CtDdh>(entity =>
             {
-                entity.HasKey(e => new { e.MaDdh, e.MaSp });
+                entity.HasKey(e => new { e.MaDdh, e.MaSp, e.Id });
 
                 entity.ToTable("CT_DDH");
 
@@ -136,6 +136,10 @@ namespace Model.DataDB
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MA_SP");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ID");
 
                 entity.Property(e => e.Dg).HasColumnName("DG");
 
@@ -197,7 +201,7 @@ namespace Model.DataDB
 
             modelBuilder.Entity<CtGh>(entity =>
             {
-                entity.HasKey(e => new { e.MaSp, e.MaGh });
+                entity.HasKey(e => new { e.MaSp, e.MaGh, e.Mau, e.Size });
 
                 entity.ToTable("CT_GH");
 
@@ -366,7 +370,7 @@ namespace Model.DataDB
             modelBuilder.Entity<DoanhThuNam>(entity =>
             {
                 entity.HasKey(e => new { e.Thang, e.Nam, e.Id })
-                    .HasName("PK__DoanhThu__179BF0BA37873977");
+                    .HasName("PK__DoanhThu__179BF0BAC5D1CB32");
 
                 entity.ToTable("DoanhThuNam");
 
@@ -389,7 +393,7 @@ namespace Model.DataDB
             modelBuilder.Entity<DoanhThuQuy>(entity =>
             {
                 entity.HasKey(e => new { e.Id, e.Quy, e.Nam })
-                    .HasName("PK__DoanhThu__3D781EDA15690DD0");
+                    .HasName("PK__DoanhThu__3D781EDA6A5BD5EF");
 
                 entity.ToTable("DoanhThuQuy");
 
@@ -401,7 +405,7 @@ namespace Model.DataDB
             modelBuilder.Entity<DoanhThuThang>(entity =>
             {
                 entity.HasKey(e => e.Thang)
-                    .HasName("PK__DoanhThu__2DD4F54A25C93CDE");
+                    .HasName("PK__DoanhThu__2DD4F54AE49C76CA");
 
                 entity.ToTable("DoanhThuThang");
 

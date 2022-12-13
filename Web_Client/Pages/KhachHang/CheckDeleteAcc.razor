@@ -84,7 +84,7 @@
                 ctDonDatDtos = await ctDonDatService.GetList(item.MaDdh);
                 foreach(var item1 in ctDonDatDtos)
                 {
-                    await ctDonDatService.DeleteDDH(item1.MaDdh, item1.MaSp);
+                    await ctDonDatService.DeleteDDH(item1.MaDdh, item1.MaSp, item1.Id);
                 }
                 await donDatService.Delete_DD(item.MaDdh);
             }
@@ -92,7 +92,7 @@
             cTGioHangDtos = await cTGioHangService.GetCartAllInUser("GH" + makhachhang);
             foreach(var item in cTGioHangDtos)
             {
-                await cTGioHangService.DeleteCart(item.MaGh, item.MaSp);
+                await cTGioHangService.DeleteCart(item.MaGh, item.MaSp,item.Ten_Mau,item.Ten_Size);
             }
             await gioHangService.Delete("GH" + makhachhang);
             await khachHangService.Delete_Kh(makhachhang);
@@ -112,7 +112,7 @@
                 ctDonDatDtos = await ctDonDatService.GetList(item.MaDdh);
                 foreach (var item1 in ctDonDatDtos)
                 {
-                    await ctDonDatService.DeleteDDH(item1.MaDdh, item1.MaSp);
+                    await ctDonDatService.DeleteDDH(item1.MaDdh, item1.MaSp,item1.Id);
                 }
                 await donDatService.Delete_DD(item.MaDdh);
             }
@@ -120,7 +120,7 @@
             cTGioHangDtos = await cTGioHangService.GetCartAllInUser("GH" + ma_khCreate);
             foreach (var item in cTGioHangDtos)
             {
-                await cTGioHangService.DeleteCart(item.MaGh, item.MaSp);
+                await cTGioHangService.DeleteCart(item.MaSp, item.MaGh, item.Ten_Mau,item.Ten_Size);
             }
             await gioHangService.Delete("GH" + ma_khCreate);
             await khachHangService.Delete_Kh(ma_khCreate);

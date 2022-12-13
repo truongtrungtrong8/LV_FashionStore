@@ -12,6 +12,7 @@ namespace Model.DataDB
         public string? Mau { get; set; }
         public string? Size { get; set; }
         public int DanhGia { get; set; }
+        public int Id { get; set; }
 
         public virtual Dondathang MaDdhNavigation { get; set; } = null!;
         public virtual Sanpham MaSpNavigation { get; set; } = null!;

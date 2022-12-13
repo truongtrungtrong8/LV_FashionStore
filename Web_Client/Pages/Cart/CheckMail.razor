@@ -292,7 +292,7 @@
                 ///check khuyen mai
                 var result_km = await gioHangService.GetDetail(id);
                 var sanpham = await sanphamService.GetProduct(item.MaSp);
-                var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+                var getCTGH = await cTGioHangService.GetID(item.MaSp, id, item.Ten_Mau, item.Ten_Size);//loi
                 khachhang = await khachHangService.GetKhachHang(ma_khLogin);
                 dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
                 dondatDto.TongDdh = result_km.Tongtien;
@@ -314,7 +314,7 @@
                 else
                     ctDonDatDto.Dg = Convert.ToInt32((getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile))) + (getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * 0.02));
                 await CtDonDatService.CreateCtdonDat(ctDonDatDto);
-                await DeleteItemByDDH(item.MaSp, id);
+                await DeleteItemByDDH(item.MaSp, id, item.Ten_Mau, item.Ten_Size);
                 ///Tonkho
                 try
                 {
@@ -351,7 +351,7 @@
                 ///check khuyen mai
                 var result_km = await gioHangService.GetDetail(id);
                 var sanpham = await sanphamService.GetProduct(item.MaSp);
-                var getCTGH = await cTGioHangService.GetID(item.MaSp, id);//loi
+                var getCTGH = await cTGioHangService.GetID(item.MaSp, id, item.Ten_Mau, item.Ten_Size);//loi
                 khachhang = await khachHangService.GetKhachHang(ma_khCreate);
                 dondatDto.MaDdh = ("DDH" + MaDonDat).ToString();
                 dondatDto.TongDdh = result_km.Tongtien;
@@ -373,7 +373,7 @@
                 else
                     ctDonDatDto.Dg = Convert.ToInt32(getCTGH.Sl * (sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)));
                 await CtDonDatService.CreateCtdonDat(ctDonDatDto);
-                await DeleteItemByDDH(item.MaSp, id);
+                await DeleteItemByDDH(item.MaSp, id, item.Ten_Mau, item.Ten_Size);
                 ///Tonkho
                 try
                 {
@@ -406,13 +406,13 @@
 
 
     }
-    private async Task DeleteItemByDDH(string id, string id1)
+    private async Task DeleteItemByDDH(string id, string id1, string id2, string id3)
     {
         try
         {
             var result = await gioHangService.GetDetail(id1);
             var sanpham = await sanphamService.GetProduct(id);
-            var getCTGH = await cTGioHangService.GetID(id, id1);//loi
+            var getCTGH = await cTGioHangService.GetID(id, id1, id2, id3);//loi
             if (sanpham.Thoigian.Date == DateTime.Now.Date || sanpham.Thoigian.Date < DateTime.Now.Date)
             {
                 gioHangDto.MaGh = id1;
@@ -429,7 +429,7 @@
                 gioHangDto.Tongtien = Convert.ToInt32(result.Tongtien - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) - ((sanpham.GiaSp - (sanpham.GiaSp * sanpham.Tile)) * getCTGH.Sl) * 0.02);
                 await gioHangService.Edit(id1, gioHangDto);
             }
-            await cTGioHangService.DeleteCart(id, id1);
+            await cTGioHangService.DeleteCart(id, id1, id2, id3);
             cartItems = await cTGioHangService.GetCartAllInUser(id1);
         }
         catch (Exception ex)

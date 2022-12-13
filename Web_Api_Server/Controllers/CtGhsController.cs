@@ -82,11 +82,11 @@ namespace Web_Api_Server.Controllers
             return await cartuser.SingleOrDefaultAsync();
         }
         [HttpGet("GetCTGiohang")]
-        public async Task<ActionResult<CtGioHangDto>> GetCtGiohang(string id, string id1)
+        public async Task<ActionResult<CtGioHangDto>> GetCtGiohang(string id, string id1, string id2, string id3)
         {
 
             var giohang = (from g in _context.CtGhs
-                           where g.MaSp == id && g.MaGh == id1
+                           where g.MaSp == id && g.MaGh == id1 && g.Mau == id2 && g.Size == id3
                            select new CtGioHangDto()
                            {
                                MaGh = g.MaGh,
@@ -116,14 +116,14 @@ namespace Web_Api_Server.Controllers
         // PUT: api/CtGhs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCtGh(string id,string id1, [FromBody] CTGioHangDto ctGh)
+        public async Task<IActionResult> PutCtGh(string id,string id1, string id2, string id3 ,[FromBody] CTGioHangDto ctGh)
         {
 
-            if (id != ctGh.MaSp && id1 != ctGh.MaGh )
+            if (id != ctGh.MaSp && id1 != ctGh.MaGh  && id2 != ctGh.Mau && id3 != ctGh.Size)
             {
                 return BadRequest();
             }
-            var temp = await _context.CtGhs.FindAsync(id, id1);
+            var temp = await _context.CtGhs.FindAsync(id, id1, id2, id3);
             if (temp == null)
                 return NotFound(id);
             temp.MaGh = ctGh.MaGh;
@@ -161,9 +161,9 @@ namespace Web_Api_Server.Controllers
 
         // DELETE: api/CtGhs/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCtGh(string id,string id1)
+        public async Task<IActionResult> DeleteCtGh(string id,string id1, string id2, string id3)
         {
-            var ctGh = await _context.CtGhs.FindAsync(id,id1);
+            var ctGh = await _context.CtGhs.FindAsync(id,id1, id2, id3);
             if (ctGh == null)
             {
                 return NotFound();

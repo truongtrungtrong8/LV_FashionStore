@@ -43,8 +43,8 @@ namespace Web_Api_Server.Controllers
                             Hinhanh = h.HaBia,
                             TongTien = d.TongDdh,
                             DiaChi = d.Diachi,
-                            DanhGia = c.DanhGia
-                            
+                            DanhGia = c.DanhGia,
+                            Id = c.Id
                         }).ToListAsync();
             return await list;
         }
@@ -70,7 +70,8 @@ namespace Web_Api_Server.Controllers
                             Hinhanh = h.HaBia,
                             TongTien = d.TongDdh,
                             DiaChi = d.Diachi,
-                            DanhGia = c.DanhGia
+                            DanhGia = c.DanhGia,
+                            Id = c.Id
                         }).ToListAsync();
             return await list;
         }
@@ -98,10 +99,10 @@ namespace Web_Api_Server.Controllers
 
         // GET: api/CtDdhs/5
         [HttpGet("getByDanhGia")]
-        public async Task<ActionResult<CtDonDatDto>> GetByDanhGia(string id,string id1)
+        public async Task<ActionResult<CtDonDatDto>> GetByDanhGia(string id,string id1, int id2)
         {
             var dondat = (from d in _context.CtDdhs
-                          where d.MaDdh == id && d.MaSp == id1
+                          where d.MaDdh == id && d.MaSp == id1 && d.Id == id2
                           select new CtDonDatDto()
                           {
                               MaDdh = d.MaDdh,
@@ -110,7 +111,8 @@ namespace Web_Api_Server.Controllers
                               Dg = d.Dg,
                               Mau = d.Mau,
                               Size = d.Size,
-                              DanhGia = d.DanhGia
+                              DanhGia = d.DanhGia,
+                              Id = d.Id
                           }).SingleOrDefaultAsync();
             return await dondat;
         }
@@ -119,13 +121,14 @@ namespace Web_Api_Server.Controllers
         // PUT: api/CtDdhs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCtDdh(string id,string id1, CtDonDatDto ctDdh)
+        public async Task<IActionResult> PutCtDdh(string id,string id1,int id2, CtDonDatDto ctDdh)
         {
-            if (id != ctDdh.MaDdh && id1 != ctDdh.MaSp)
+            if (id != ctDdh.MaDdh && id1 != ctDdh.MaSp && id2 != ctDdh.Id)
                 return BadRequest();
-            var temp = await _context.CtDdhs.FindAsync(id,id1);
+            var temp = await _context.CtDdhs.FindAsync(id,id1,id2);
             if (temp == null)
                 return NotFound(id);
+
             temp.MaDdh = ctDdh.MaDdh;
             temp.MaSp = ctDdh.MaSp;
             temp.Sl = ctDdh.Sl;
@@ -133,6 +136,7 @@ namespace Web_Api_Server.Controllers
             temp.Mau = ctDdh.Mau;
             temp.Size = ctDdh.Size;
             temp.DanhGia = ctDdh.DanhGia;
+            temp.Id = ctDdh.Id;
             _context.CtDdhs.Update(temp);
             await _context.SaveChangesAsync();
             return Ok();
@@ -165,9 +169,9 @@ namespace Web_Api_Server.Controllers
 
         // DELETE: api/CtDdhs/5
         [HttpDelete("id")]
-        public async Task<IActionResult> DeleteCtDdh(string id, string id1)
+        public async Task<IActionResult> DeleteCtDdh(string id, string id1, int id2)
         {
-            var ctDdh = await _context.CtDdhs.FindAsync(id,id1);
+            var ctDdh = await _context.CtDdhs.FindAsync(id,id1,id2);
             if (ctDdh == null)
             {
                 return NotFound();

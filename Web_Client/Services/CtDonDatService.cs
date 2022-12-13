@@ -21,23 +21,23 @@ namespace Web_Client.Services
         {
             return await Http.GetFromJsonAsync<CtDdh>(urldefault + "/" + id);
         }
-        public async Task<CtDonDatDto> GetByDanhGia(string id, string id1)
+        public async Task<CtDonDatDto> GetByDanhGia(string id, string id1, int id2)
         {
-            return await Http.GetFromJsonAsync<CtDonDatDto>(urldefault + "/getByDanhGia?id=" + id + "&id1=" + id1);
+            return await Http.GetFromJsonAsync<CtDonDatDto>(urldefault + "/getByDanhGia?id=" + id + "&id1=" + id1 + "&id2=" + id2);
         }
         public async Task<List<CtddhDtoList>> GetListByKh(string id)
         {
             return await Http.GetFromJsonAsync<List<CtddhDtoList>>(urldefault + "/getListByKh?id=" + id);
         }
         //https://localhost:7118/api/CtDdhs/id?id=DDH3&id1=SP06
-        public async Task<bool> DeleteDDH(string id,string id1)
+        public async Task<bool> DeleteDDH(string id,string id1, int id2)
         {
-            var result = await Http.DeleteAsync(urldefault + "/id?id=" + id + "&id1=" + id1);
+            var result = await Http.DeleteAsync(urldefault + "/id?id=" + id + "&id1=" + id1 + "&id2=" + id2);
             return result.IsSuccessStatusCode;
         }
-        public async Task<bool> EditCtDDH(string id, string id1, CtDonDatDto request)
+        public async Task<bool> EditCtDDH(string id, string id1, int id2, CtDonDatDto request)
         {
-            var result = await Http.PutAsJsonAsync(urldefault + "/" + id + "?id1=" + id1, request);
+            var result = await Http.PutAsJsonAsync(urldefault + "/" + id + "?id1=" + id1 + "&id2=" + id2, request);
             return result.IsSuccessStatusCode;
         }
     }

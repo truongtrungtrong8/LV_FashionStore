@@ -56,6 +56,7 @@
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
     private string maDDH { get; set; }
     private string maSP { get; set; }
+    int IDDDH;
     private InputTextArea noidung { get; set; }
     private List<int> number = new List<int>(){1,2,3,4,5};
     private InputSelect<int> binhchon { get; set; }
@@ -69,6 +70,7 @@
         {
             maDDH = await sessionStorage.GetItemAsync<string>("maDDH");
             maSP = await sessionStorage.GetItemAsync<string>("maSP");
+            IDDDH = await sessionStorage.GetItemAsync<int>("ID");
             listCtDdh = await CtDonDatService.GetListByKh(makhachhang);
             listDonDat = await donDatService.GetListByKH(makhachhang);
         }
@@ -76,6 +78,7 @@
         {
             maDDH = await sessionStorage.GetItemAsync<string>("maDDH");
             maSP = await sessionStorage.GetItemAsync<string>("maSP");
+            IDDDH = await sessionStorage.GetItemAsync<int>("ID");
             name_khCreate = await sessionStorage.GetItemAsync<string>("ten_kh1");
             var ma_khCreate = await sessionStorage.GetItemAsync<string>("ma_khachhangCreate");
             listCtDdh = await CtDonDatService.GetListByKh(ma_khCreate);
@@ -84,15 +87,16 @@
     }
     private async Task AddReview()
     {
-        var editDDH = await CtDonDatService.GetByDanhGia(maDDH, maSP);
+        var editDDH = await CtDonDatService.GetByDanhGia(maDDH, maSP, IDDDH);
         ctDonDatDto.MaDdh = editDDH.MaDdh;
         ctDonDatDto.MaSp = editDDH.MaSp;
         ctDonDatDto.Sl = editDDH.Sl;
         ctDonDatDto.Dg = editDDH.Dg;
-        ctDonDatDto.Mau = editDDH.Mau;
+        ctDonDatDto.Mau = editDDH.Mau; 
         ctDonDatDto.Size = editDDH.Size;
         ctDonDatDto.DanhGia = 1;
-        await CtDonDatService.EditCtDDH(maDDH, maSP, ctDonDatDto);
+        ctDonDatDto.Id = editDDH.Id;
+        await CtDonDatService.EditCtDDH(maDDH, maSP, IDDDH, ctDonDatDto);
 
         //Danh gia
         if (name_khLogin != null)

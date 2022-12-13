@@ -16,5 +16,6 @@ namespace Model.Dto
         public string Mau { get; set; }
         public string Size { get; set; }
         public int DanhGia { get; set; }
+        public int Id { get; set; }
     }
 }

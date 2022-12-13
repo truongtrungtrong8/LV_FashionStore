@@ -203,11 +203,11 @@
                     tonkho.Sl = result.Sl + item.Sl;
                     tonkho.Dg = result.Dg + sanpham.GiaSp * item.Sl;
                     await tonkhoService.EditTonkho(item.MaSp, result.MaCh, tonkho);
-                    await CtDonDatService.DeleteDDH(id, item.MaSp);
+                    await CtDonDatService.DeleteDDH(id, item.MaSp,item.Id);
                     await donDatService.Delete_DD(id);
                 }
                 NavigationManager.NavigateTo("/");
-                NavigationManager.NavigateTo("/KhachHang/CheckOrder");
+                NavigationManager.NavigateTo("/KhachHang/ProfileUser");
                 toastService.ShowSuccess("Hủy đơn hàng thành công !", "Thành công");
             }
             catch(Exception ex)

@@ -33,21 +33,22 @@ namespace Web_Client.Services
         //{
         //    return await Http.GetFromJsonAsync<CTGioHangDto>(baseUrl + "/GetCTGiohangSanpham?id=" + id);
         //}
-        public async Task<bool> Edit(string id,string id1, CTGioHangDto request)
+        //https://localhost:7118/api/CtGhs/SP02?id1=GH0866822188&id2=%C4%90en&id3=S
+        public async Task<bool> Edit(string id,string id1, string id2, string id3, CTGioHangDto request)
         {
-            var result = await Http.PutAsJsonAsync(baseUrl + "/" + id + "?id1=" + id1, request);
+            var result = await Http.PutAsJsonAsync(baseUrl + "/" + id + "?id1=" + id1 + "&id2=" + id2 + "&id3=" + id3, request);
             return result.IsSuccessStatusCode;
         }
         ///https://localhost:7118/api/CtGhs/GetCTGiohang?id=Sp03&id1=GH0866822122
-        public async Task<CTGioHangDto> GetID(string id, string id1)
+        public async Task<CTGioHangDto> GetID(string id, string id1, string id2, string id3)
         {
-            return await Http.GetFromJsonAsync<CTGioHangDto>(baseUrl + "/GetCTGiohang?id=" + id + "&id1=" + id1);
+            return await Http.GetFromJsonAsync<CTGioHangDto>(baseUrl + "/GetCTGiohang?id=" + id + "&id1=" + id1 + "&id2=" + id2 + "&id3=" + id3);
 
         }
-        //https://localhost:7118/api/CtGhs/SP01?id1=GH0866822122
-        public async Task<bool> DeleteCart(string id,string id1)
+        //https://localhost:7118/api/CtGhs/SP02?id1=GH0866822188&id2=%C4%90en&id3=S
+        public async Task<bool> DeleteCart(string id,string id1, string id2, string id3)
         {
-            var result = await Http.DeleteAsync(baseUrl + "/" + id + "?id1=" + id1);
+            var result = await Http.DeleteAsync(baseUrl + "/" + id + "?id1=" + id1 + "&id2=" + id2 + "&id3=" + id3);
             return result.IsSuccessStatusCode;
         }
     }
